@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  nestjs_api_prod:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    ports:
+      - '3001:3001'
+    environment:
+      - PORT=${PORT}
+      - NODE_ENV=production
+      - DATABASE_USERNAME=${DATABASE_USERNAME}
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - DATABASE_NAME=${DATABASE_NAME}
+      - ACCESS_TOKEN=${ACCESS_TOKEN}
+      - REFRESH_TOKEN=${REFRESH_TOKEN}
+      - ROLE_TOKEN=${ROLE_TOKEN}
+    volumes:
+      - ./src:/usr/src/app/src
+
+# version: '3.8'
+
+# services:
+#   nestjs_api_prod:
+#     build:
+#       context: .
+#       dockerfile: Dockerfile.prod
+#     ports:
+#       - '3001:3001'
+#     environment:
+#       - PORT=3001 # Replace with a specific port if required
+#       - NODE_ENV=production
+#       - DATABASE_USERNAME=${DATABASE_USERNAME}
+#       - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+#       - DATABASE_NAME=${DATABASE_NAME}
+#       - ACCESS_TOKEN=${ACCESS_TOKEN}
+#       - REFRESH_TOKEN=${REFRESH_TOKEN}
+#       - ROLE_TOKEN=${ROLE_TOKEN}
+#     command: >
+#       sh -c "npx typeorm migration:run -d dist/data-source.js && 
+#       node --max-old-space-size=4096 dist/main" # Adjust the heap size here
+#     deploy:
+#       resources:
+#         limits:
+#           memory: 8G # Set memory limit
+#           cpus: '3.0'  # Set CPU limit
