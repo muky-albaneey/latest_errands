@@ -7,6 +7,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import { User } from './auth/entities/auth.entity';
 import { Card } from './auth/entities/card.entity';
+import { SmsModule } from './sms/sms.module';
 
 
 @Module({
@@ -30,8 +31,8 @@ import { Card } from './auth/entities/card.entity';
         // migrations: ['src/migrations/*.ts'],
       }),
     }),
-    AuthModule
-   
+    AuthModule,
+    SmsModule
   ],
   controllers: [AppController],
   providers: [AppService],
