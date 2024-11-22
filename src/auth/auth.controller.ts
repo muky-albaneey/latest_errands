@@ -125,14 +125,14 @@ async logout(@Res({ passthrough: true }) response: Response): Promise<any> {
     httpOnly: true,
     secure: true, // Set this based on environment
     sameSite: 'strict',
-    maxAge: 0,
+    maxAge: 0
   });
 
   console.log('After clearing cookies:', response.getHeaders()['set-cookie']);
 
   return response.status(HttpStatus.OK).json({
     statusCode: HttpStatus.OK,
-    message: 'Logout successful',
+    message: 'Logout successful'
   });
 }
 
