@@ -54,41 +54,70 @@
 
 # Use an official Node.js image as the base image
 # Stage 1: Build
-FROM node:20.15.0 as builder
+# FROM node:20.15.0 as builder
 
-# Limit memory usage
-ENV NODE_OPTIONS="--max-old-space-size=96"
+# # Limit memory usage
+# ENV NODE_OPTIONS="--max-old-space-size=96"
 
-# Set working directory
-WORKDIR /usr/src/app
+# # Set working directory
+# WORKDIR /usr/src/app
 
-# Copy package manifests and install dependencies
-COPY package*.json ./
-RUN npm install
+# # Copy package manifests and install dependencies
+# COPY package*.json ./
+# RUN npm install
 
-# Copy source code and build
-COPY . .
-RUN npm run build
+# # Copy source code and build
+# COPY . .
+# RUN npm run build
 
-# Stage 2: Production
+# # Stage 2: Production
+# FROM node:20.15.0
+
+# # Limit memory usage
+# ENV NODE_OPTIONS="--max-old-space-size=96"
+
+# # Set working directory
+# WORKDIR /usr/src/app
+
+# # Copy package manifests and install only production dependencies
+# COPY package*.json ./
+# RUN npm install --omit=dev
+
+# # Copy built files from the builder stage
+# COPY --from=builder /usr/src/app/dist ./dist
+
+# # Expose the application port
+# EXPOSE 3000
+
+# # Run the application
+# CMD ["npm", "run", "start:prod"]
+
+# Use the specified Node.js version as the base image
 FROM node:20.15.0
 
-# Limit memory usage
-ENV NODE_OPTIONS="--max-old-space-size=96"
-
-# Set working directory
+# Create and change to the app directory
 WORKDIR /usr/src/app
 
-# Copy package manifests and install only production dependencies
+# Copy application dependency manifests to the container image
 COPY package*.json ./
-RUN npm install --omit=dev
 
-# Copy built files from the builder stage
-COPY --from=builder /usr/src/app/dist ./dist
+# Install all dependencies
+RUN npm install
 
-# Expose the application port
-EXPOSE 3000
+# Copy local code to the container image
+COPY . .
 
-# Run the application
+# Build the application
+RUN npm run build
+
+# Prune dev dependencies
+RUN npm prune --production
+
+# Remove source files if needed
+RUN rm -rf ./src
+
+# Document that the service listens on port 3001
+EXPOSE 3001
+
+# Run the web service on container startup
 CMD ["npm", "run", "start:prod"]
-
