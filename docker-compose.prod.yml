@@ -16,8 +16,7 @@ services:
       - ACCESS_TOKEN=${ACCESS_TOKEN}
       - REFRESH_TOKEN=${REFRESH_TOKEN}
       - ROLE_TOKEN=${ROLE_TOKEN}
-    volumes:
-      - ./src:/usr/src/app/src
+    volumes: []
 
 # version: '3.8'
 
