@@ -128,6 +128,13 @@ export class AuthController {
     });
   }
 
+ 
+  @Get('health')
+  healthCheck(): string {
+    return 'OK';
+  }
+
+
   @Get(':id')
   async findOne(@Param('id') id: string, @Res() response: Response) {
     const user = await this.authService.findOne(id);
