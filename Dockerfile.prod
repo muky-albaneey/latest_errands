@@ -53,12 +53,14 @@
 # CMD ["npm", "run", "start:dev"]
 
 # Use an official Node.js image as the base image
-FROM node:20.15.0
+# Use a multi-stage build
+# Stage 1: Build
+FROM node:20.15.0 as builder
 
-# Set environment variable to increase Node.js memory limit
-ENV NODE_OPTIONS="--max-old-space-size=4096"
+# Set environment variable to limit memory usage
+ENV NODE_OPTIONS="--max-old-space-size=256"
 
-# Create and change to the app directory
+# Set working directory
 WORKDIR /usr/src/app
 
 # Copy application dependency manifests to the container image
@@ -67,14 +69,33 @@ COPY package*.json ./
 # Install dependencies
 RUN npm install
 
-# Install Nest CLI globally (optional, if you need it for development)
-RUN npm install -g @nestjs/cli
-
 # Copy local code to the container image
 COPY . .
+
+# Build the application
+RUN npm run build
+
+# Stage 2: Production
+FROM node:20.15.0
+
+# Set environment variable to limit memory usage
+ENV NODE_OPTIONS="--max-old-space-size=256"
+
+# Set working directory
+WORKDIR /usr/src/app
+
+# Copy application dependency manifests to the container image
+COPY package*.json ./
+
+# Install only production dependencies
+RUN npm install --production
+
+# Copy the build output from the first stage
+COPY --from=builder /usr/src/app/dist ./dist
 
 # Expose the port your application runs on
 EXPOSE 3000
 
-# Run the web service on container startup
-CMD ["npm", "run", "start:dev"]
+# Run the application in production mode
+CMD ["npm", "run", "start:prod"]
+

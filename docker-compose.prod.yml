@@ -1,27 +1,27 @@
-version: '3.8'
+# version: '3.8'
 
-services:
-  nestjs_api_prod:
-    build:
-      context: .
-      dockerfile: Dockerfile.prod
-    ports:
-      - '3001:3001'
-    environment:
-      - PORT=${PORT}
-      - NODE_ENV=production
-      - DATABASE_USERNAME=${DATABASE_USERNAME}
-      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
-      - DATABASE_NAME=${DATABASE_NAME}
-      - ACCESS_TOKEN=${ACCESS_TOKEN}
-      - REFRESH_TOKEN=${REFRESH_TOKEN}
-      - ROLE_TOKEN=${ROLE_TOKEN}
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    volumes: []
+# services:
+#   nestjs_api_prod:
+#     build:
+#       context: .
+#       dockerfile: Dockerfile.prod
+#     ports:
+#       - '3001:3001'
+#     environment:
+#       - PORT=${PORT}
+#       - NODE_ENV=production
+#       - DATABASE_USERNAME=${DATABASE_USERNAME}
+#       - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+#       - DATABASE_NAME=${DATABASE_NAME}
+#       - ACCESS_TOKEN=${ACCESS_TOKEN}
+#       - REFRESH_TOKEN=${REFRESH_TOKEN}
+#       - ROLE_TOKEN=${ROLE_TOKEN}
+#     healthcheck:
+#       test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+#       interval: 30s
+#       timeout: 10s
+#       retries: 3
+#     volumes: []
 
 # version: '3.8'
 
@@ -49,3 +49,26 @@ services:
 #         limits:
 #           memory: 8G # Set memory limit
 #           cpus: '3.0'  # Set CPU limit
+
+services:
+  nestjs_api_prod:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '3000:3000'
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - DATABASE_USERNAME=${DATABASE_USERNAME}
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - DATABASE_NAME=${DATABASE_NAME}
+      - ACCESS_TOKEN=${ACCESS_TOKEN}
+      - REFRESH_TOKEN=${REFRESH_TOKEN}
+      - ROLE_TOKEN=${ROLE_TOKEN}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    volumes: []

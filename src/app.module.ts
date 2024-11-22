@@ -28,6 +28,9 @@ import { SmsModule } from './sms/sms.module';
         database: configService.get<string>('DATABASE_NAME'),
         entities: [User, Card],
         synchronize: true,
+        extra: {
+          max: 2 // Limit to 2 connections
+        }
         // migrations: ['src/migrations/*.ts'],
       }),
     }),
