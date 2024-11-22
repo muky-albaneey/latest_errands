@@ -54,7 +54,7 @@ services:
   nestjs_api_prod:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.prod
     ports:
       - '3000:3000'
     environment:
