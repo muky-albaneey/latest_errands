@@ -102,21 +102,40 @@ export class AuthController {
       throw new HttpException(error.message, HttpStatus.UNAUTHORIZED);
     }
   }
-  @Post('logout')
-  async logout(@Res({ passthrough: true }) response: Response): Promise<any> {
-    // Clear the refresh token cookie
-    response.cookie('refreshToken', '', {
-      httpOnly: true,
-      secure: true, // Set to true in production (requires HTTPS)
-      sameSite: 'strict',
-      maxAge: 0, // Expire immediately
-    });
+  // @Post('logout')
+  // async logout(@Res({ passthrough: true }) response: Response): Promise<any> {
+  //   // Clear the refresh token cookie
+  //   response.cookie('refreshToken', '', {
+  //     httpOnly: true,
+  //     secure: true, // Set to true in production (requires HTTPS)
+  //     sameSite: 'strict',
+  //     maxAge: 0, // Expire immediately
+  //   });
   
-    return response.status(HttpStatus.OK).json({
-      statusCode: HttpStatus.OK,
-      message: 'Logout successful',
-    });
-  }
+  //   return response.status(HttpStatus.OK).json({
+  //     statusCode: HttpStatus.OK,
+  //     message: 'Logout successful',
+  //   });
+  // }
+@Post('logout')
+async logout(@Res({ passthrough: true }) response: Response): Promise<any> {
+  console.log('Before clearing cookies:', response.getHeaders()['set-cookie']);
+
+  response.cookie('refreshToken', '', {
+    httpOnly: true,
+    secure: true, // Set this based on environment
+    sameSite: 'strict',
+    maxAge: 0,
+  });
+
+  console.log('After clearing cookies:', response.getHeaders()['set-cookie']);
+
+  return response.status(HttpStatus.OK).json({
+    statusCode: HttpStatus.OK,
+    message: 'Logout successful',
+  });
+}
+
   
   @Get()
   async findAll(@Res() response: Response) {
