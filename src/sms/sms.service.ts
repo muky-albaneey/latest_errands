@@ -6,10 +6,10 @@ import * as phoneUtil from 'libphonenumber-js'; // Install this: npm install lib
 @Injectable()
 export class SmsService {
   private readonly client;
-  private readonly serviceSid = process.env.TWILIO_ACCOUNT_SID; // Twilio Verify service SID
+  private readonly serviceSid = process.env.TWILIO_SID; // Twilio Verify service SID
 
   constructor() {
-    this.client = Twilio(process.env.TWILIO_SID, process.env.TWILIO_AUTH); // Replace with your Twilio SID and token
+    this.client = Twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH); // Replace with your Twilio SID and token
   }
 
   private formatPhoneNumber(phoneNumber: string): string {
