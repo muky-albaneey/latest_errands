@@ -53,49 +53,42 @@
 # CMD ["npm", "run", "start:dev"]
 
 # Use an official Node.js image as the base image
-# Use a multi-stage build
 # Stage 1: Build
 FROM node:20.15.0 as builder
 
-# Set environment variable to limit memory usage
-ENV NODE_OPTIONS="--max-old-space-size=128"
+# Limit memory usage
+ENV NODE_OPTIONS="--max-old-space-size=96"
 
 # Set working directory
 WORKDIR /usr/src/app
 
-# Copy application dependency manifests to the container image
+# Copy package manifests and install dependencies
 COPY package*.json ./
-
-# Install dependencies
 RUN npm install
 
-# Copy local code to the container image
+# Copy source code and build
 COPY . .
-
-# Build the application
 RUN npm run build
 
 # Stage 2: Production
 FROM node:20.15.0
 
-# Set environment variable to limit memory usage
-ENV NODE_OPTIONS="--max-old-space-size=128"
+# Limit memory usage
+ENV NODE_OPTIONS="--max-old-space-size=96"
 
 # Set working directory
 WORKDIR /usr/src/app
 
-# Copy application dependency manifests to the container image
+# Copy package manifests and install only production dependencies
 COPY package*.json ./
+RUN npm install --omit=dev
 
-# Install only production dependencies
-RUN npm install --production
-
-# Copy the build output from the first stage
+# Copy built files from the builder stage
 COPY --from=builder /usr/src/app/dist ./dist
 
-# Expose the port your application runs on
+# Expose the application port
 EXPOSE 3000
 
-# Run the application in production mode
+# Run the application
 CMD ["npm", "run", "start:prod"]
 
