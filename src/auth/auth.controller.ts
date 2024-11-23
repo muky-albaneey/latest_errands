@@ -202,15 +202,6 @@ async logout(@Res({ passthrough: true }) response: Response): Promise<any> {
     });
   }
 
-// @Get('count')
-// async countUsers(@Res() response: Response): Promise<any> {
-//   const count = await this.authService.countUsers();
-//   return response.status(HttpStatus.OK).json({
-//     statusCode: HttpStatus.OK,
-//     message: 'Total number of users retrieved successfully.',
-//     data: { count },
-//   });
-// }
 
 
 }
