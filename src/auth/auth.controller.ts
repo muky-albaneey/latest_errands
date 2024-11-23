@@ -10,6 +10,7 @@ import {
   Res,
   HttpStatus,
   HttpException,
+  Query,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 // import { CreateAuthDto, LoginAuthDto } from './dto/create-auth.dto';
@@ -102,21 +103,7 @@ export class AuthController {
       throw new HttpException(error.message, HttpStatus.UNAUTHORIZED);
     }
   }
-  // @Post('logout')
-  // async logout(@Res({ passthrough: true }) response: Response): Promise<any> {
-  //   // Clear the refresh token cookie
-  //   response.cookie('refreshToken', '', {
-  //     httpOnly: true,
-  //     secure: true, // Set to true in production (requires HTTPS)
-  //     sameSite: 'strict',
-  //     maxAge: 0, // Expire immediately
-  //   });
-  
-  //   return response.status(HttpStatus.OK).json({
-  //     statusCode: HttpStatus.OK,
-  //     message: 'Logout successful',
-  //   });
-  // }
+ 
 @Post('logout')
 async logout(@Res({ passthrough: true }) response: Response): Promise<any> {
   console.log('Before clearing cookies:', response.getHeaders()['set-cookie']);
@@ -146,7 +133,35 @@ async logout(@Res({ passthrough: true }) response: Response): Promise<any> {
       data: users,
     });
   }
-
+  @Get('count')
+  async countUsers(@Res() response: Response): Promise<any> {
+    const count = await this.authService.countUsers();
+    return response.status(HttpStatus.OK).json({
+      statusCode: HttpStatus.OK,
+      message: 'Total number of users retrieved successfully.',
+      data: { count },
+    });
+  }
+  
+  @Get('all')
+  async findAllUsers(
+    @Query('page') page: number,
+    @Query('limit') limit: number,
+    @Query('search') search: string,
+    @Res() response: Response,
+  ) {
+    const result = await this.authService.findAllUsers({ page, limit, search });
+    return response.status(HttpStatus.OK).json({
+      statusCode: HttpStatus.OK,
+      message: 'Users retrieved successfully.',
+      data: result.data,
+      pagination: {
+        total: result.total,
+        page,
+        limit,
+      },
+    });
+  }
  
   @Get('health')
   healthCheck(): string {
@@ -186,4 +201,16 @@ async logout(@Res({ passthrough: true }) response: Response): Promise<any> {
       message: 'User removed successfully.',
     });
   }
+
+// @Get('count')
+// async countUsers(@Res() response: Response): Promise<any> {
+//   const count = await this.authService.countUsers();
+//   return response.status(HttpStatus.OK).json({
+//     statusCode: HttpStatus.OK,
+//     message: 'Total number of users retrieved successfully.',
+//     data: { count },
+//   });
+// }
+
+
 }

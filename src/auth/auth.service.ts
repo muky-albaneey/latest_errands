@@ -3,7 +3,7 @@
 /* eslint-disable prettier/prettier */
 import { Injectable, ConflictException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindManyOptions, Like, Repository} from 'typeorm';
 import * as bcrypt from 'bcrypt';
 // import { CreateAuthDto, LoginAuthDto } from './dto/create-auth.dto';
 // import { UpdateAuthDto } from './dto/update-auth.dto';
@@ -19,7 +19,7 @@ export class AuthService {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private readonly jwtService: JwtService,
-    private readonly configService: ConfigService,
+    private readonly configService: ConfigService
   ) {}
 
   async createUser(createUserDto: CreateAuthDto): Promise<User> {
@@ -27,7 +27,7 @@ export class AuthService {
 
     // Check if email or phone number already exists
     const existingUser = await this.userRepository.findOne({
-      where: [{ email }, { phoneNumber }],
+      where: [{ email }, { phoneNumber }]
     });
     if (existingUser) {
       throw new ConflictException(
@@ -45,7 +45,7 @@ export class AuthService {
       password: hashedPassword,
       fname,
       lname,
-      role,
+      role
     });
     return this.userRepository.save(user);
   }
@@ -77,7 +77,7 @@ export class AuthService {
 
     const refreshToken = await this.jwtService.signAsync(payload, {
       expiresIn: '7d',
-      secret: this.configService.get<string>('REFRESH_TOKEN'),
+      secret: this.configService.get<string>('REFRESH_TOKEN')
     });
 
     // Return access token and user details (excluding password)
@@ -114,5 +114,39 @@ export class AuthService {
     await this.userRepository.remove(user);
   }
 
+  async countUsers(): Promise<number> {
+    try {
+      return await this.userRepository.count();
+    } catch (error) {
+      console.error('Error counting users:', error);
+      throw error;
+    }
+  }
   
+  
+  async findAllUsers(query: {
+    page?: number;
+    limit?: number;
+    search?: string;
+  }): Promise<{ data: User[]; total: number }> {
+    const { page = 1, limit = 10, search = '' } = query;
+  
+    // Build options for filtering and pagination
+    const options: FindManyOptions<User> = {
+      where: search
+        ? [
+            { email: Like(`%${search}%`) },
+            { fname: Like(`%${search}%`) },
+            { lname: Like(`%${search}%`) }
+          ]
+        : undefined,
+      skip: (page - 1) * limit, // Pagination offset
+      take: limit // Limit the number of records
+    };
+  
+    // Retrieve data and total count
+    const [data, total] = await this.userRepository.findAndCount(options);
+  
+    return { data, total };
+  }
 }
