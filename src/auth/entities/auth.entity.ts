@@ -12,18 +12,20 @@ import {
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { Card } from './card.entity';
-
+import {  Nin} from './drive.entity';
+import { DiverLicense } from './license.entity';
 
 export enum UserRole {
     ADMIN = "admin",
-    USER = "user",
+    USER = "user"
 }
+
 
 
 @Entity()
 export class User {
     @PrimaryGeneratedColumn("uuid")
-    id?: string;
+    id: string;
 
     @Column({type : 'varchar',  length: 140, unique : true, nullable: false})
     phoneNumber: string;
@@ -46,13 +48,25 @@ export class User {
     @Column({
         type: "enum",
         enum: UserRole,
-        default: UserRole.USER, nullable: false 
-    })
-    role: UserRole
+        default: UserRole.USER, nullable: false })
+    role: UserRole;
+
+    @Column({ type: 'boolean', nullable: true, default: false })
+    isRider?: boolean;
 
     @OneToOne(() => Card, { cascade: true, nullable: true, onUpdate: 'CASCADE', onDelete: 'CASCADE' })
     @JoinColumn()
     card?: Card;
+
+    @OneToOne(() => DiverLicense, (driver) => driver.user, { cascade: true, nullable: true, onDelete: 'SET NULL' })
+    @JoinColumn()
+    driver?: DiverLicense;
+
+    @OneToOne(() => Nin, (license) => license.user, { cascade: true, nullable: true, onDelete: 'SET NULL' })
+    @JoinColumn()
+    license?: Nin;
+
+  
 
     constructor(user :Partial<User>){
         Object.assign(this, user)

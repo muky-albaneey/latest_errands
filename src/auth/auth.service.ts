@@ -1,25 +1,32 @@
 /* eslint-disable prettier/prettier */
 
 /* eslint-disable prettier/prettier */
-import { Injectable, ConflictException, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { Injectable, ConflictException, NotFoundException, UnauthorizedException, BadRequestException, HttpService} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindManyOptions, Like, Repository} from 'typeorm';
 import * as bcrypt from 'bcrypt';
 // import { CreateAuthDto, LoginAuthDto } from './dto/create-auth.dto';
 // import { UpdateAuthDto } from './dto/update-auth.dto';
-import { User } from './entities/auth.entity';
+import { User, UserRole } from './entities/auth.entity';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { CreateAuthDto, LoginAuthDto } from './dto/create-auth.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
+import { DiverLicense } from './entities/license.entity';
+import { Nin } from './entities/drive.entity';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @InjectRepository(DiverLicense)
+    private licenseRepository: Repository<DiverLicense>,
+    @InjectRepository(Nin)
+    private ninRepository: Repository<Nin>,
     private readonly jwtService: JwtService,
-    private readonly configService: ConfigService
+    private readonly configService: ConfigService,
+    private readonly httpService: HttpService
   ) {}
 
   async createUser(createUserDto: CreateAuthDto): Promise<User> {
@@ -149,4 +156,106 @@ export class AuthService {
   
     return { data, total };
   }
+
+//   async registerRider(
+//     email: string, 
+//     userData: Partial<User>,
+//     licenseData: Partial<DiverLicense> | Partial<Nin>, 
+//     type: 'license' | 'nin',
+// ) {
+//     let user = await this.userRepository.findOne({ where: { email }, relations: ['driver', 'license'] });
+
+//     if (user) {
+//         // Prevent double registration
+//         if (user.isRider) {
+//             throw new BadRequestException('User is already registered as a rider or driver');
+//         }
+
+//         // If trying to register as a driver but already has a Nin, reject
+//         if (type === 'license' && user.license) {
+//             throw new BadRequestException('User already has a NIN and cannot register as a driver.');
+//         }
+
+//         // If trying to register as a NIN but already has a DiverLicense, reject
+//         if (type === 'nin' && user.driver) {
+//             throw new BadRequestException('User already has a driver’s license and cannot register with a NIN.');
+//         }
+
+//         // Update user details
+//         Object.assign(user, userData);
+//     } else {
+//         // Create new user
+//         user = this.userRepository.create(userData);
+//         user.isRider = true;
+//         user.role = UserRole.USER;
+//     }
+
+//     // Register as driver (DiverLicense)
+//     if (type === 'license') {
+//         const newLicense = this.licenseRepository.create(licenseData);
+//         newLicense.user = user;
+//         await this.licenseRepository.save(newLicense);
+//         user.driver = newLicense;
+//     } 
+//     // Register as NIN
+//     else if (type === 'nin') {
+//         const newNin = this.ninRepository.create(licenseData);
+//         newNin.user = user;
+//         await this.ninRepository.save(newNin);
+//         user.license = newNin;
+//     }
+
+//     await this.userRepository.save(user);
+//     return user;
+// }
+async updateUserWithVerification(userId: string, userData: any) {
+  const user = await this.userRepository.findOne({ where: { id: userId } });
+
+  if (!user) {
+    throw new BadRequestException('User not found');
+  }
+
+  if (user.isRider) {
+    throw new BadRequestException('User is already registered as a rider or driver');
+  }
+
+  // Fetch NIN and Driver’s License Details
+  const ninData = await this.getNinDetails(userData.nin);
+  const driverData = await this.getDriverLicenseDetails(userData.licenseNo);
+
+  // Merge Data
+  const updatedUserData = {
+    ...userData,
+    nin: ninData?.nin,
+    fullName: `${ninData?.firstName} ${ninData?.middleName} ${ninData?.lastName}`,
+    birthDate: ninData?.birthDate || driverData?.birthDate,
+    gender: ninData?.gender || driverData?.gender,
+    driverLicenseNumber: driverData?.licenseNo,
+    licenseIssuedDate: driverData?.issuedDate,
+    licenseExpiryDate: driverData?.expiryDate,
+    stateOfIssue: driverData?.stateOfIssue,
+  };
+
+  // Update user record
+  Object.assign(user, updatedUserData);
+  await this.userRepository.save(user);
+
+  return user;
+}
+
+async getNinDetails(nin: string) {
+  const response = await this.httpService.axiosRef.get(
+    `https://api.dikript.com/dikript/test/api/v1/getnin?nin=${nin}`,
+    { headers: { 'x-api-key': 'dec72315-f996-4b85-be56-f18353832cd0' } },
+  );
+  return response.data.data;
+}
+
+async getDriverLicenseDetails(licenseNo: string) {
+  const response = await this.httpService.axiosRef.get(
+    `https://api.dikript.com/dikript/test/api/v1/getfrsc?frsc=${licenseNo}`,
+    { headers: { 'x-api-key': 'dec72315-f996-4b85-be56-f18353832cd0' } },
+  );
+  return response.data.data;
+}
 }

@@ -39,3 +39,4 @@ services:
 networks:
   errands_project_default:
     driver: bridge
+ 
