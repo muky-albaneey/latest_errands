@@ -1,10 +1,12 @@
+
 /* eslint-disable prettier/prettier */
 
 /* eslint-disable prettier/prettier */
-import { Injectable, ConflictException, NotFoundException, UnauthorizedException, BadRequestException, HttpService} from '@nestjs/common';
+import { Injectable, ConflictException, NotFoundException, UnauthorizedException, BadRequestException,} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindManyOptions, Like, Repository} from 'typeorm';
 import * as bcrypt from 'bcrypt';
+import { HttpService } from '@nestjs/axios';
 // import { CreateAuthDto, LoginAuthDto } from './dto/create-auth.dto';
 // import { UpdateAuthDto } from './dto/update-auth.dto';
 import { User, UserRole } from './entities/auth.entity';
