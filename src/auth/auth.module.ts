@@ -10,6 +10,7 @@ import { User } from './entities/auth.entity';
 import { Card } from './entities/card.entity';
 import { DiverLicense } from './entities/license.entity';
 import { Nin } from './entities/drive.entity';
+import { HttpService } from '@nestjs/axios';
 
 @Module({
   imports: [
@@ -26,6 +27,6 @@ import { Nin } from './entities/drive.entity';
   ],
   exports: [TypeOrmModule],
   controllers: [AuthController],
-  providers: [AuthService],
+  providers: [AuthService, HttpService],
 })
 export class AuthModule {}
