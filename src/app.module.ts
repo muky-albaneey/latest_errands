@@ -8,6 +8,8 @@ import { AuthModule } from './auth/auth.module';
 import { User } from './auth/entities/auth.entity';
 import { Card } from './auth/entities/card.entity';
 import { SmsModule } from './sms/sms.module';
+import { DiverLicense } from './auth/entities/license.entity';
+import { Nin } from './auth/entities/drive.entity';
 
 
 @Module({
@@ -26,7 +28,7 @@ import { SmsModule } from './sms/sms.module';
         username: configService.get<string>('DATABASE_USERNAME'),
         password: configService.get<string>('DATABASE_PASSWORD'),
         database: configService.get<string>('DATABASE_NAME'),
-        entities: [User, Card],
+        entities: [User, Card, DiverLicense, Nin],
         synchronize: true,
         extra: {
           max: 2 // Limit to 2 connections

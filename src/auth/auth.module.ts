@@ -8,10 +8,12 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { User } from './entities/auth.entity';
 import { Card } from './entities/card.entity';
+import { DiverLicense } from './entities/license.entity';
+import { Nin } from './entities/drive.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Card]),
+    TypeOrmModule.forFeature([User, Card,DiverLicense, Nin]),
     ConfigModule, 
     JwtModule.registerAsync({
       imports: [ConfigModule],
