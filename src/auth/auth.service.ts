@@ -287,7 +287,7 @@ async updateOrCreateUser(userData: any) {
 async getNinDetails(nin: string) {
   const response = await this.httpService.axiosRef.get(
     `https://api.dikript.com/dikript/test/api/v1/getnin?nin=${nin}`,
-    { headers: { 'x-api-key': 'YOUR_API_KEY' } },
+    { headers: { 'x-api-key': 'dec72315-f996-4b85-be56-f18353832cd0' } },
   );
   return response.data.data;
 }
@@ -295,7 +295,7 @@ async getNinDetails(nin: string) {
 async getDriverLicenseDetails(licenseNo: string) {
   const response = await this.httpService.axiosRef.get(
     `https://api.dikript.com/dikript/test/api/v1/getfrsc?frsc=${licenseNo}`,
-    { headers: { 'x-api-key': 'YOUR_API_KEY' } },
+    { headers: { 'x-api-key': 'dec72315-f996-4b85-be56-f18353832cd0' } },
   );
   return response.data.data;
 }
