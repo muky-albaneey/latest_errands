@@ -245,18 +245,41 @@ async updateOrCreateUser(userData: any) {
 
 
 async getNinDetails(nin: string) {
-  const response = await this.httpService.axiosRef.get(
-    `https://api.dikript.com/dikript/test/api/v1/getnin?nin=${nin}`,
-    { headers: { 'x-api-key':process.env.NIN_VER} },
-  );
-  return response.data.data;
+  try {
+    const response = await this.httpService.axiosRef.get(
+      `https://api.dikript.com/dikript/test/api/v1/getnin?nin=${nin}`,
+      { headers: { 'x-api-key': process.env.NIN_VER } }
+    );
+
+    // Check if the API response is successful and contains valid data
+    if (response.data?.status === true && response.data?.data) {
+      return response.data.data;
+    } else {
+      throw new BadRequestException(response.data?.error?.message || 'Failed to fetch NIN details');
+    }
+  } catch (error) {
+    console.error('Error fetching NIN details:', error.message);
+    throw new BadRequestException('Error retrieving NIN details. Please try again later.');
+  }
 }
 
 async getDriverLicenseDetails(licenseNo: string) {
-  const response = await this.httpService.axiosRef.get(
-    `https://api.dikript.com/dikript/test/api/v1/getfrsc?frsc=${licenseNo}`,
-    { headers: { 'x-api-key': process.env.BVN_VER} },
-  );
-  return response.data.data;
+  try {
+    const response = await this.httpService.axiosRef.get(
+      `https://api.dikript.com/dikript/test/api/v1/getfrsc?frsc=${licenseNo}`,
+      { headers: { 'x-api-key': process.env.BVN_VER } }
+    );
+
+    // Check if the API response is successful and contains valid data
+    if (response.data?.status === true && response.data?.data) {
+      return response.data.data;
+    } else {
+      throw new BadRequestException(response.data?.error?.message || 'Failed to fetch Driver License details');
+    }
+  } catch (error) {
+    console.error('Error fetching Driver License details:', error.message);
+    throw new BadRequestException('Error retrieving Driver License details. Please try again later.');
+  }
 }
+
 }
