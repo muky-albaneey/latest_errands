@@ -103,13 +103,19 @@ export class AuthService {
     return users;
   }
 
-  async findOne(id: string): Promise<User> {
-    const user = await this.userRepository.findOne({ where: { id } });
+  async findOne(id): Promise<User> {
+    const user = await this.userRepository.findOne({
+      where: { id },
+      relations: ['card', 'driver', 'license'], // Include related entities
+    });
+  
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found.`);
     }
+  
     return user;
   }
+  
 
   async update(id: string, updateAuthDto: UpdateAuthDto): Promise<User> {
     const user = await this.findOne(id);
