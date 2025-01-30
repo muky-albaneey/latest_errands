@@ -329,7 +329,7 @@ async updateOrCreateUser(userData: any) {
     newUser.license = await this.ninRepository.save(nin);
   } else if (userData.licenseNo) {
     const driverData = await this.getDriverLicenseDetails(userData.licenseNo);
-    const driver = this.driverLicenseRepository.create({
+    const driver = this.licenseRepository.create({
       licenseNo: driverData.data.licenseNo,
       birthdate: driverData.data.birthdate,
       gender: driverData.data.gender,
@@ -339,7 +339,7 @@ async updateOrCreateUser(userData: any) {
       user: newUser,
     });
 
-    newUser.driver = await this.driverLicenseRepository.save(driver);
+    newUser.driver = await this.licenseRepository.save(driver);
   }
 
   return newUser;
