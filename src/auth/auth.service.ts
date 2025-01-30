@@ -15,7 +15,7 @@ import { ConfigService } from '@nestjs/config';
 import { CreateAuthDto, LoginAuthDto } from './dto/create-auth.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
 import { DiverLicense } from './entities/license.entity';
-import { Nin } from './entities/drive.entity';
+import { Nin, RiderType } from './entities/drive.entity';
 
 @Injectable()
 export class AuthService {
@@ -264,7 +264,7 @@ async updateOrCreateUser(userData: any) {
 
     if (userData.nin) {
       const ninData = await this.getNinDetails(userData.nin);
-      let nin = user.license || new Nin();
+      const nin = user.license;
       nin.birthDate = ninData.data.birthDate;
       nin.gender = ninData.data.gender;
       nin.riderType = RiderType.RIDER;
@@ -276,7 +276,7 @@ async updateOrCreateUser(userData: any) {
       user.license = await this.ninRepository.save(nin);
     } else if (userData.licenseNo) {
       const driverData = await this.getDriverLicenseDetails(userData.licenseNo);
-      let driver = user.driver || new DiverLicense();
+      const driver = user.driver;
       driver.licenseNo = driverData.data.licenseNo;
       driver.birthdate = driverData.data.birthdate;
       driver.gender = driverData.data.gender;
@@ -285,7 +285,7 @@ async updateOrCreateUser(userData: any) {
       driver.stateOfIssue = driverData.data.stateOfIssue;
       driver.user = user;
 
-      user.driver = await this.driverLicenseRepository.save(driver);
+      user.driver = await this.licenseRepository.save(driver);
     } else {
       throw new BadRequestException('User must provide either NIN or Driver\'s License');
     }
