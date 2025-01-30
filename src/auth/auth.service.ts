@@ -165,50 +165,137 @@ export class AuthService {
     return { data, total };
   }
 
-// Update or Create User with verification
+// // Update or Create User with verification
+// async updateOrCreateUser(userData: any) {
+//   let user;
+
+//   // Check if user already exists based on email
+//   if (userData.email) {
+//     user = await this.userRepository.findOne({ where: { email: userData.email } });
+//   }
+
+//   // If user exists, check if they are already a rider/driver
+//   if (user) {
+//     if (user.isRider) {
+//       throw new BadRequestException('User is already registered as a rider or driver');
+//     }
+
+//     // Process and update the user based on NIN or Driver's License
+//     if (userData.nin) {
+//       const ninData = await this.getNinDetails(userData.nin);
+//       user.nin = ninData.data.nin;
+//       user.fname = ninData.data.firstName;
+//       user.lname = ninData.data.lastName;
+//       user.birthDate = ninData.data.birthDate;
+//       user.gender = ninData.data.gender;
+//     } else if (userData.licenseNo) {
+//       const driverData = await this.getDriverLicenseDetails(userData.licenseNo);
+//       user.driverLicenseNumber = driverData.data.licenseNo;
+//       user.licenseIssuedDate = driverData.data.issuedDate;
+//       user.licenseExpiryDate = driverData.data.expiryDate;
+//       user.stateOfIssue = driverData.data.stateOfIssue;
+//       user.fname = driverData.data.firstname;
+//       user.lname = driverData.data.lastname;
+//       user.birthDate = driverData.data.birthdate;
+//       user.gender = driverData.data.gender;
+//     } else {
+//       throw new BadRequestException('User must provide either NIN or Driver\'s License');
+//     }
+
+//     // Mark as a rider/driver
+//     user.isRider = true;
+//     await this.userRepository.save(user);
+//     return user;
+//   }
+
+//   // If user doesn't exist, create a new user based on NIN or Driver's License
+//   if (!userData.nin && !userData.licenseNo) {
+//     throw new BadRequestException('User must provide either NIN or Driver\'s License');
+//   }
+
+//   if (userData.nin && userData.licenseNo) {
+//     throw new BadRequestException('User cannot have both NIN and Driver\'s License');
+//   }
+
+//   let newUser;
+//   if (userData.nin) {
+//     const ninData = await this.getNinDetails(userData.nin);
+//     newUser = this.userRepository.create({
+//       ...userData,
+//       nin: ninData.data.nin,
+//       fname: ninData.data.firstName,
+//       lname: ninData.data.lastName,
+//       birthDate: ninData.data.birthDate,
+//       gender: ninData.data.gender,
+//       isRider: true,
+//     });
+//   } else if (userData.licenseNo) {
+//     const driverData = await this.getDriverLicenseDetails(userData.licenseNo);
+//     newUser = this.userRepository.create({
+//       ...userData,
+//       driverLicenseNumber: driverData.data.licenseNo,
+//       licenseIssuedDate: driverData.data.issuedDate,
+//       licenseExpiryDate: driverData.data.expiryDate,
+//       stateOfIssue: driverData.data.stateOfIssue,
+//       fname: driverData.data.firstname,
+//       lname: driverData.data.lastname,
+//       birthDate: driverData.data.birthdate,
+//       gender: driverData.data.gender,
+//       isRider: true,
+//     });
+//   }
+
+//   await this.userRepository.save(newUser);
+//   return newUser;
+// }
+
 async updateOrCreateUser(userData: any) {
-  let user;
+  let user = null;
 
   // Check if user already exists based on email
   if (userData.email) {
-    user = await this.userRepository.findOne({ where: { email: userData.email } });
+    user = await this.userRepository.findOne({ where: { email: userData.email }, relations: ['license', 'driver'] });
   }
 
-  // If user exists, check if they are already a rider/driver
   if (user) {
     if (user.isRider) {
       throw new BadRequestException('User is already registered as a rider or driver');
     }
 
-    // Process and update the user based on NIN or Driver's License
     if (userData.nin) {
       const ninData = await this.getNinDetails(userData.nin);
-      user.nin = ninData.data.nin;
-      user.fname = ninData.data.firstName;
-      user.lname = ninData.data.lastName;
-      user.birthDate = ninData.data.birthDate;
-      user.gender = ninData.data.gender;
+      let nin = user.license || new Nin();
+      nin.birthDate = ninData.data.birthDate;
+      nin.gender = ninData.data.gender;
+      nin.riderType = RiderType.RIDER;
+      nin.issuedDate = ninData.data.issuedDate;
+      nin.expiryDate = ninData.data.expiryDate;
+      nin.stateOfIssue = ninData.data.stateOfIssue;
+      nin.user = user;
+
+      user.license = await this.ninRepository.save(nin);
     } else if (userData.licenseNo) {
       const driverData = await this.getDriverLicenseDetails(userData.licenseNo);
-      user.driverLicenseNumber = driverData.data.licenseNo;
-      user.licenseIssuedDate = driverData.data.issuedDate;
-      user.licenseExpiryDate = driverData.data.expiryDate;
-      user.stateOfIssue = driverData.data.stateOfIssue;
-      user.fname = driverData.data.firstname;
-      user.lname = driverData.data.lastname;
-      user.birthDate = driverData.data.birthdate;
-      user.gender = driverData.data.gender;
+      let driver = user.driver || new DiverLicense();
+      driver.licenseNo = driverData.data.licenseNo;
+      driver.birthdate = driverData.data.birthdate;
+      driver.gender = driverData.data.gender;
+      driver.issuedDate = driverData.data.issuedDate;
+      driver.expiryDate = driverData.data.expiryDate;
+      driver.stateOfIssue = driverData.data.stateOfIssue;
+      driver.user = user;
+
+      user.driver = await this.driverLicenseRepository.save(driver);
     } else {
       throw new BadRequestException('User must provide either NIN or Driver\'s License');
     }
 
-    // Mark as a rider/driver
     user.isRider = true;
     await this.userRepository.save(user);
     return user;
   }
 
-  // If user doesn't exist, create a new user based on NIN or Driver's License
+  // If user doesn't exist, create a new user
   if (!userData.nin && !userData.licenseNo) {
     throw new BadRequestException('User must provide either NIN or Driver\'s License');
   }
@@ -217,38 +304,46 @@ async updateOrCreateUser(userData: any) {
     throw new BadRequestException('User cannot have both NIN and Driver\'s License');
   }
 
-  let newUser;
+  let newUser = this.userRepository.create({
+    phoneNumber: userData.phoneNumber,
+    email: userData.email,
+    password: userData.password,
+    role: UserRole.USER,
+    isRider: true,
+  });
+
+  newUser = await this.userRepository.save(newUser);
+
   if (userData.nin) {
     const ninData = await this.getNinDetails(userData.nin);
-    newUser = this.userRepository.create({
-      ...userData,
-      nin: ninData.data.nin,
-      fname: ninData.data.firstName,
-      lname: ninData.data.lastName,
+    const nin = this.ninRepository.create({
       birthDate: ninData.data.birthDate,
       gender: ninData.data.gender,
-      isRider: true,
+      riderType: RiderType.RIDER,
+      issuedDate: ninData.data.issuedDate,
+      expiryDate: ninData.data.expiryDate,
+      stateOfIssue: ninData.data.stateOfIssue,
+      user: newUser,
     });
+
+    newUser.license = await this.ninRepository.save(nin);
   } else if (userData.licenseNo) {
     const driverData = await this.getDriverLicenseDetails(userData.licenseNo);
-    newUser = this.userRepository.create({
-      ...userData,
-      driverLicenseNumber: driverData.data.licenseNo,
-      licenseIssuedDate: driverData.data.issuedDate,
-      licenseExpiryDate: driverData.data.expiryDate,
-      stateOfIssue: driverData.data.stateOfIssue,
-      fname: driverData.data.firstname,
-      lname: driverData.data.lastname,
-      birthDate: driverData.data.birthdate,
+    const driver = this.driverLicenseRepository.create({
+      licenseNo: driverData.data.licenseNo,
+      birthdate: driverData.data.birthdate,
       gender: driverData.data.gender,
-      isRider: true,
+      issuedDate: driverData.data.issuedDate,
+      expiryDate: driverData.data.expiryDate,
+      stateOfIssue: driverData.data.stateOfIssue,
+      user: newUser,
     });
+
+    newUser.driver = await this.driverLicenseRepository.save(driver);
   }
 
-  await this.userRepository.save(newUser);
   return newUser;
 }
-
 
 async getNinDetails(nin: string) {
   try {
