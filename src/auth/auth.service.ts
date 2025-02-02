@@ -188,6 +188,7 @@ async updateOrCreateUser(userData: any) {
       console.log(ninData);
       // console.log(ninData.data.birthDate)birthdate
       console.log(ninData.birthDate);
+      console.log(user);
       console.log(nin);
      
       // nin.birthdate = ninData.birthdate
