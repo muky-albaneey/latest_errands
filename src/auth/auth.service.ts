@@ -168,59 +168,61 @@ export class AuthService {
 
 
 async updateOrCreateUser(userData: any) {
-  // let user = null;
+  let user = null;
 
-  // // Check if user already exists based on email
-  // if (userData.email) {
-  //   user = await this.userRepository.findOne({ where: { email: userData.email }, relations: ['license', 'driver'] });
-  // }
+  // Check if user already exists based on email
+  if (userData.email) {
+    user = await this.userRepository.findOne({ where: { email: userData.email }, relations: ['license', 'driver'] });
+  }
 
-  // if (user) {
-  //   if (user.isRider) {
-  //     throw new BadRequestException('User is already registered as a rider or driver');
-  //   }
+  if (user) {
+    if (user.isRider) {
+      throw new BadRequestException('User is already registered as a rider or driver');
+    }
 
-  //   if (userData.nin) {
-  //     const ninData = await this.getNinDetails(userData.nin);
-  //     const nin = user.license;
-  //     nin.birthDate = ninData.data.birthDate;
-  //     nin.gender = ninData.data.gender;
-  //     nin.riderType = RiderType.RIDER;
-  //     nin.issuedDate = ninData.data.issuedDate;
-  //     nin.expiryDate = ninData.data.expiryDate;
-  //     nin.stateOfIssue = ninData.data.stateOfIssue;
-  //     nin.user = user;
+    if (userData.nin) {
+      const ninData = await this.getNinDetails(userData.nin);
+      const nin = user.license;
+      console.log(ninData)
+      console.log(nin)
+      // nin.birthDate = ninData.data.birthDate;
+      // nin.gender = ninData.data.gender;
+      // nin.riderType = RiderType.RIDER;
+      // nin.issuedDate = ninData.data.issuedDate;
+      // nin.expiryDate = ninData.data.expiryDate;
+      // nin.stateOfIssue = ninData.data.stateOfIssue;
+      // nin.user = user;
 
-  //     user.license = await this.ninRepository.save(nin);
-  //   } else if (userData.licenseNo) {
-  //     const driverData = await this.getDriverLicenseDetails(userData.licenseNo);
-  //     const driver = user.driver;
-  //     driver.licenseNo = driverData.data.licenseNo;
-  //     driver.birthdate = driverData.data.birthdate;
-  //     driver.gender = driverData.data.gender;
-  //     driver.issuedDate = driverData.data.issuedDate;
-  //     driver.expiryDate = driverData.data.expiryDate;
-  //     driver.stateOfIssue = driverData.data.stateOfIssue;
-  //     driver.user = user;
+      user.license = await this.ninRepository.save(nin);
+    } else if (userData.licenseNo) {
+      const driverData = await this.getDriverLicenseDetails(userData.licenseNo);
+      const driver = user.driver;
+      driver.licenseNo = driverData.data.licenseNo;
+      driver.birthdate = driverData.data.birthdate;
+      driver.gender = driverData.data.gender;
+      driver.issuedDate = driverData.data.issuedDate;
+      driver.expiryDate = driverData.data.expiryDate;
+      driver.stateOfIssue = driverData.data.stateOfIssue;
+      driver.user = user;
 
-  //     user.driver = await this.licenseRepository.save(driver);
-  //   } else {
-  //     throw new BadRequestException('User must provide either NIN or Driver\'s License');
-  //   }
+      user.driver = await this.licenseRepository.save(driver);
+    } else {
+      throw new BadRequestException('User must provide either NIN or Driver\'s License');
+    }
 
-  //   user.isRider = true;
-  //   await this.userRepository.save(user);
-  //   return user;
-  // }
+    user.isRider = true;
+    await this.userRepository.save(user);
+    return user;
+  }
 
   // // If user doesn't exist, create a new user
-  // if (!userData.nin && !userData.licenseNo) {
-  //   throw new BadRequestException('User must provide either NIN or Driver\'s License');
-  // }
+  if (!userData.nin && !userData.licenseNo) {
+    throw new BadRequestException('User must provide either NIN or Driver\'s License');
+  }
 
-  // if (userData.nin && userData.licenseNo) {
-  //   throw new BadRequestException('User cannot have both NIN and Driver\'s License');
-  // }
+  if (userData.nin && userData.licenseNo) {
+    throw new BadRequestException('User cannot have both NIN and Driver\'s License');
+  }
 
   // let newUser = this.userRepository.create({
   //   phoneNumber: userData.phoneNumber,
@@ -233,7 +235,7 @@ async updateOrCreateUser(userData: any) {
   // newUser = await this.userRepository.save(newUser);
 
   // if (userData.nin) {
-    const ninData = await this.getNinDetails(userData.nin);
+  //   const ninData = await this.getNinDetails(userData.nin);
   //   const nin = this.ninRepository.create({
   //     birthDate: ninData.data.birthDate,
   //     gender: ninData.data.gender,
@@ -261,8 +263,6 @@ async updateOrCreateUser(userData: any) {
   // }
 
   // return newUser;
-  console.log(userData)
-  console.log(ninData);
 }
 
 async getNinDetails(nin: string) {
