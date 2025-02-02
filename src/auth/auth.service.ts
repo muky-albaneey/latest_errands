@@ -174,22 +174,22 @@ async updateOrCreateUser(userData: any) {
   if (userData.email) {
     user = await this.userRepository.findOne({ where: { email: userData.email }, relations: ['license', 'driver'] });
   }
-console.log(user,'before')
+    console.log(user,'before')
   if (user) {
     // if (user.isRider) {
     //   throw new BadRequestException('User is already registered as a rider or driver you can reach out to your profile settings or nearby office to change your status');
     // }
-    console.log(userData,1)
-    console.log( await this.getNinDetails(userData.nin),1)
+    // console.log(userData,1);
+    console.log( await this.getNinDetails(userData.nin),1);
 
     if (userData.nin) {
       const ninData = await this.getNinDetails(userData.nin);
       const nin = user.license;
-      console.log(ninData)
-      // console.log(ninData.data.birthDate)
-      console.log(ninData.birthDate)
+      console.log(ninData);
+      // console.log(ninData.data.birthDate)birthdate
+      console.log(ninData.birthDate);
      
-      nin.birthDate = ninData.birthDate;
+      nin.birthdate = ninData.birthdate
       nin.gender = ninData.gender;
       nin.riderType = RiderType.RIDER;
       nin.issuedDate = ninData.issuedDate;
