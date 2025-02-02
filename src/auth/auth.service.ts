@@ -201,12 +201,12 @@ console.log(user,'before')
     } else if (userData.licenseNo) {
       const driverData = await this.getDriverLicenseDetails(userData.licenseNo);
       const driver = user.driver;
-      driver.licenseNo = driverData.data.licenseNo;
-      driver.birthdate = driverData.data.birthdate;
-      driver.gender = driverData.data.gender;
-      driver.issuedDate = driverData.data.issuedDate;
-      driver.expiryDate = driverData.data.expiryDate;
-      driver.stateOfIssue = driverData.data.stateOfIssue;
+      driver.licenseNo = driverData.licenseNo;
+      driver.birthdate = driverData.birthdate;
+      driver.gender = driverData.gender;
+      driver.issuedDate = driverData.issuedDate;
+      driver.expiryDate = driverData.expiryDate;
+      driver.stateOfIssue = driverData.stateOfIssue;
       driver.user = user;
 
       user.driver = await this.licenseRepository.save(driver);
@@ -228,45 +228,45 @@ console.log(user,'before')
     throw new BadRequestException('User cannot have both NIN and Driver\'s License');
   }
 
-  // let newUser = this.userRepository.create({
-  //   phoneNumber: userData.phoneNumber,
-  //   email: userData.email,
-  //   password: userData.password,
-  //   role: UserRole.USER,
-  //   isRider: true,
-  // });
+  let newUser = this.userRepository.create({
+    phoneNumber: userData.phoneNumber,
+    email: userData.email,
+    password: userData.password,
+    role: UserRole.USER,
+    isRider: true,
+  });
 
-  // newUser = await this.userRepository.save(newUser);
+  newUser = await this.userRepository.save(newUser);
 
-  // if (userData.nin) {
-  //   const ninData = await this.getNinDetails(userData.nin);
-  //   const nin = this.ninRepository.create({
-  //     birthDate: ninData.data.birthDate,
-  //     gender: ninData.data.gender,
-  //     riderType: RiderType.RIDER,
-  //     issuedDate: ninData.data.issuedDate,
-  //     expiryDate: ninData.data.expiryDate,
-  //     stateOfIssue: ninData.data.stateOfIssue,
-  //     user: newUser,
-  //   });
+  if (userData.nin) {
+    const ninData = await this.getNinDetails(userData.nin);
+    const nin = this.ninRepository.create({
+      birthDate: ninData.birthDate,
+      gender: ninData.gender,
+      riderType: RiderType.RIDER,
+      issuedDate: ninData.issuedDate,
+      expiryDate: ninData.expiryDate,
+      stateOfIssue: ninData.stateOfIssue,
+      user: newUser,
+    });
 
-  //   newUser.license = await this.ninRepository.save(nin);
-  // } else if (userData.licenseNo) {
-  //   const driverData = await this.getDriverLicenseDetails(userData.licenseNo);
-  //   const driver = this.licenseRepository.create({
-  //     licenseNo: driverData.data.licenseNo,
-  //     birthdate: driverData.data.birthdate,
-  //     gender: driverData.data.gender,
-  //     issuedDate: driverData.data.issuedDate,
-  //     expiryDate: driverData.data.expiryDate,
-  //     stateOfIssue: driverData.data.stateOfIssue,
-  //     user: newUser,
-  //   });
+    newUser.license = await this.ninRepository.save(nin);
+  } else if (userData.licenseNo) {
+    const driverData = await this.getDriverLicenseDetails(userData.licenseNo);
+    const driver = this.licenseRepository.create({
+      licenseNo: driverData.licenseNo,
+      birthdate: driverData.birthdate,
+      gender: driverData.gender,
+      issuedDate: driverData.issuedDate,
+      expiryDate: driverData.expiryDate,
+      stateOfIssue: driverData.stateOfIssue,
+      user: newUser,
+    });
 
-  //   newUser.driver = await this.licenseRepository.save(driver);
-  // }
+    newUser.driver = await this.licenseRepository.save(driver);
+  }
 
-  // return newUser;
+  return newUser;
 }
 
 async getNinDetails(nin: string) {
