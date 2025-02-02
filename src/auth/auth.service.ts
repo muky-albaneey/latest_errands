@@ -186,7 +186,7 @@ console.log(user,'before')
       const ninData = await this.getNinDetails(userData.nin);
       const nin = user.license;
       console.log(ninData)
-      console.log(ninData.data.birthDate)
+      // console.log(ninData.data.birthDate)
       console.log(ninData.birthDate)
       console.log(nin)
       // nin.birthDate = ninData.data.birthDate;
