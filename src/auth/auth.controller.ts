@@ -11,6 +11,7 @@ import {
   HttpStatus,
   HttpException,
   Query,
+  BadRequestException,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 // import { CreateAuthDto, LoginAuthDto } from './dto/create-auth.dto';
@@ -200,6 +201,14 @@ async logout(@Res({ passthrough: true }) response: Response): Promise<any> {
       statusCode: HttpStatus.NO_CONTENT,
       message: 'User removed successfully.',
     });
+    
+  } @Post('update-or-create')
+  async updateOrCreateUser(@Body() userData: any) {
+    if (!userData.email) {
+      throw new BadRequestException('Email is required');
+    }
+    
+    return await this.authService.updateOrCreateUser(userData);
   }
 
 
