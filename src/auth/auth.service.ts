@@ -176,9 +176,9 @@ async updateOrCreateUser(userData: any) {
   }
 
   if (user) {
-    if (user.isRider) {
-      throw new BadRequestException('User is already registered as a rider or driver');
-    }
+    // if (user.isRider) {
+    //   throw new BadRequestException('User is already registered as a rider or driver');
+    // }
     console.log(userData,1)
     console.log( await this.getNinDetails(userData.nin),1)
 
