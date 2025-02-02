@@ -8,7 +8,7 @@ import { HttpModule } from '@nestjs/axios'; // Import HttpModule
 import { User } from './entities/auth.entity';
 import { Card } from './entities/card.entity';
 import { DiverLicense } from './entities/license.entity';
-import { Nin } from './entities/drive.entity';
+import { Nin } from './entities/nin';
 
 @Module({
   imports: [

@@ -15,7 +15,7 @@ import { ConfigService } from '@nestjs/config';
 import { CreateAuthDto, LoginAuthDto } from './dto/create-auth.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
 import { DiverLicense } from './entities/license.entity';
-import { Nin, RiderType } from './entities/drive.entity';
+import { Nin, RiderType } from './entities/nin';
 
 @Injectable()
 export class AuthService {
@@ -332,7 +332,7 @@ async updateOrCreateUser(userData: any) {
   if (userData.nin && userData.licenseNo) {
     throw new BadRequestException("User cannot have both NIN and Driver's License");
   }
-
+  
   let newUser = this.userRepository.create({
     phoneNumber: userData.phoneNumber,
     email: userData.email,
@@ -349,13 +349,14 @@ async updateOrCreateUser(userData: any) {
       birthDate: ninData.birthDate,
       gender: ninData.gender,
       riderType: RiderType.RIDER,
-      issuedDate: ninData.issuedDate,
-      expiryDate: ninData.expiryDate,
-      stateOfIssue: ninData.stateOfIssue,
+      employmentStatus: ninData.employmentStatus,
+      trackingId: ninData.trackingId,
+      residenceAdressLine1: ninData.residenceAdressLine1,
+      telephoneNo: ninData.telephoneNo,
       user: newUser,
     });
 
-    newUser.license = await this.ninRepository.save(nin);
+    newUser.nin = await this.ninRepository.save(nin);
   } else if (userData.licenseNo) {
     const driverData = await this.getDriverLicenseDetails(userData.licenseNo);
     const driver = this.licenseRepository.create({

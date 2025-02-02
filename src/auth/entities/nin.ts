@@ -44,12 +44,12 @@ export class Nin {
     @Column({ type: 'varchar', nullable: false })
     telephoneNo: string;
 
-    @OneToOne(() => User, (user) => user.driver, { nullable: true, onDelete: 'SET NULL' })
+    @OneToOne(() => User, (user) => user.nin, { nullable: true, onDelete: 'SET NULL' })
     @JoinColumn()
     user?: User;
     
 
-    constructor(driver: Partial<Nin>) {
-        Object.assign(this, driver);
+    constructor(nin: Partial<Nin>) {
+        Object.assign(this, nin);
     }
 }

@@ -9,7 +9,7 @@ import { User } from './auth/entities/auth.entity';
 import { Card } from './auth/entities/card.entity';
 import { SmsModule } from './sms/sms.module';
 import { DiverLicense } from './auth/entities/license.entity';
-import { Nin } from './auth/entities/drive.entity';
+import { Nin } from './auth/entities/nin';
 
 
 @Module({

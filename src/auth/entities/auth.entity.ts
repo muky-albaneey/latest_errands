@@ -12,7 +12,7 @@ import {
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { Card } from './card.entity';
-import {  Nin} from './drive.entity';
+import {  Nin} from './nin';
 import { DiverLicense } from './license.entity';
 
 export enum UserRole {
@@ -64,7 +64,7 @@ export class User {
 
     @OneToOne(() => Nin, (license) => license.user, { cascade: true, nullable: true, onDelete: 'SET NULL' })
     @JoinColumn()
-    license?: Nin;
+    nin?: Nin;
 
   
 
