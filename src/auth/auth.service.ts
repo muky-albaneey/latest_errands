@@ -188,14 +188,15 @@ async updateOrCreateUser(userData: any) {
       console.log(ninData);
       // console.log(ninData.data.birthDate)birthdate
       console.log(ninData.birthDate);
+      console.log(nin);
      
-      nin.birthdate = ninData.birthdate
-      nin.gender = ninData.gender;
-      nin.riderType = RiderType.RIDER;
-      nin.issuedDate = ninData.issuedDate;
-      nin.expiryDate = ninData.expiryDate;
-      nin.stateOfIssue = ninData.stateOfIssue;
-      nin.user = user;
+      // nin.birthdate = ninData.birthdate
+      // nin.gender = ninData.gender;
+      // nin.riderType = RiderType.RIDER;
+      // nin.issuedDate = ninData.issuedDate;
+      // nin.expiryDate = ninData.expiryDate;
+      // nin.stateOfIssue = ninData.stateOfIssue;
+      // nin.user = user;
 
       // user.license = await this.ninRepository.save(nin);
     } else if (userData.licenseNo) {
