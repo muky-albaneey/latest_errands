@@ -193,7 +193,7 @@ async updateOrCreateUser(userData: any) {
       // nin.stateOfIssue = ninData.data.stateOfIssue;
       // nin.user = user;
 
-      user.license = await this.ninRepository.save(nin);
+      // user.license = await this.ninRepository.save(nin);
     } else if (userData.licenseNo) {
       const driverData = await this.getDriverLicenseDetails(userData.licenseNo);
       const driver = user.driver;
