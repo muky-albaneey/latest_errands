@@ -288,6 +288,9 @@ async updateOrCreateUser(userData: any) {
   console.log(user, 'before');
   
   if (user) {
+    if (user.isRider) {
+      throw new BadRequestException('User is already registered as a rider or driver');
+    }
     if (userData.nin) {
       const ninData = await this.getNinDetails(userData.nin);
       const nin = user.nin || this.ninRepository.create();
