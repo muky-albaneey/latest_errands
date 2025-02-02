@@ -295,9 +295,10 @@ async updateOrCreateUser(userData: any) {
       nin.birthDate = ninData.birthDate;
       nin.gender = ninData.gender;
       nin.riderType = RiderType.RIDER;
-      nin.issuedDate = ninData.issuedDate;
-      nin.expiryDate = ninData.expiryDate;
-      nin.stateOfIssue = ninData.stateOfIssue;
+      nin.employmentStatus = ninData.employmentStatus;
+      nin.trackingId = ninData.trackingId;
+      nin.residenceAdressLine1 = ninData.residenceAdressLine1;
+      nin.telephoneNo = ninData.telephoneNo;
       nin.user = user;
 
       user.license = await this.ninRepository.save(nin);
