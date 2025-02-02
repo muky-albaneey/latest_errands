@@ -332,19 +332,27 @@ async updateOrCreateUser(userData: any) {
   if (userData.nin && userData.licenseNo) {
     throw new BadRequestException("User cannot have both NIN and Driver's License");
   }
-  
-  let newUser = this.userRepository.create({
-    phoneNumber: userData.phoneNumber,
-    email: userData.email,
-    password: userData.password,
-    role: UserRole.USER,
-    isRider: true,
-  });
+  let newUser ;
 
-  newUser = await this.userRepository.save(newUser);
+   
+
 
   if (userData.nin) {
     const ninData = await this.getNinDetails(userData.nin);
+
+    newUser = this.userRepository.create({
+      phoneNumber: userData.phoneNumber,
+      fname :ninData.firstName,
+      lname :ninData.Doe,
+      email: userData.email,
+      password: userData.password,
+      role: UserRole.USER,
+      isRider: true,
+    });
+  
+    newUser = await this.userRepository.save(newUser);
+
+   
     const nin = this.ninRepository.create({
       birthDate: ninData.birthDate,
       gender: ninData.gender,
