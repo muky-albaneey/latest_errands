@@ -174,7 +174,7 @@ async updateOrCreateUser(userData: any) {
   if (userData.email) {
     user = await this.userRepository.findOne({ where: { email: userData.email }, relations: ['license', 'driver'] });
   }
-
+console.log(user,'before')
   if (user) {
     // if (user.isRider) {
     //   throw new BadRequestException('User is already registered as a rider or driver');
