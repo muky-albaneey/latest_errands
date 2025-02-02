@@ -188,14 +188,14 @@ console.log(user,'before')
       console.log(ninData)
       // console.log(ninData.data.birthDate)
       console.log(ninData.birthDate)
-      console.log(nin)
-      // nin.birthDate = ninData.data.birthDate;
-      // nin.gender = ninData.data.gender;
-      // nin.riderType = RiderType.RIDER;
-      // nin.issuedDate = ninData.data.issuedDate;
-      // nin.expiryDate = ninData.data.expiryDate;
-      // nin.stateOfIssue = ninData.data.stateOfIssue;
-      // nin.user = user;
+     
+      nin.birthDate = ninData.birthDate;
+      nin.gender = ninData.gender;
+      nin.riderType = RiderType.RIDER;
+      nin.issuedDate = ninData.issuedDate;
+      nin.expiryDate = ninData.expiryDate;
+      nin.stateOfIssue = ninData.stateOfIssue;
+      nin.user = user;
 
       // user.license = await this.ninRepository.save(nin);
     } else if (userData.licenseNo) {
