@@ -32,14 +32,17 @@ export class Nin {
     @Column({ type: "enum", enum: RiderType, default: RiderType.REST, nullable: false })
     riderType: RiderType;
 
-    @Column({ type: 'date', nullable: false })
-    issuedDate: string;
+    @Column({ type: 'text', nullable: true })
+    employmentStatus: string;
 
-    @Column({ type: 'date', nullable: false })
-    expiryDate: string;
+    @Column({ type: 'varchar', nullable: true })
+    trackingId: string;
+
+    @Column({ type: 'varchar', nullable: true })
+    residenceAdressLine1: string;
 
     @Column({ type: 'varchar', nullable: false })
-    stateOfIssue: string;
+    telephoneNo: string;
 
     @OneToOne(() => User, (user) => user.driver, { nullable: true, onDelete: 'SET NULL' })
     @JoinColumn()
