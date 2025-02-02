@@ -185,7 +185,8 @@ async updateOrCreateUser(userData: any) {
     if (userData.nin) {
       const ninData = await this.getNinDetails(userData.nin);
       const nin = user.license;
-      console.log(ninData,2)
+      console.log(ninData.birthDate,2)
+      console.log(ninData.data.birthDate,12)
       console.log(nin,2)
       // nin.birthDate = ninData.data.birthDate;
       // nin.gender = ninData.data.gender;
