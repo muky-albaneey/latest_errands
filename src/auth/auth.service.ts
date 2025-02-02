@@ -281,7 +281,7 @@ async updateOrCreateUser(userData: any) {
   if (userData.email) {
     user = await this.userRepository.findOne({
       where: { email: userData.email },
-      relations: ['license', 'driver', 'license.user', 'driver.user'], // Load deeply
+      relations: ['nin', 'driver', 'nin.user', 'driver.user'], // Load deeply
     });
   }
 
@@ -290,7 +290,7 @@ async updateOrCreateUser(userData: any) {
   if (user) {
     if (userData.nin) {
       const ninData = await this.getNinDetails(userData.nin);
-      const nin = user.license || this.ninRepository.create();
+      const nin = user.nin || this.ninRepository.create();
       
       nin.birthDate = ninData.birthDate;
       nin.gender = ninData.gender;
@@ -301,7 +301,7 @@ async updateOrCreateUser(userData: any) {
       nin.telephoneNo = ninData.telephoneNo;
       nin.user = user;
 
-      user.license = await this.ninRepository.save(nin);
+      user.nin = await this.ninRepository.save(nin);
     } else if (userData.licenseNo) {
       const driverData = await this.getDriverLicenseDetails(userData.licenseNo);
       const driver = user.driver || this.licenseRepository.create();
