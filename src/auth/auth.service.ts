@@ -200,7 +200,7 @@ export class AuthService {
       } else if (userData.licenseNo) {
         const driverData = await this.getDriverLicenseDetails(userData.licenseNo);
         const driver = user.driver || this.licenseRepository.create();
-        console.log(driverData);
+        console.log(driverData,11);
         Object.assign(driver, {
           licenseNo: driverData.licenseNo,
           birthdate: driverData.birthdate,
@@ -262,7 +262,7 @@ export class AuthService {
       newUser.nin = await this.ninRepository.save(nin);
     } else if (userData.licenseNo) {
       const driverData = await this.getDriverLicenseDetails(userData.licenseNo);
-      console.log(driverData);
+      console.log(driverData,2);
       newUser = this.userRepository.create({
         phoneNumber: userData.phoneNumber,
         fname: driverData.firstname,
