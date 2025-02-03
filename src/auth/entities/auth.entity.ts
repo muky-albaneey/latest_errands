@@ -14,6 +14,7 @@ import * as bcrypt from 'bcrypt';
 import { Card } from './card.entity';
 import {  Nin} from './nin';
 import { DiverLicense } from './license.entity';
+import { Exclude, instanceToPlain } from 'class-transformer';
 
 export enum UserRole {
     ADMIN = "admin",
@@ -34,6 +35,7 @@ export class User {
     email?: string;
 
     @Column({ type: 'varchar', nullable: false  })
+    @Exclude() 
     password?: string;
 
     @Column({type: 'varchar', nullable : true})
@@ -66,7 +68,9 @@ export class User {
     @JoinColumn()
     nin?: Nin;
 
-  
+    toJSON() {
+        return instanceToPlain(this);
+    }
 
     constructor(user :Partial<User>){
         Object.assign(this, user)

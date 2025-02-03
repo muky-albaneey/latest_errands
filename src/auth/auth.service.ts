@@ -281,11 +281,11 @@ async updateOrCreateUser(userData: any) {
   if (userData.email) {
     user = await this.userRepository.findOne({
       where: { email: userData.email },
-      relations: ['nin', 'driver', 'nin.user', 'driver.user'], // Load deeply
+      relations: ['nin', 'driver'], // Load deeply
     });
   }
 
-  console.log(user, 'before');
+  // console.log(user, 'before');
   
   if (user) {
     if (user.isRider) {
