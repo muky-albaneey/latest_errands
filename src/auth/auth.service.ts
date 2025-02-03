@@ -239,7 +239,7 @@ export class AuthService {
       newUser = this.userRepository.create({
         phoneNumber: userData.phoneNumber,
         fname: ninData.firstName,
-        lname: ninData.Doe,
+        lname: ninData.middleName,
         email: userData.email,
         password: userData.password,
         role: UserRole.USER,
@@ -262,6 +262,15 @@ export class AuthService {
       newUser.nin = await this.ninRepository.save(nin);
     } else if (userData.licenseNo) {
       const driverData = await this.getDriverLicenseDetails(userData.licenseNo);
+      newUser = this.userRepository.create({
+        phoneNumber: userData.phoneNumber,
+        fname: driverData.firstname,
+        lname: driverData.lastname,
+        email: userData.email,
+        password: userData.password,
+        role: UserRole.USER,
+        isRider: true,
+      });
       const driver = this.licenseRepository.create({
         licenseNo: driverData.licenseNo,
         birthdate: driverData.birthdate,
