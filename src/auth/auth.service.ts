@@ -200,7 +200,7 @@ export class AuthService {
       } else if (userData.licenseNo) {
         const driverData = await this.getDriverLicenseDetails(userData.licenseNo);
         const driver = user.driver || this.licenseRepository.create();
-  console.log(driver)
+  console.log(driverData)
         Object.assign(driver, {
           licenseNo: driverData.licenseNo,
           birthdate: driverData.birthdate,
