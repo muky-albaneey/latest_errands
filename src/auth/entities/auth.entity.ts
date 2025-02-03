@@ -62,15 +62,18 @@ export class User {
 
     @OneToOne(() => DiverLicense, (driver) => driver.user, { cascade: true, nullable: true, onDelete: 'SET NULL' })
     @JoinColumn()
+    @Exclude()
     driver?: DiverLicense;
 
     @OneToOne(() => Nin, (nin) => nin.user, { cascade: true, nullable: true, onDelete: 'SET NULL' })
     @JoinColumn()
+    @Exclude() 
     nin?: Nin;
 
     toJSON() {
-        return instanceToPlain(this);
+        return instanceToPlain(this, { excludePrefixes: ['_'] });
     }
+
 
     constructor(user :Partial<User>){
         Object.assign(this, user)
