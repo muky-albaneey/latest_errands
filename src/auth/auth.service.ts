@@ -280,6 +280,7 @@ export class AuthService {
         role: UserRole.USER,
         isRider: true,
       });
+      console.log(driverData,3);
       const driver = this.licenseRepository.create({
         licenseNo: driverData.licenseNo,
         birthdate: driverData.birthdate,
@@ -289,7 +290,7 @@ export class AuthService {
         stateOfIssue: driverData.stateOfIssue,
         user: newUser,
       });
-  
+      console.log(driverData,4);
       newUser.driver = await this.licenseRepository.save(driver);
     }
   
