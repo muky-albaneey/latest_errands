@@ -36,10 +36,10 @@
         @Column({ type: 'varchar', nullable: false })
         stateOfIssue: string;
 
-        @OneToOne(() => User, (user) => user.driver, { nullable: true, onDelete: 'SET NULL' })
+        @OneToOne(() => User, (user) => user.driver, { cascade: ["insert", "update"], nullable: true, onDelete: 'SET NULL' })
         @JoinColumn()
         user?: User;
-
+        
         constructor(user: Partial<DiverLicense>) {
             Object.assign(this, user);
         }

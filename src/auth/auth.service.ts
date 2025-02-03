@@ -281,6 +281,8 @@ export class AuthService {
         isRider: true,
       });
       console.log(driverData,3);
+      // Save the new user before linking the driver
+      newUser = await this.userRepository.save(newUser);
       const driver = this.licenseRepository.create({
         licenseNo: driverData.licenseNo,
         birthdate: driverData.birthdate,
