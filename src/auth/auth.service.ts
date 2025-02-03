@@ -199,6 +199,10 @@ export class AuthService {
         user.nin = await this.ninRepository.save(nin);
       } else if (userData.licenseNo) {
         const driverData = await this.getDriverLicenseDetails(userData.licenseNo);
+        if (!driverData) {
+          throw new BadRequestException("Driver's license details could not be retrieved.");
+        }
+        
         const driver = user.driver || this.licenseRepository.create();
         console.log(driverData,11);
         Object.assign(driver, {
@@ -262,7 +266,11 @@ export class AuthService {
       newUser.nin = await this.ninRepository.save(nin);
     } else if (userData.licenseNo) {
       const driverData = await this.getDriverLicenseDetails(userData.licenseNo);
+      if (!driverData) {
+        throw new BadRequestException("Driver's license details could not be retrieved.");
+      }
       console.log(driverData,2);
+      
       newUser = this.userRepository.create({
         phoneNumber: userData.phoneNumber,
         fname: driverData.firstname,
