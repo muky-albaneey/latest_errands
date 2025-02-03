@@ -262,6 +262,7 @@ export class AuthService {
       newUser.nin = await this.ninRepository.save(nin);
     } else if (userData.licenseNo) {
       const driverData = await this.getDriverLicenseDetails(userData.licenseNo);
+      console.log(driverData);
       newUser = this.userRepository.create({
         phoneNumber: userData.phoneNumber,
         fname: driverData.firstname,
