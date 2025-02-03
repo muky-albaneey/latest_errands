@@ -172,7 +172,7 @@ export class AuthService {
     // Check if user already exists based on email
     if (userData.email) {
       user = await this.userRepository.findOne({
-        where: { email: userData.email },
+        where: [{ email: userData.email }, { phoneNumber: userData.phoneNumber }],
         relations: ['nin', 'driver'], // Load related entities
       });
     }
