@@ -10,30 +10,11 @@ import { Card } from './entities/card.entity';
 import { DiverLicense } from './entities/license.entity';
 import { Nin } from './entities/nin';
 
-// @Module({
-//   imports: [
-//     TypeOrmModule.forFeature([User, Card, DiverLicense, Nin]),
-//     ConfigModule,
-//     HttpModule, // Add HttpModule here
-//     JwtModule.registerAsync({
-//       imports: [ConfigModule],
-//       useFactory: async (configService: ConfigService) => ({
-//         secret: configService.get<string>('ACCESS_TOKEN'),
-//         signOptions: { expiresIn: '60s' },
-//       }),
-//       inject: [ConfigService],
-//     }),
-//   ],
-//   exports: [TypeOrmModule, HttpModule], // Export HttpModule if needed in other modules
-//   controllers: [AuthController],
-//   providers: [AuthService], // Remove HttpService from providers
-// })
-// export class AuthModule {}
 @Module({
   imports: [
     TypeOrmModule.forFeature([User, Card, DiverLicense, Nin]),
-    ConfigModule.forRoot(), // Ensure ConfigModule is initialized
-    HttpModule, 
+    ConfigModule,
+    HttpModule, // Add HttpModule here
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
@@ -43,17 +24,36 @@ import { Nin } from './entities/nin';
       inject: [ConfigService],
     }),
   ],
-  exports: [TypeOrmModule, HttpModule],
+  exports: [TypeOrmModule, HttpModule], // Export HttpModule if needed in other modules
   controllers: [AuthController],
-  providers: [
-    AuthService,
-    JwtService,
-    ConfigService,
-    HttpService,
-    {
-      provide: 'API_URL',
-      useValue: 'http://www.carqueryapi.com/api/0.3/',  // This might be redundant if you rely on ConfigService
-    },
-  ],
+  providers: [AuthService], // Remove HttpService from providers
 })
 export class AuthModule {}
+// @Module({
+//   imports: [
+//     TypeOrmModule.forFeature([User, Card, DiverLicense, Nin]),
+//     ConfigModule.forRoot(), // Ensure ConfigModule is initialized
+//     HttpModule, 
+//     JwtModule.registerAsync({
+//       imports: [ConfigModule],
+//       useFactory: async (configService: ConfigService) => ({
+//         secret: configService.get<string>('ACCESS_TOKEN'),
+//         signOptions: { expiresIn: '60s' },
+//       }),
+//       inject: [ConfigService],
+//     }),
+//   ],
+//   exports: [TypeOrmModule, HttpModule],
+//   controllers: [AuthController],
+//   providers: [
+//     AuthService,
+//     JwtService,
+//     ConfigService,
+//     HttpService,
+//     {
+//       provide: 'API_URL',
+//       useValue: 'http://www.carqueryapi.com/api/0.3/',  // This might be redundant if you rely on ConfigService
+//     },
+//   ],
+// })
+// export class AuthModule {}
