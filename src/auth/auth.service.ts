@@ -280,9 +280,33 @@ export class AuthService {
         role: UserRole.USER,
         isRider: true,
       });
-      console.log(driverData,3);
-      // Save the new user before linking the driver
+      console.log(driverData, 3);
+
+      newUser = this.userRepository.create({
+        phoneNumber: userData.phoneNumber,
+        fname: driverData.firstname,
+        lname: driverData.lastname,
+        email: userData.email,
+        password: userData.password,
+        role: UserRole.USER,
+        isRider: true,
+      });
+      
+      // Save the user first so it gets an ID
       newUser = await this.userRepository.save(newUser);
+      
+      console.log(driverData, 4);
+      
+      // Check if this user already has a DriverLicense
+      const existingDriver = await this.licenseRepository.findOne({
+        where: { user: newUser },
+      });
+      
+      if (existingDriver) {
+        throw new Error("This user already has a driver license.");
+      }
+      
+      // Create a new driver license
       const driver = this.licenseRepository.create({
         licenseNo: driverData.licenseNo,
         birthdate: driverData.birthdate,
@@ -290,12 +314,16 @@ export class AuthService {
         issuedDate: driverData.issuedDate,
         expiryDate: driverData.expiryDate,
         stateOfIssue: driverData.stateOfIssue,
-        user: newUser,
+        user: newUser, // Now, newUser is saved and has an ID
       });
-      console.log(driverData,4);
+      
+      // Save the driver license
+      await this.licenseRepository.save(driver);
+      
       // Update newUser with the driver reference (if needed)
       newUser.driver = driver;
-      newUser.driver = await this.licenseRepository.save(driver);
+      await this.userRepository.save(newUser);
+      
     }
   
     return this.formatUserResponse(newUser);
