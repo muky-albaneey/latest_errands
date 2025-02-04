@@ -216,4 +216,13 @@ async logout(@Res({ passthrough: true }) response: Response): Promise<any> {
     return this.authService.getCarModels(make);
   }
 
+  // Endpoint to get car model details based on make and model
+  @Get('model/:make/:model')
+  async getCarModelDetails(
+    @Param('make') make: string,
+    @Param('model') model: string,
+  ): Promise<any> {
+    return this.authService.getCarModelDetails(make, model);
+  }
+
 }

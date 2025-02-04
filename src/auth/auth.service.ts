@@ -396,4 +396,20 @@ async getDriverLicenseDetails(licenseNo: string) {
     }
   }
 
+    // Fetch car model details based on make and model
+    async getCarModelDetails(make: string, model: string): Promise<any> {
+      try {
+        const response = await axios.get(this.apiUrl, {
+          params: {
+            cmd: 'getModel',
+            make: make,
+            model: model,
+          },
+        });
+        return response.data;
+      } catch (error) {
+        throw new Error(`Error fetching car model details: ${error.message}`);
+      }
+    }
+
 }
