@@ -293,6 +293,8 @@ export class AuthService {
         user: newUser,
       });
       console.log(driverData,4);
+      // Update newUser with the driver reference (if needed)
+      newUser.driver = driver;
       newUser.driver = await this.licenseRepository.save(driver);
     }
   
