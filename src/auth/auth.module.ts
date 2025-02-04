@@ -2,9 +2,9 @@ import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { JwtModule } from '@nestjs/jwt';
+import { JwtModule, JwtService } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { HttpModule } from '@nestjs/axios'; // Import HttpModule
+import { HttpModule, HttpService } from '@nestjs/axios'; // Import HttpModule
 import { User } from './entities/auth.entity';
 import { Card } from './entities/card.entity';
 import { DiverLicense } from './entities/license.entity';
