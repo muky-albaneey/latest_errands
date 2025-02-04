@@ -16,6 +16,8 @@ import { CreateAuthDto, LoginAuthDto } from './dto/create-auth.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
 import { DiverLicense } from './entities/license.entity';
 import { Nin, RiderType } from './entities/nin';
+import { firstValueFrom } from 'rxjs';
+import axios from 'axios';
 
 @Injectable()
 export class AuthService {
@@ -28,7 +30,8 @@ export class AuthService {
     private ninRepository: Repository<Nin>,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-    private readonly httpService: HttpService
+    private readonly httpService: HttpService,
+    private readonly apiUrl : 'http://www.carqueryapi.com/api/0.3/',
   ) {}
 
   async createUser(createUserDto: CreateAuthDto): Promise<User> {
@@ -339,119 +342,7 @@ export class AuthService {
       driver: user.driver ? { licenseNo: user.driver.licenseNo } : null,
     };
   }
-    
-// async updateOrCreateUser(userData: any) {
-//   let user = null;
-
-//   // Check if user already exists based on email
-//   if (userData.email) {
-//     user = await this.userRepository.findOne({
-//       where: { email: userData.email },
-//       relations: ['nin', 'driver'], // Load deeply
-//     });
-//   }
-
-//   // console.log(user, 'before');
   
-//   if (user) {
-//     if (user.isRider) {
-//       throw new BadRequestException('User is already registered as a rider or driver');
-//     }
-//     if (userData.nin) {
-//       const ninData = await this.getNinDetails(userData.nin);
-//       const nin = user.nin || this.ninRepository.create();
-      
-//       nin.birthDate = ninData.birthDate;
-//       nin.gender = ninData.gender;
-//       nin.riderType = RiderType.RIDER;
-//       nin.employmentStatus = ninData.employmentStatus;
-//       nin.trackingId = ninData.trackingId;
-//       nin.residenceAdressLine1 = ninData.residenceAdressLine1;
-//       nin.telephoneNo = ninData.telephoneNo;
-//       nin.user = user;
-
-//       user.nin = await this.ninRepository.save(nin);
-//     } else if (userData.licenseNo) {
-//       const driverData = await this.getDriverLicenseDetails(userData.licenseNo);
-//       const driver = user.driver || this.licenseRepository.create();
-      
-//       driver.licenseNo = driverData.licenseNo;
-//       driver.birthdate = driverData.birthdate;
-//       driver.gender = driverData.gender;
-//       driver.issuedDate = driverData.issuedDate;
-//       driver.expiryDate = driverData.expiryDate;
-//       driver.stateOfIssue = driverData.stateOfIssue;
-//       driver.user = user;
-
-//       user.driver = await this.licenseRepository.save(driver);
-//     } else {
-//       throw new BadRequestException("User must provide either NIN or Driver's License");
-//     }
-
-//     user.isRider = true;
-//     await this.userRepository.save(user);
-//     return user;
-//   }
-
-//   // If user doesn't exist, create a new user
-//   if (!userData.nin && !userData.licenseNo) {
-//     throw new BadRequestException("User must provide either NIN or Driver's License");
-//   }
-
-//   if (userData.nin && userData.licenseNo) {
-//     throw new BadRequestException("User cannot have both NIN and Driver's License");
-//   }
-//   let newUser ;
-
-   
-
-
-//   if (userData.nin) {
-//     const ninData = await this.getNinDetails(userData.nin);
-
-//     newUser = this.userRepository.create({
-//       phoneNumber: userData.phoneNumber,
-//       fname :ninData.firstName,
-//       lname :ninData.Doe,
-//       email: userData.email,
-//       password: userData.password,
-//       role: UserRole.USER,
-//       isRider: true,
-//     });
-  
-//     newUser = await this.userRepository.save(newUser);
-
-   
-//     const nin = this.ninRepository.create({
-//       birthDate: ninData.birthDate,
-//       gender: ninData.gender,
-//       riderType: RiderType.RIDER,
-//       employmentStatus: ninData.employmentStatus,
-//       trackingId: ninData.trackingId,
-//       residenceAdressLine1: ninData.residenceAdressLine1,
-//       telephoneNo: ninData.telephoneNo,
-//       user: newUser,
-//     });
-
-//     newUser.nin = await this.ninRepository.save(nin);
-//   } else if (userData.licenseNo) {
-//     const driverData = await this.getDriverLicenseDetails(userData.licenseNo);
-//     const driver = this.licenseRepository.create({
-//       licenseNo: driverData.licenseNo,
-//       birthdate: driverData.birthdate,
-//       gender: driverData.gender,
-//       issuedDate: driverData.issuedDate,
-//       expiryDate: driverData.expiryDate,
-//       stateOfIssue: driverData.stateOfIssue,
-//       user: newUser,
-//     });
-
-//     newUser.driver = await this.licenseRepository.save(driver);
-//   }
-
-//   return newUser;
-// }
-
 
 async getNinDetails(nin: string) {
   try {
@@ -490,5 +381,19 @@ async getDriverLicenseDetails(licenseNo: string) {
     throw new BadRequestException('Error retrieving Driver License details. Please try again later.');
   }
 }
+  // Fetch car models based on make (e.g., Mercedes-Benz)
+  async getCarModels(make: string): Promise<any> {
+    try {
+      const response = await axios.get(this.apiUrl, {
+        params: {
+          cmd: 'getModels',
+          make: make,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(`Error fetching car models: ${error.message}`);
+    }
+  }
 
 }

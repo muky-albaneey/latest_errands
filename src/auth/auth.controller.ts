@@ -211,6 +211,9 @@ async logout(@Res({ passthrough: true }) response: Response): Promise<any> {
     return await this.authService.updateOrCreateUser(userData);
   }
 
-
+  @Get(':make')
+  async getCarModels(@Param('make') make: string): Promise<any> {
+    return this.authService.getCarModels(make);
+  }
 
 }
