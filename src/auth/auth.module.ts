@@ -2,19 +2,38 @@ import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { JwtModule, JwtService } from '@nestjs/jwt';
+import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { HttpModule, HttpService } from '@nestjs/axios'; // Import HttpModule
+import { HttpModule } from '@nestjs/axios'; // Import HttpModule
 import { User } from './entities/auth.entity';
 import { Card } from './entities/card.entity';
 import { DiverLicense } from './entities/license.entity';
 import { Nin } from './entities/nin';
 
+// @Module({
+//   imports: [
+//     TypeOrmModule.forFeature([User, Card, DiverLicense, Nin]),
+//     ConfigModule,
+//     HttpModule, // Add HttpModule here
+//     JwtModule.registerAsync({
+//       imports: [ConfigModule],
+//       useFactory: async (configService: ConfigService) => ({
+//         secret: configService.get<string>('ACCESS_TOKEN'),
+//         signOptions: { expiresIn: '60s' },
+//       }),
+//       inject: [ConfigService],
+//     }),
+//   ],
+//   exports: [TypeOrmModule, HttpModule], // Export HttpModule if needed in other modules
+//   controllers: [AuthController],
+//   providers: [AuthService], // Remove HttpService from providers
+// })
+// export class AuthModule {}
 @Module({
   imports: [
     TypeOrmModule.forFeature([User, Card, DiverLicense, Nin]),
-    ConfigModule,
-    HttpModule, // Add HttpModule here
+    ConfigModule.forRoot(), // Ensure ConfigModule is initialized
+    HttpModule, 
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
@@ -24,7 +43,7 @@ import { Nin } from './entities/nin';
       inject: [ConfigService],
     }),
   ],
-  exports: [TypeOrmModule, HttpModule], // Export HttpModule if needed in other modules
+  exports: [TypeOrmModule, HttpModule],
   controllers: [AuthController],
   providers: [
     AuthService,
@@ -33,7 +52,7 @@ import { Nin } from './entities/nin';
     HttpService,
     {
       provide: 'API_URL',
-      useValue: 'http://www.carqueryapi.com/api/0.3/',
+      useValue: 'http://www.carqueryapi.com/api/0.3/',  // This might be redundant if you rely on ConfigService
     },
   ],
 })
