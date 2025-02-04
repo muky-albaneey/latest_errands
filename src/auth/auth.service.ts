@@ -31,8 +31,12 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly httpService: HttpService,
-    private readonly apiUrl : 'http://www.carqueryapi.com/api/0.3/',
-  ) {}
+    private readonly apiUrl: string,  // This will be injected from ConfigService
+    // private readonly apiUrl : 'http://www.carqueryapi.com/api/0.3/',
+    
+  ) {
+    this.apiUrl = this.configService.get<string>('API_URL'); // Initialize apiUrl from config
+  }
 
   async createUser(createUserDto: CreateAuthDto): Promise<User> {
     const { email, phoneNumber, password, fname, lname, role } = createUserDto;

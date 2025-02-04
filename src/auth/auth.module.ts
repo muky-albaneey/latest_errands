@@ -2,9 +2,9 @@ import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { JwtModule } from '@nestjs/jwt';
+import { JwtModule, JwtService } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { HttpModule } from '@nestjs/axios'; // Import HttpModule
+import { HttpModule, HttpService } from '@nestjs/axios'; // Import HttpModule
 import { User } from './entities/auth.entity';
 import { Card } from './entities/card.entity';
 import { DiverLicense } from './entities/license.entity';
@@ -26,6 +26,15 @@ import { Nin } from './entities/nin';
   ],
   exports: [TypeOrmModule, HttpModule], // Export HttpModule if needed in other modules
   controllers: [AuthController],
-  providers: [AuthService], // Remove HttpService from providers
+  providers: [
+    AuthService,
+    JwtService,
+    ConfigService,
+    HttpService,
+    {
+      provide: 'API_URL',
+      useValue: 'http://www.carqueryapi.com/api/0.3/',
+    },
+  ],
 })
 export class AuthModule {}
