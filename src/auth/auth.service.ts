@@ -21,6 +21,7 @@ import axios from 'axios';
 
 @Injectable()
 export class AuthService {
+  private readonly apiUrl: string;
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
@@ -35,7 +36,9 @@ export class AuthService {
     // private readonly apiUrl : 'http://www.carqueryapi.com/api/0.3/',
     
   ) {
-    const apiUrl = this.configService.get<string>('API_URL'); // Initialize apiUrl from config
+      // Initialize apiUrl from config
+      this.apiUrl = this.configService.get<string>('API_URL');
+    // this.apiUrl = this.configService.get<string>('API_URL'); // Properly assign to class property // Initialize apiUrl from config
   }
 
   async createUser(createUserDto: CreateAuthDto): Promise<User> {
