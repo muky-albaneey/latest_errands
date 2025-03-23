@@ -10,6 +10,7 @@ import { Card } from './auth/entities/card.entity';
 import { SmsModule } from './sms/sms.module';
 import { DiverLicense } from './auth/entities/license.entity';
 import { Nin } from './auth/entities/nin';
+import { LocationDrive } from './auth/entities/location_drive';
 
 
 @Module({
@@ -28,7 +29,7 @@ import { Nin } from './auth/entities/nin';
         username: configService.get<string>('DATABASE_USERNAME'),
         password: configService.get<string>('DATABASE_PASSWORD'),
         database: configService.get<string>('DATABASE_NAME'),
-        entities: [User, Card, DiverLicense, Nin],
+        entities: [User, Card, DiverLicense, Nin, LocationDrive],
         synchronize: true,
         extra: {
           max: 2 // Limit to 2 connections

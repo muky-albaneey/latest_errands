@@ -9,10 +9,11 @@ import { User } from './entities/auth.entity';
 import { Card } from './entities/card.entity';
 import { DiverLicense } from './entities/license.entity';
 import { Nin } from './entities/nin';
+import { LocationDrive } from './entities/location_drive';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Card, DiverLicense, Nin]),
+    TypeOrmModule.forFeature([User, Card, DiverLicense, Nin, LocationDrive]),
     ConfigModule,
     HttpModule, // Add HttpModule here
     JwtModule.registerAsync({
