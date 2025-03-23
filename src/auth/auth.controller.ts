@@ -12,6 +12,7 @@ import {
   HttpException,
   Query,
   BadRequestException,
+  HttpCode,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 // import { CreateAuthDto, LoginAuthDto } from './dto/create-auth.dto';
@@ -19,8 +20,9 @@ import { AuthService } from './auth.service';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import type { Response } from 'express';
-import { CreateAuthDto, LoginAuthDto } from './dto/create-auth.dto';
+import { CreateAuthDto, CreateAuthDtoDriver, LoginAuthDto } from './dto/create-auth.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
+import { User } from './entities/auth.entity';
 
 @Controller('auth')
 export class AuthController {
@@ -202,7 +204,13 @@ async logout(@Res({ passthrough: true }) response: Response): Promise<any> {
       message: 'User removed successfully.',
     });
     
-  } @Post('update-or-create')
+  } 
+  @Post('create-driver')
+  @HttpCode(HttpStatus.CREATED)
+  async createUserDriver(@Body() createUserDto: CreateAuthDtoDriver): Promise<User> {
+    return this.authService.createUserDriver(createUserDto);
+  }
+  @Post('update-or-create')
   async updateOrCreateUser(@Body() userData: any) {
     if (!userData.email) {
       throw new BadRequestException('Email is required');
