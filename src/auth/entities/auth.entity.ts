@@ -13,8 +13,10 @@ import {
 import * as bcrypt from 'bcrypt';
 import { Card } from './card.entity';
 import {  Nin} from './nin';
+
 import { DiverLicense } from './license.entity';
 import { Exclude, instanceToPlain } from 'class-transformer';
+import { LocationDrive } from './location_drive';
 
 export enum UserRole {
     ADMIN = "admin",
@@ -32,7 +34,7 @@ export class User {
     phoneNumber: string;
 
     @Column({ type: 'varchar', length: 140, unique : true, nullable: false })
-    email?: string;
+    email: string;
 
     @Column({ type: 'varchar', nullable: false  })
     @Exclude() 
@@ -69,6 +71,11 @@ export class User {
     @JoinColumn()
     @Exclude() 
     nin?: Nin;
+
+    @OneToOne(() => LocationDrive, (location) => location.user, { cascade: true, nullable: true, onDelete: 'SET NULL' })
+    @JoinColumn()
+    @Exclude() 
+    location_drive: LocationDrive;   
 
     toJSON() {
         return instanceToPlain(this, { excludePrefixes: ['_'] });

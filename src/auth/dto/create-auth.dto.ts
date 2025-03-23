@@ -39,3 +39,38 @@ export class LoginAuthDto {
     @MinLength(6)
     password: string;
   }
+
+
+  export class CreateAuthDtoDriver {
+    @IsNotEmpty()
+    @IsString()
+    readonly phoneNumber: string;
+  
+    @IsNotEmpty()
+    @IsEmail()
+    readonly email: string;
+  
+    @IsNotEmpty()
+    @MinLength(6)
+    readonly password: string;
+  
+    @IsOptional()
+    @IsString()
+    readonly fname?: string;
+  
+    @IsOptional()
+    @IsString()
+    readonly lname?: string;
+  
+    @IsOptional()
+    @IsEnum(UserRole)
+    readonly role?: UserRole;
+
+    @IsOptional()
+    @IsString()
+    drive_country?:string;
+
+    @IsOptional()
+    @IsString()
+    drive_city?:string;
+  }

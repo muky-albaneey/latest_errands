@@ -12,12 +12,13 @@ import { HttpService } from '@nestjs/axios';
 import { User, UserRole } from './entities/auth.entity';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { CreateAuthDto, LoginAuthDto } from './dto/create-auth.dto';
+import { CreateAuthDto, CreateAuthDtoDriver, LoginAuthDto } from './dto/create-auth.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
 import { DiverLicense } from './entities/license.entity';
 import { Nin, RiderType } from './entities/nin';
 import { firstValueFrom } from 'rxjs';
 import axios from 'axios';
+import { LocationDrive } from './entities/location_drive';
 
 @Injectable()
 export class AuthService {
@@ -29,11 +30,14 @@ export class AuthService {
     private licenseRepository: Repository<DiverLicense>,
     @InjectRepository(Nin)
     private ninRepository: Repository<Nin>,
+    @InjectRepository(LocationDrive)
+    private locationDriveRepository: Repository<LocationDrive>,
+
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly httpService: HttpService,
     // private readonly apiUrl: string,  // This will be injected from ConfigService
-    // private readonly apiUrl : 'http://www.carqueryapi.com/api/0.3/',
+    // private readonly apiUrl : 'http://www.carqueryapi.com/api/0.3/',locationDriveRepository
     
   ) {
       // Initialize apiUrl from config
@@ -174,7 +178,47 @@ export class AuthService {
   
     return { data, total };
   }
-
+  async createUserDriver(createUserDto: CreateAuthDtoDriver): Promise<User> {
+    const { email, phoneNumber, password, fname, lname, role, drive_country, drive_city } = createUserDto;
+  
+    // Check if email or phone number already exists
+    const existingUser = await this.userRepository.findOne({
+      where: [{ email }, { phoneNumber }]
+    });
+    if (existingUser) {
+      throw new ConflictException(
+        'A user with this email or phone number already exists.',
+      );
+    }
+  
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+  
+    // Create and save the user
+    const user = this.userRepository.create({
+      email,
+      phoneNumber,
+      password: hashedPassword,
+      fname,
+      lname,
+      role
+    });
+    const savedUser = await this.userRepository.save(user);
+  
+    // Create and save the location details if provided
+    if (drive_country || drive_city) {
+      const location = this.locationDriveRepository.create({
+        drive_country,
+        drive_city,
+        user: savedUser
+      });
+      await this.locationDriveRepository.save(location);
+      savedUser.location_drive = location;
+    }
+  
+    return savedUser;
+  }
+  
 
   async updateOrCreateUser(userData: any) {
     let user = null;
@@ -188,9 +232,13 @@ export class AuthService {
     }
   
     if (user) {
+
       if (user.isRider) {
+
         throw new BadRequestException('User is already registered as a rider or driver');
+
       }
+
       if (userData.nin) {
         const ninData = await this.getNinDetails(userData.nin);
         const nin = user.nin || this.ninRepository.create();
@@ -207,14 +255,19 @@ export class AuthService {
         });
   
         user.nin = await this.ninRepository.save(nin);
+
       } else if (userData.licenseNo) {
+
         const driverData = await this.getDriverLicenseDetails(userData.licenseNo);
+
         if (!driverData) {
+
           throw new BadRequestException("Driver's license details could not be retrieved.");
+
         }
         
         const driver = user.driver || this.licenseRepository.create();
-        console.log(driverData,11);
+        // console.log(driverData,11);
         Object.assign(driver, {
           licenseNo: driverData.licenseNo,
           birthdate: driverData.birthdate,
@@ -229,7 +282,7 @@ export class AuthService {
       } else {
         throw new BadRequestException("User must provide either NIN or Driver's License");
       }
-  
+      
       user.isRider = true;
       await this.userRepository.save(user);
   
