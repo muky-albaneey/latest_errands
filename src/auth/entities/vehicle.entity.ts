@@ -39,12 +39,12 @@ export class Vehicle {
 
  // One-to-One relationship with User
  @OneToOne(() => User, (user) => user.vehicle, {
-    cascade: true,
-    nullable: true,
-    onDelete: 'SET NULL',
-  })
-  @JoinColumn()
-  user?: User;
+  nullable: true,
+  onDelete: 'SET NULL',
+})
+@JoinColumn()
+user?: User;
+
 
   constructor(vehicle: Partial<Vehicle>) {
     Object.assign(this, vehicle);

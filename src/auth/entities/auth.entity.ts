@@ -80,12 +80,13 @@ export class User {
 
     // One-to-One relationship with Vehicle
     @OneToOne(() => Vehicle, (vehicle) => vehicle.user, {
-        cascade: true,
+        cascade: true, // Keep cascade only on one side
         nullable: true,
         onDelete: 'SET NULL',
     })
     @JoinColumn()
     vehicle?: Vehicle;
+    
 
 
 
