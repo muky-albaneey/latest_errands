@@ -7,6 +7,7 @@ import {
     JoinColumn,
   } from 'typeorm';
   import { User } from './auth.entity';
+import { Exclude } from 'class-transformer';
   
 @Entity()
 export class Vehicle {
@@ -38,12 +39,10 @@ export class Vehicle {
   specialEquipment: string;
 
  // One-to-One relationship with User
- @OneToOne(() => User, (user) => user.vehicle, {
-  nullable: true,
-  onDelete: 'SET NULL',
-})
-@JoinColumn()
-user?: User;
+ @OneToOne(() => User, (user) => user.vehicle)
+ @Exclude()
+ user?: User;
+ 
 
 
   constructor(vehicle: Partial<Vehicle>) {
