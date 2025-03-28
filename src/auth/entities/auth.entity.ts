@@ -17,6 +17,7 @@ import {  Nin} from './nin';
 import { DiverLicense } from './license.entity';
 import { Exclude, instanceToPlain } from 'class-transformer';
 import { LocationDrive } from './location_drive';
+import { Vehicle } from './vehicle.entity';
 
 export enum UserRole {
     ADMIN = "admin",
@@ -76,6 +77,17 @@ export class User {
     @JoinColumn()
     @Exclude() 
     location_drive: LocationDrive;   
+
+    // One-to-One relationship with Vehicle
+    @OneToOne(() => Vehicle, (vehicle) => vehicle.user, {
+        cascade: true,
+        nullable: true,
+        onDelete: 'SET NULL',
+    })
+    @JoinColumn()
+    vehicle?: Vehicle;
+
+
 
     toJSON() {
         return instanceToPlain(this, { excludePrefixes: ['_'] });

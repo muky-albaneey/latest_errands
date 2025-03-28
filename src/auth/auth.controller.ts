@@ -23,6 +23,7 @@ import type { Response } from 'express';
 import { CreateAuthDto, CreateAuthDtoDriver, LoginAuthDto } from './dto/create-auth.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
 import { User } from './entities/auth.entity';
+import { CreateVehicleDto } from './dto/vehicle.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -233,4 +234,30 @@ async logout(@Res({ passthrough: true }) response: Response): Promise<any> {
     return this.authService.getCarModelDetails(make, model);
   }
 
+  @Post('vehicle')
+  async createOrUpdateVehicle(
+    @Query('email') email: string, // Use email instead of CurrentUser
+    @Body() dto: CreateVehicleDto,
+  ) {
+    if (!email) {
+      throw new Error('Email is required');
+    }
+    return this.authService.createOrUpdateVehicle(email, dto);
+  }
+
+  @Get('vehicle')
+  async getVehicleByUser(@Query('email') email: string) {
+    if (!email) {
+      throw new Error('Email is required');
+    }
+    return this.authService.getVehicleByUser(email);
+  }
+
+  @Delete('vehicle')
+  async deleteVehicle(@Query('email') email: string) {
+    if (!email) {
+      throw new Error('Email is required');
+    }
+    return this.authService.deleteVehicle(email);
+  }
 }

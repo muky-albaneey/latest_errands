@@ -19,6 +19,8 @@ import { Nin, RiderType } from './entities/nin';
 import { firstValueFrom } from 'rxjs';
 import axios from 'axios';
 import { LocationDrive } from './entities/location_drive';
+import { Vehicle } from './entities/vehicle.entity';
+import { CreateVehicleDto } from './dto/vehicle.dto';
 
 @Injectable()
 export class AuthService {
@@ -32,11 +34,13 @@ export class AuthService {
     private ninRepository: Repository<Nin>,
     @InjectRepository(LocationDrive)
     private locationDriveRepository: Repository<LocationDrive>,
+    @InjectRepository(Vehicle)
+    private vehicleRepository: Repository<Vehicle>,
 
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly httpService: HttpService,
-    // private readonly apiUrl: string,  // This will be injected from ConfigService
+    // private readonly apiUrl: string,  // This will be injected from ConfigService 
     // private readonly apiUrl : 'http://www.carqueryapi.com/api/0.3/',locationDriveRepository
     
   ) {
@@ -472,4 +476,53 @@ async getDriverLicenseDetails(licenseNo: string) {
       }
     }
 
+    async createOrUpdateVehicle(email: string, dto: CreateVehicleDto) {
+      const user = await this.userRepository.findOne({ where: { email }, relations: ['vehicle'] });
+  
+      if (!user) {
+        throw new NotFoundException(`User with email ${email} not found`);
+      }
+  
+      if (!user.isRider) {
+        throw new Error('Only riders can create or update a vehicle');
+      }
+  
+      let vehicle = await this.vehicleRepository.findOne({ where: { id: user.vehicle?.id } });
+  
+      if (vehicle) {
+        // Update existing vehicle
+        vehicle = this.vehicleRepository.merge(vehicle, dto);
+      } else {
+        // Create new vehicle
+        vehicle = this.vehicleRepository.create(dto);
+        vehicle.user = user;
+      }
+  
+      return this.vehicleRepository.save(vehicle);
+    }
+  
+    async getVehicleByUser(email: string) {
+      const user = await this.userRepository.findOne({ where: { email }, relations: ['vehicle'] });
+  
+      if (!user) {
+        throw new NotFoundException(`User with email ${email} not found`);
+      }
+  
+      return user.vehicle;
+    }
+  
+    async deleteVehicle(email: string) {
+      const user = await this.userRepository.findOne({ where: { email }, relations: ['vehicle'] });
+  
+      if (!user) {
+        throw new NotFoundException(`User with email ${email} not found`);
+      }
+  
+      if (!user.vehicle) {
+        throw new NotFoundException('Vehicle not found');
+      }
+  
+      await this.vehicleRepository.delete(user.vehicle.id);
+      return { message: 'Vehicle deleted successfully' };
+    }
 }
