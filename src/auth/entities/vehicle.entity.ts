@@ -45,7 +45,7 @@ export class Vehicle {
   })
   @JoinColumn()
   user?: User;
-}
+
   constructor(vehicle: Partial<Vehicle>) {
     Object.assign(this, vehicle);
 }
