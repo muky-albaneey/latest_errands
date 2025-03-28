@@ -498,7 +498,13 @@ async getDriverLicenseDetails(licenseNo: string) {
         vehicle.user = user;
       }
   
-      return this.vehicleRepository.save(vehicle);
+      vehicle.user = user;
+      await this.vehicleRepository.save(vehicle);
+
+      user.vehicle = vehicle; // 🔥 Ensure the user object is aware of the relationship
+      await this.userRepository.save(user);
+
+      return user;
     }
   
     async getVehicleByUser(email: string) {
