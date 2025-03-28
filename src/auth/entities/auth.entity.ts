@@ -63,7 +63,7 @@ export class User {
     @JoinColumn()
     card?: Card;
 
-    @OneToOne(() => DiverLicense, (driver) => driver.user, { cascade: true, nullable: true, onDelete: 'SET NULL' })
+    @OneToOne(() => DiverLicense, (driverLicense) => driverLicense.user, { cascade: true, nullable: true, onDelete: 'SET NULL' })
     @JoinColumn()
     @Exclude()
     driverLicense?: DiverLicense;
