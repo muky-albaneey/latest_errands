@@ -36,7 +36,7 @@
         @Column({ type: 'varchar', nullable: false })
         stateOfIssue: string;
 
-        @OneToOne(() => User, (user) => user.driver, { cascade: ["insert", "update"], nullable: true, onDelete: 'SET NULL' })
+        @OneToOne(() => User, (user) => user.driverLicense, { cascade: ["insert", "update"], nullable: true, onDelete: 'SET NULL' })
         @JoinColumn()
         user?: User;
         
