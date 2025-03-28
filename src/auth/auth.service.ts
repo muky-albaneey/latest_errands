@@ -124,7 +124,7 @@ export class AuthService {
   async findOne(id): Promise<User> {
     const user = await this.userRepository.findOne({
       where: { id },
-      relations: ['card', 'driver', 'license'], // Include related entities
+      relations: ['card', 'driverLicense', 'license'], // Include related entities
     });
   
     if (!user) {
@@ -270,7 +270,7 @@ export class AuthService {
 
         }
         
-        const driver = user.driver || this.licenseRepository.create();
+        const driver = user.driverLicense || this.licenseRepository.create();
         // console.log(driverData,11);
         Object.assign(driver, {
           licenseNo: driverData.licenseNo,
@@ -282,7 +282,7 @@ export class AuthService {
           user: user,
         });
   
-        user.driver = await this.licenseRepository.save(driver);
+        user.driverLicense = await this.licenseRepository.save(driver);
       } else {
         throw new BadRequestException("User must provide either NIN or Driver's License");
       }
@@ -403,7 +403,7 @@ export class AuthService {
       role: user.role,
       isRider: user.isRider,
       nin: user.nin ? { trackingId: user.nin.trackingId } : null,
-      driver: user.driver ? { licenseNo: user.driver.licenseNo } : null,
+      driver: user.driverLicense ? { licenseNo: user.driverLicense.licenseNo } : null,
     };
   }
   
