@@ -231,7 +231,7 @@ export class AuthService {
     if (userData.email) {
       user = await this.userRepository.findOne({
         where: [{ email: userData.email }, { phoneNumber: userData.phoneNumber }],
-        relations: ['nin', 'driver'], // Load related entities
+        relations: ['nin', 'driverLicense'], // Load related entities
       });
     }
   
@@ -388,7 +388,7 @@ export class AuthService {
       await this.licenseRepository.save(driver);
       
       // Update newUser with the driver reference (if needed)
-      newUser.driver = driver;
+      newUser.driverLicense = driver;
       await this.userRepository.save(newUser);
       
     }
