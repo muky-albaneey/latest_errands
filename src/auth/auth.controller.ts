@@ -257,10 +257,11 @@ async logout(@Res({ passthrough: true }) response: Response): Promise<any> {
 
   @Get('user_vehicle')
   async getUserVehicle(@Query('email') email: string) {
+    console.log('Received email:1', email); // Debugging
     if (!email) {
       throw new Error('Email is required');
     }
-   
+    console.log('Received email:11', email); // Debugging
     return email;
   }
 
