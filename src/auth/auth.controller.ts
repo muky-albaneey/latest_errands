@@ -245,14 +245,23 @@ async logout(@Res({ passthrough: true }) response: Response): Promise<any> {
     return this.authService.createOrUpdateVehicle(email, dto);
   }
 
-  @Get('vehicle')
-  async getVehicleByUser(@Query('email') email: string) {
+  // @Get('vehicle')
+  // async getVehicleByUser(@Query('email') email: string) {
+  //   if (!email) {
+  //     throw new Error('Email is required');
+
+  //   }
+  //   return email;
+  //   // return this.authService.getVehicleByUser(email);
+  // }
+
+  @Get('user_vehicle')
+  async getUserVehicle(@Query('email') email: string) {
     if (!email) {
       throw new Error('Email is required');
-
     }
+    // return this.authService.getUserVehicle(email);
     return email;
-    // return this.authService.getVehicleByUser(email);
   }
 
   @Delete('vehicle')
