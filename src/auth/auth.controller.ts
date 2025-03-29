@@ -260,7 +260,7 @@ async logout(@Res({ passthrough: true }) response: Response): Promise<any> {
     if (!email) {
       throw new Error('Email is required');
     }
-    // return this.authService.getUserVehicle(email);
+   
     return email;
   }
 
