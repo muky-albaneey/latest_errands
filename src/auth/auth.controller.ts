@@ -248,31 +248,31 @@ async logout(@Res({ passthrough: true }) response: Response): Promise<any> {
     return this.authService.createOrUpdateVehicle(email, dto);
   }
 
-  // @Get('vehicle')
-  // async getVehicleByUser(@Query('email') email: string) {
-  //   if (!email) {
-  //     throw new Error('Email is required');
-
-  //   }
-  //   return email;
-  //   // return this.authService.getVehicleByUser(email);
-  // }
-
-  @Get('user_vehicle')
-  async getUserVehicle(@Req() req: Request) {
-    console.log('Full Request:', req.url); // Log the full request
-    console.log('Query:', req.query); // Log the query params
-    console.log('Params:', req.params); // Log route params
-  
-    const email = req.query['email'];
-    console.log('Extracted email:', email);
-  
+  @Post('user_vehicle')
+  async getVehicleByUser(@Query('email') email: string) {
     if (!email) {
       throw new Error('Email is required');
+
     }
-  
     return email;
+    // return this.authService.getVehicleByUser(email);
   }
+
+  // @Post('user_vehicle')
+  // async getUserVehicle(@Req() req: Request) {
+  //   console.log('Full Request:', req.url); // Log the full request
+  //   console.log('Query:', req.query); // Log the query params
+  //   console.log('Params:', req.params); // Log route params
+  
+  //   const email = req.query['email'];
+  //   console.log('Extracted email:', email);
+  
+  //   if (!email) {
+  //     throw new Error('Email is required');
+  //   }
+  
+  //   return email;
+  // }
   
 
   @Delete('vehicle')
