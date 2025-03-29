@@ -13,6 +13,7 @@ import {
   Query,
   BadRequestException,
   HttpCode,
+  Req,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 // import { CreateAuthDto, LoginAuthDto } from './dto/create-auth.dto';
@@ -24,6 +25,8 @@ import { CreateAuthDto, CreateAuthDtoDriver, LoginAuthDto } from './dto/create-a
 import { UpdateAuthDto } from './dto/update-auth.dto';
 import { User } from './entities/auth.entity';
 import { CreateVehicleDto } from './dto/vehicle.dto';
+import { Request } from 'express';
+
 
 @Controller('auth')
 export class AuthController {
@@ -256,14 +259,21 @@ async logout(@Res({ passthrough: true }) response: Response): Promise<any> {
   // }
 
   @Get('user_vehicle')
-  async getUserVehicle(@Query('email') email: string) {
-    console.log('Received email:1', email); // Debugging
+  async getUserVehicle(@Req() req: Request) {
+    console.log('Full Request:', req.url); // Log the full request
+    console.log('Query:', req.query); // Log the query params
+    console.log('Params:', req.params); // Log route params
+  
+    const email = req.query['email'];
+    console.log('Extracted email:', email);
+  
     if (!email) {
       throw new Error('Email is required');
     }
-    console.log('Received email:11', email); // Debugging
+  
     return email;
   }
+  
 
   @Delete('vehicle')
   async deleteVehicle(@Query('email') email: string) {
