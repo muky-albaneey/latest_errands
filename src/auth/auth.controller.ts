@@ -254,8 +254,8 @@ async logout(@Res({ passthrough: true }) response: Response): Promise<any> {
       throw new Error('Email is required');
 
     }
-    return email;
-    // return this.authService.getVehicleByUser(email);
+    // return email;
+    return this.authService.getVehicleByUser(email);
   }
 
   // @Post('user_vehicle')
