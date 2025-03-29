@@ -18,6 +18,10 @@ import { DiverLicense } from './license.entity';
 import { Exclude, instanceToPlain } from 'class-transformer';
 import { LocationDrive } from './location_drive';
 import { Vehicle } from './vehicle.entity';
+import { VehicleReg } from './VehicleReg.entity';
+import { ProfileImage } from './profile.entity';
+import { plateNum } from './plateNum.entity';
+import { LicenseImg } from './licenseImg.entity';
 
 export enum UserRole {
     ADMIN = "admin",
@@ -86,9 +90,23 @@ export class User {
     @JoinColumn()
     vehicle?: Vehicle;
     
+    @OneToOne(() => VehicleReg, { cascade: true, nullable: true })
+    @JoinColumn()
+    vehicle_reg_image?: VehicleReg;
 
 
+    @OneToOne(() => ProfileImage, { cascade: true, nullable: true })
+    @JoinColumn()
+    Profile_img?: ProfileImage;
 
+    @OneToOne(() => plateNum, { cascade: true, nullable: true })
+    @JoinColumn()
+    plateNum_img?: plateNum;
+
+    @OneToOne(() => LicenseImg, { cascade: true, nullable: true })
+    @JoinColumn()
+    licenseImg?: LicenseImg;
+    
     toJSON() {
         return instanceToPlain(this, { excludePrefixes: ['_'] });
     }

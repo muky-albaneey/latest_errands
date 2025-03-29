@@ -21,10 +21,14 @@ import axios from 'axios';
 import { LocationDrive } from './entities/location_drive';
 import { Vehicle } from './entities/vehicle.entity';
 import { CreateVehicleDto } from './dto/vehicle.dto';
+import * as AWS from 'aws-sdk';
 
 @Injectable()
 export class AuthService {
   private readonly apiUrl: string;
+  private s3: AWS.S3;
+  private bucketName: string;
+
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
@@ -40,13 +44,38 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly httpService: HttpService,
-    // private readonly apiUrl: string,  // This will be injected from ConfigService 
-    // private readonly apiUrl : 'http://www.carqueryapi.com/api/0.3/',locationDriveRepository
     
   ) {
       // Initialize apiUrl from config
       this.apiUrl = this.configService.get<string>('API_URL');
-    // this.apiUrl = this.configService.get<string>('API_URL'); // Properly assign to class property // Initialize apiUrl from config
+
+
+    ; // Set bucket 
+    this.s3 = new AWS.S3({
+      endpoint: process.env.LINODE_BUCKET_ENDPOINT, // Linode bucket endpoint
+      accessKeyId: process.env.LINODE_ACCESS_KEY, // Access key
+      secretAccessKey: process.env.LINODE_SECRET_KEY, // Secret key
+      region: process.env.LINODE_BUCKET_REGION, // Bucket region
+      s3ForcePathStyle: true, // Linode-specific setting
+    });
+    this.bucketName = process.env.LINODE_BUCKET_NAME; // Set bucket name
+  }
+
+  async uploadFileToLinode(file: Express.Multer.File): Promise<string> {
+    const params = {
+      Bucket: this.bucketName,
+      Key: `${Date.now()}-${file.originalname}`, // Unique filename
+      Body: file.buffer, // File content
+      ContentType: file.mimetype, // Set content type (e.g., image/jpeg)
+      ACL: 'public-read', // Make the file publicly accessible
+    };
+
+    try {
+      const uploadResult = await this.s3.upload(params).promise();
+      return uploadResult.Location; // Return the URL of the uploaded file
+    } catch (error) {
+      throw new BadRequestException('Error uploading file to Linode Object Storage',error);
+    }
   }
 
   async createUser(createUserDto: CreateAuthDto): Promise<User> {
@@ -124,7 +153,7 @@ export class AuthService {
   async findOne(id): Promise<User> {
     const user = await this.userRepository.findOne({
       where: { id },
-      relations: ['card', 'driverLicense', 'nin','vehicle'], // Include related entities
+      relations: ['card', 'driverLicense', 'nin','vehicle','location_drive'], // Include related entities
     });
   
     if (!user) {
