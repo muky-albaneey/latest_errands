@@ -7,10 +7,10 @@ import { User } from './auth.entity';
 export class ProfileImage extends AbstractFileEntity<ProfileImage> {
 
 
-     @OneToOne(() => User)
-        @JoinColumn()
-        user: User;  // One-to-One relationship with Product
-
+    @OneToOne(() => User, (user) => user.Profile_img, { onDelete: 'CASCADE' })
+    @JoinColumn()
+    user: User;
+    
     constructor(profileImage: Partial<ProfileImage>) {
         super(profileImage);
     }

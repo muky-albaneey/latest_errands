@@ -6,10 +6,10 @@ import { User } from './auth.entity';
 @Entity()
 export class LicenseImg extends AbstractFileEntity<LicenseImg> {
 
-     @OneToOne(() => User)
-        @JoinColumn()
-        user: User;  // One-to-One relationship with Product
-
+    @OneToOne(() => User, (user) => user.licenseImg, { onDelete: 'CASCADE' })
+    @JoinColumn()
+    user: User;
+        
     constructor(licenseImg: Partial<LicenseImg>) {
         super(licenseImg);
     }

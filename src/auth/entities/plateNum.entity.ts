@@ -6,9 +6,9 @@ import { User } from './auth.entity';
 @Entity()
 export class plateNum extends AbstractFileEntity<plateNum> {
 
-     @OneToOne(() => User)
-        @JoinColumn()
-        user: User;  // One-to-One relatio
+    @OneToOne(() => User, (user) => user.plateNum_img, { onDelete: 'CASCADE' })
+    @JoinColumn()
+    user: User;
 
         
     constructor(plateNum: Partial<plateNum>) {

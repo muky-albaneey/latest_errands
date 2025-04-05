@@ -7,9 +7,9 @@ import { User } from './auth.entity';
 export class VehicleReg extends AbstractFileEntity<VehicleReg> {
 
 
-    @OneToOne(() => User)
+    @OneToOne(() => User, (user) => user.vehicle_reg_image, { onDelete: 'CASCADE' })
     @JoinColumn()
-    user: User;  // One-to-One relationship with Product
+    user: User;
 
     constructor(vehicleReg: Partial<VehicleReg>) {
         super(vehicleReg);

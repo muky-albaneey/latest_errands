@@ -12,11 +12,15 @@ import { DiverLicense } from './entities/license.entity';
 import { Nin } from './entities/nin';
 import { LocationDrive } from './entities/location_drive';
 import { Vehicle } from './entities/vehicle.entity';
+import { ProfileImage } from './entities/profile.entity';
+import { plateNum } from './entities/plateNum.entity';
+import { LicenseImg } from './entities/licenseImg.entity';
+import { VehicleReg } from './entities/VehicleReg.entity';
 
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Card, DiverLicense, Nin, LocationDrive, Vehicle]),
+    TypeOrmModule.forFeature([User, Card, DiverLicense, Nin, LocationDrive, Vehicle, ProfileImage, plateNum, LicenseImg, VehicleReg, ]),
     ConfigModule,
     HttpModule, // Add HttpModule here
     JwtModule.registerAsync({

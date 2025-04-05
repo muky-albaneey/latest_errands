@@ -14,6 +14,8 @@ import {
   BadRequestException,
   HttpCode,
   Req,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 // import { CreateAuthDto, LoginAuthDto } from './dto/create-auth.dto';
@@ -26,6 +28,8 @@ import { UpdateAuthDto } from './dto/update-auth.dto';
 import { User } from './entities/auth.entity';
 import { CreateVehicleDto } from './dto/vehicle.dto';
 import { Request } from 'express';
+import { FileInterceptor } from '@nestjs/platform-express';
+import * as path from 'path';
 
 
 @Controller('auth')
@@ -83,7 +87,7 @@ export class AuthController {
       },
     });
   }
-
+  
   @Post('login')
   async login(
     @Body() loginAuthDto: LoginAuthDto,
@@ -109,8 +113,8 @@ export class AuthController {
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.UNAUTHORIZED);
     }
-  }
- 
+}
+
 @Post('logout')
 async logout(@Res({ passthrough: true }) response: Response): Promise<any> {
   console.log('Before clearing cookies:', response.getHeaders()['set-cookie']);
@@ -130,8 +134,7 @@ async logout(@Res({ passthrough: true }) response: Response): Promise<any> {
   });
 }
 
-  
-  @Get()
+ @Get()
   async findAll(@Res() response: Response) {
     const users = await this.authService.findAll();
     return response.status(HttpStatus.OK).json({
@@ -140,8 +143,9 @@ async logout(@Res({ passthrough: true }) response: Response): Promise<any> {
       data: users,
     });
   }
+
   @Get('count')
-  async countUsers(@Res() response: Response): Promise<any> {
+  async countUsers(@Res() response: Response): Promise<any>{
     const count = await this.authService.countUsers();
     return response.status(HttpStatus.OK).json({
       statusCode: HttpStatus.OK,
@@ -174,7 +178,6 @@ async logout(@Res({ passthrough: true }) response: Response): Promise<any> {
   healthCheck(): string {
     return 'OK';
   }
-
 
   @Get(':id')
   async findOne(@Param('id') id: string, @Res() response: Response) {
@@ -258,22 +261,124 @@ async logout(@Res({ passthrough: true }) response: Response): Promise<any> {
     return this.authService.getVehicleByUser(email);
   }
 
-  // @Post('user_vehicle')
-  // async getUserVehicle(@Req() req: Request) {
-  //   console.log('Full Request:', req.url); // Log the full request
-  //   console.log('Query:', req.query); // Log the query params
-  //   console.log('Params:', req.params); // Log route params
-  
-  //   const email = req.query['email'];
-  //   console.log('Extracted email:', email);
-  
-  //   if (!email) {
-  //     throw new Error('Email is required');
-  //   }
-  
-  //   return email;
-  // }
-  
+  @Post('profile_img')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      fileFilter: (req, file, callback) => {
+        const ext = path.extname(file.originalname).toLowerCase();
+        if (!['.jpeg', '.jpg', '.png', '.gif'].includes(ext)) {
+          return callback(new BadRequestException('Invalid image file format'), false);
+        }
+        callback(null, true);
+      },
+    }),
+  )
+  async createProfileImage(
+    @UploadedFile() file: Express.Multer.File,
+    @Body() email: string,
+  ) {
+    if (!file) {
+      throw new BadRequestException('Image file is required');
+    }
+
+   
+    const user = await this.authService.findOne(email); // Fetch the user from the UserService
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+
+    // Delegate product creation to the service
+    return this.authService.createProfileImage(file, user);
+  }
+  @Post('plate_num_img')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      fileFilter: (req, file, callback) => {
+        const ext = path.extname(file.originalname).toLowerCase();
+        if (!['.jpeg', '.jpg', '.png', '.gif'].includes(ext)) {
+          return callback(new BadRequestException('Invalid image file format'), false);
+        }
+        callback(null, true);
+      },
+    }),
+  )
+  async createPlateNumImage(
+    @UploadedFile() file: Express.Multer.File,
+    @Body() email: string,
+  ) {
+    if (!file) {
+      throw new BadRequestException('Image file is required');
+    }
+
+   
+    const user = await this.authService.findOne(email); // Fetch the user from the UserService
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+
+    // Delegate product creation to the service
+    return this.authService.createPlateNumImage(file, user);
+  }
+
+  @Post('vehicle_img')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      fileFilter: (req, file, callback) => {
+        const ext = path.extname(file.originalname).toLowerCase();
+        if (!['.jpeg', '.jpg', '.png', '.gif'].includes(ext)) {
+          return callback(new BadRequestException('Invalid image file format'), false);
+        }
+        callback(null, true);
+      },
+    }),
+  )
+  async createVehicleImage(
+    @UploadedFile() file: Express.Multer.File,
+    @Body() email: string,
+  ) {
+    if (!file) {
+      throw new BadRequestException('Image file is required');
+    }
+
+   
+    const user = await this.authService.findOne(email); // Fetch the user from the UserService
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+
+    // Delegate product creation to the service
+    return this.authService.createVehicleImage(file, user);
+  }
+
+  @Post('license_img')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      fileFilter: (req, file, callback) => {
+        const ext = path.extname(file.originalname).toLowerCase();
+        if (!['.jpeg', '.jpg', '.png', '.gif'].includes(ext)) {
+          return callback(new BadRequestException('Invalid image file format'), false);
+        }
+        callback(null, true);
+      },
+    }),
+  )
+  async createLicenseImage(
+    @UploadedFile() file: Express.Multer.File,
+    @Body() email: string,
+  ) {
+    if (!file) {
+      throw new BadRequestException('Image file is required');
+    }
+
+   
+    const user = await this.authService.findOne(email); // Fetch the user from the UserService
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+
+    // Delegate product creation to the service
+    return this.authService.createLicenseImage(file, user);
+  }
 
   @Delete('vehicle')
   async deleteVehicle(@Query('email') email: string) {
@@ -283,3 +388,4 @@ async logout(@Res({ passthrough: true }) response: Response): Promise<any> {
     return this.authService.deleteVehicle(email);
   }
 }
+  

@@ -12,6 +12,10 @@ import { DiverLicense } from './auth/entities/license.entity';
 import { Nin } from './auth/entities/nin';
 import { LocationDrive } from './auth/entities/location_drive';
 import { Vehicle } from './auth/entities/vehicle.entity';
+import { ProfileImage } from './auth/entities/profile.entity';
+import { plateNum } from './auth/entities/plateNum.entity';
+import { LicenseImg } from './auth/entities/licenseImg.entity';
+import { VehicleReg } from './auth/entities/VehicleReg.entity';
 
 
 @Module({
@@ -30,7 +34,7 @@ import { Vehicle } from './auth/entities/vehicle.entity';
         username: configService.get<string>('DATABASE_USERNAME'),
         password: configService.get<string>('DATABASE_PASSWORD'),
         database: configService.get<string>('DATABASE_NAME'),
-        entities: [User, Card, DiverLicense, Nin, LocationDrive, Vehicle],
+        entities: [User, Card, DiverLicense, Nin, LocationDrive, Vehicle, ProfileImage, plateNum, LicenseImg, VehicleReg,],
         synchronize: true,
         extra: {
           max: 2 // Limit to 2 connections

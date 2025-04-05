@@ -22,6 +22,11 @@ import { LocationDrive } from './entities/location_drive';
 import { Vehicle } from './entities/vehicle.entity';
 import { CreateVehicleDto } from './dto/vehicle.dto';
 import * as AWS from 'aws-sdk';
+import { ProfileImage } from './entities/profile.entity';
+import * as path from 'path';
+import { plateNum } from './entities/plateNum.entity';
+import { LicenseImg } from './entities/licenseImg.entity';
+import { VehicleReg } from './entities/VehicleReg.entity';
 
 @Injectable()
 export class AuthService {
@@ -40,6 +45,14 @@ export class AuthService {
     private locationDriveRepository: Repository<LocationDrive>,
     @InjectRepository(Vehicle)
     private vehicleRepository: Repository<Vehicle>,
+    @InjectRepository(ProfileImage)
+    private readonly profileImageRepository: Repository<ProfileImage>,
+    @InjectRepository(plateNum)
+    private readonly plateImageRepository: Repository<plateNum>,
+    @InjectRepository(LicenseImg)
+    private readonly licenseImageRepository: Repository<LicenseImg>,
+    @InjectRepository(VehicleReg)
+    private readonly vehicleRegImageRepository: Repository<VehicleReg>,
 
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
@@ -545,6 +558,110 @@ async getDriverLicenseDetails(licenseNo: string) {
   
       return user.vehicle;
     }
+      // Create product with image
+  async createProfileImage(file: Express.Multer.File, user: User) {
+        if (!file) {
+          throw new BadRequestException('Image file is required');
+        }
+      
+        // Upload the image and get the URL
+        const fileUrl = await this.uploadFileToLinode(file);
+      
+        // Create ProfileImage entity
+        const profileImage = this.profileImageRepository.create({
+          name: file.originalname,
+          url: fileUrl,
+          ext: path.extname(file.originalname).slice(1),
+          user: user, // Link to the user
+        });
+      
+        // Save the image to the database
+        await this.profileImageRepository.save(profileImage);
+      
+        // Update User profile image
+        user.Profile_img = profileImage;
+        await this.userRepository.save(user);
+      
+        return { message: 'Profile image uploaded successfully', fileUrl };
+  }
+  
+  async createPlateNumImage(file: Express.Multer.File, user: User) {
+    if (!file) {
+      throw new BadRequestException('Image file is required');
+    }
+  
+    // Upload the image and get the URL
+    const fileUrl = await this.uploadFileToLinode(file);
+  
+    // Create ProfileImage entity
+    const plateImage = this.plateImageRepository.create({
+      name: file.originalname,
+      url: fileUrl,
+      ext: path.extname(file.originalname).slice(1),
+      user: user, // Link to the user
+    });
+  
+    // Save the image to the database
+    await this.plateImageRepository.save(plateImage);
+  
+    // Update User profile image
+    user.Profile_img = plateImage;
+    await this.userRepository.save(user);
+  
+    return { message: 'Profile image uploaded successfully', fileUrl };
+}
+
+async createVehicleImage(file: Express.Multer.File, user: User) {
+  if (!file) {
+    throw new BadRequestException('Image file is required');
+  }
+
+  // Upload the image and get the URL
+  const fileUrl = await this.uploadFileToLinode(file);
+
+  // Create ProfileImage entity
+  const vehicleImage = this.vehicleRegImageRepository.create({
+    name: file.originalname,
+    url: fileUrl,
+    ext: path.extname(file.originalname).slice(1),
+    user: user, // Link to the user
+  });
+
+  // Save the image to the database
+  await this.vehicleRegImageRepository.save(vehicleImage);
+
+  // Update User profile image
+  user.Profile_img = vehicleImage;
+  await this.userRepository.save(user);
+
+  return { message: 'Profile image uploaded successfully', fileUrl };
+}
+
+async createLicenseImage(file: Express.Multer.File, user: User) {
+  if (!file) {
+    throw new BadRequestException('Image file is required');
+  }
+
+  // Upload the image and get the URL
+  const fileUrl = await this.uploadFileToLinode(file);
+
+  // Create ProfileImage entity
+  const licenseImage = this.licenseImageRepository.create({
+    name: file.originalname,
+    url: fileUrl,
+    ext: path.extname(file.originalname).slice(1),
+    user: user, // Link to the user
+  });
+
+  // Save the image to the database
+  await this.licenseImageRepository.save(licenseImage);
+
+  // Update User profile image
+  user.Profile_img = licenseImage;
+  await this.userRepository.save(user);
+
+  return { message: 'Profile image uploaded successfully', fileUrl };
+}
   
     async deleteVehicle(email: string) {
       const user = await this.userRepository.findOne({ where: { email }, relations: ['vehicle'] });

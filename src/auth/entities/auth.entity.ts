@@ -90,22 +90,37 @@ export class User {
     @JoinColumn()
     vehicle?: Vehicle;
     
-    @OneToOne(() => VehicleReg, { cascade: true, nullable: true })
-    @JoinColumn()
-    vehicle_reg_image?: VehicleReg;
+   
+    @OneToOne(() => VehicleReg, (vehicleImage) => vehicleImage.user, {
+        cascade: true,
+        nullable: true,
+      })
+      @JoinColumn()
+      vehicle_reg_image?: VehicleReg;
 
 
-    @OneToOne(() => ProfileImage, { cascade: true, nullable: true })
-    @JoinColumn()
-    Profile_img?: ProfileImage;
+    @OneToOne(() => ProfileImage, (profileImage) => profileImage.user, {
+        cascade: true,
+        nullable: true,
+      })
+      @JoinColumn()
+      Profile_img?: ProfileImage;
+      
 
-    @OneToOne(() => plateNum, { cascade: true, nullable: true })
+    @OneToOne(() => plateNum, (plateImage) => plateImage.user, {
+        cascade: true,
+        nullable: true,
+    })
     @JoinColumn()
     plateNum_img?: plateNum;
 
-    @OneToOne(() => LicenseImg, { cascade: true, nullable: true })
-    @JoinColumn()
-    licenseImg?: LicenseImg;
+
+    @OneToOne(() => LicenseImg, (licenseImage) => licenseImage.user, {
+        cascade: true,
+        nullable: true,
+      })
+      @JoinColumn()
+      licenseImg?: LicenseImg;
     
     toJSON() {
         return instanceToPlain(this, { excludePrefixes: ['_'] });
