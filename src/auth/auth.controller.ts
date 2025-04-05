@@ -87,7 +87,7 @@ export class AuthController {
       },
     });
   }
-  
+
   @Post('login')
   async login(
     @Body() loginAuthDto: LoginAuthDto,
@@ -282,7 +282,7 @@ async logout(@Res({ passthrough: true }) response: Response): Promise<any> {
     }
 
    
-    const user = await this.authService.findOne(email); // Fetch the user from the UserService
+    const user = await this.authService.findOneByEmail(email); // Fetch the user from the UserService
     if (!user) {
       throw new BadRequestException('User not found');
     }
@@ -311,7 +311,7 @@ async logout(@Res({ passthrough: true }) response: Response): Promise<any> {
     }
 
    
-    const user = await this.authService.findOne(email); // Fetch the user from the UserService
+    const user = await this.authService.findOneByEmail(email); // Fetch the user from the UserService
     if (!user) {
       throw new BadRequestException('User not found');
     }
@@ -341,7 +341,7 @@ async logout(@Res({ passthrough: true }) response: Response): Promise<any> {
     }
 
    
-    const user = await this.authService.findOne(email); // Fetch the user from the UserService
+    const user = await this.authService.findOneByEmail(email); // Fetch the user from the UserService
     if (!user) {
       throw new BadRequestException('User not found');
     }
@@ -371,7 +371,7 @@ async logout(@Res({ passthrough: true }) response: Response): Promise<any> {
     }
 
    
-    const user = await this.authService.findOne(email); // Fetch the user from the UserService
+    const user = await this.authService.findOneByEmail(email); // Fetch the user from the UserService
     if (!user) {
       throw new BadRequestException('User not found');
     }

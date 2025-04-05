@@ -175,6 +175,18 @@ export class AuthService {
   
     return user;
   }
+  async findOneByEmail(email: string): Promise<User> {
+    const user = await this.userRepository.findOne({
+      where: { email },  // Find by email, not by UUID
+      relations: ['card', 'driverLicense', 'nin', 'vehicle', 'location_drive'],
+    });
+  
+    if (!user) {
+      throw new NotFoundException(`User with email ${email} not found.`);
+    }
+  
+    return user;
+  }
   
 
   async update(id: string, updateAuthDto: UpdateAuthDto): Promise<User> {
