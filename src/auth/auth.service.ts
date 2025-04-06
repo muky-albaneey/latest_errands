@@ -173,12 +173,17 @@ export class AuthService {
   }
 
   async findAll(): Promise<User[]> {
-    const users = await this.userRepository.find();
+    const users = await this.userRepository.find({
+      relations: ['card', 'driverLicense', 'nin', 'vehicle', 'location_drive'], // include all needed relations
+    });
+  
     if (users.length === 0) {
       throw new NotFoundException('No users found.');
     }
+  
     return users;
   }
+  
 
   async findOne(id): Promise<User> {
     const user = await this.userRepository.findOne({
