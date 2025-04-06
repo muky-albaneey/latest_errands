@@ -69,7 +69,7 @@ export class AuthService {
     //   region: process.env.LINODE_BUCKET_REGION, // Bucket region
     //   s3ForcePathStyle: true, // Linode-specific setting
     // });
-    const s3 = new AWS.S3({
+    this.s3 = new AWS.S3({
       accessKeyId: process.env.LINODE_ACCESS_KEY,
       secretAccessKey: process.env.LINODE_SECRET_KEY,
       endpoint: 'https://us-southeast-1.linodeobjects.com', // <== not including the bucket name here
