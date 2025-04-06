@@ -772,8 +772,8 @@ async createPlateNumImage(file: Express.Multer.File, user: User) {
   }
 
   // Optional: assign to user if user has a plateNum relation
-  // user.plateNumImage = plateImage;
-  // await this.userRepository.save(user);
+  user.plateNum_img = plateImage;
+  await this.userRepository.save(user);
 
   return { message: 'Plate number image uploaded successfully', fileUrl };
 }
@@ -805,8 +805,8 @@ async createVehicleImage(file: Express.Multer.File, user: User) {
     await this.vehicleRegImageRepository.save(vehicleImage);
   }
 
-  // user.Vehicle_img = vehicleImage;
-  // await this.userRepository.save(user);
+  user.vehicle_reg_image = vehicleImage;
+  await this.userRepository.save(user);
 
   return { message: 'Vehicle registration image uploaded successfully', fileUrl };
 }
@@ -837,8 +837,8 @@ async createLicenseImage(file: Express.Multer.File, user: User) {
     await this.licenseImageRepository.save(licenseImage);
   }
 
-  // user.License_img = licenseImage;
-  // await this.userRepository.save(user);
+  user.licenseImg = licenseImage;
+  await this.userRepository.save(user);
 
   return { message: 'License image uploaded successfully', fileUrl };
 }
