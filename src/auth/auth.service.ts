@@ -69,12 +69,12 @@ export class AuthService {
     //   region: process.env.LINODE_BUCKET_REGION, // Bucket region
     //   s3ForcePathStyle: true, // Linode-specific setting
     // });
-    this.s3 = new AWS.S3({
-      endpoint: new AWS.Endpoint('https://errand.us-southeast-1.linodeobjects.com'),
+    const s3 = new AWS.S3({
       accessKeyId: process.env.LINODE_ACCESS_KEY,
       secretAccessKey: process.env.LINODE_SECRET_KEY,
-      signatureVersion: 'v4', // 🔐 Required by Linode
-      s3ForcePathStyle: true, // ✅ Linode requires this
+      endpoint: 'https://us-southeast-1.linodeobjects.com', // <== not including the bucket name here
+      signatureVersion: 'v4',
+      s3ForcePathStyle: true,
     });
     
     this.bucketName = process.env.LINODE_BUCKET_NAME; // Set bucket name
@@ -89,6 +89,9 @@ export class AuthService {
       ACL: 'public-read', // Make the file publicly accessible
     };
     console.log('Bucket name:', this.bucketName);
+    console.log('Key:', process.env.LINODE_ACCESS_KEY);
+    console.log('Secret:', process.env.LINODE_SECRET_KEY);
+
     console.log('Uploading file:', {
       originalname: file.originalname,
       mimetype: file.mimetype,
