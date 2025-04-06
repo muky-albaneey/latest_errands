@@ -61,16 +61,22 @@ export class AuthService {
   ) {
       // Initialize apiUrl from config
       this.apiUrl = this.configService.get<string>('API_URL');
-
-
-    ; // Set bucket 
+       // Set bucket 
+    // this.s3 = new AWS.S3({
+    //   endpoint: process.env.LINODE_BUCKET_ENDPOINT, // Linode bucket endpoint
+    //   accessKeyId: process.env.LINODE_ACCESS_KEY, // Access key
+    //   secretAccessKey: process.env.LINODE_SECRET_KEY, // Secret key
+    //   region: process.env.LINODE_BUCKET_REGION, // Bucket region
+    //   s3ForcePathStyle: true, // Linode-specific setting
+    // });
     this.s3 = new AWS.S3({
-      endpoint: process.env.LINODE_BUCKET_ENDPOINT, // Linode bucket endpoint
-      accessKeyId: process.env.LINODE_ACCESS_KEY, // Access key
-      secretAccessKey: process.env.LINODE_SECRET_KEY, // Secret key
-      region: process.env.LINODE_BUCKET_REGION, // Bucket region
-      s3ForcePathStyle: true, // Linode-specific setting
+      endpoint: new AWS.Endpoint('https://errand.us-southeast-1.linodeobjects.com'),
+      accessKeyId: process.env.LINODE_ACCESS_KEY,
+      secretAccessKey: process.env.LINODE_SECRET_KEY,
+      signatureVersion: 'v4', // 🔐 Required by Linode
+      s3ForcePathStyle: true, // ✅ Linode requires this
     });
+    
     this.bucketName = process.env.LINODE_BUCKET_NAME; // Set bucket name
   }
 
