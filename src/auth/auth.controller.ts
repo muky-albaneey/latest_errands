@@ -304,7 +304,7 @@ async logout(@Res({ passthrough: true }) response: Response): Promise<any> {
   )
   async createPlateNumImage(
     @UploadedFile() file: Express.Multer.File,
-    @Body() email: string,
+    @Body('email') email: string,
   ) {
     if (!file) {
       throw new BadRequestException('Image file is required');
@@ -334,7 +334,7 @@ async logout(@Res({ passthrough: true }) response: Response): Promise<any> {
   )
   async createVehicleImage(
     @UploadedFile() file: Express.Multer.File,
-    @Body() email: string,
+    @Body('email') email: string,
   ) {
     if (!file) {
       throw new BadRequestException('Image file is required');
@@ -364,7 +364,7 @@ async logout(@Res({ passthrough: true }) response: Response): Promise<any> {
   )
   async createLicenseImage(
     @UploadedFile() file: Express.Multer.File,
-    @Body() email: string,
+    @Body('email') email: string,
   ) {
     if (!file) {
       throw new BadRequestException('Image file is required');
