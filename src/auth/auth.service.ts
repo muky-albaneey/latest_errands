@@ -593,122 +593,254 @@ async getDriverLicenseDetails(licenseNo: string) {
       return user.vehicle;
     }
       // Create product with image
-  async createProfileImage(file: Express.Multer.File, user: User) {
-        if (!file) {
-          throw new BadRequestException('Image file is required');
-        }
+//   async createProfileImage(file: Express.Multer.File, user: User) {
+//         if (!file) {
+//           throw new BadRequestException('Image file is required');
+//         }
       
-        // Upload the image and get the URL
-        const fileUrl = await this.uploadFileToLinode(file);
+//         // Upload the image and get the URL
+//         const fileUrl = await this.uploadFileToLinode(file);
       
-        // Create ProfileImage entity
-        const profileImage = this.profileImageRepository.create({
-          name: file.originalname,
-          url: fileUrl,
-          ext: path.extname(file.originalname).slice(1),
-          user: user, // Link to the user
-        });
+//         // Create ProfileImage entity
+//         const profileImage = this.profileImageRepository.create({
+//           name: file.originalname,
+//           url: fileUrl,
+//           ext: path.extname(file.originalname).slice(1),
+//           user: user, // Link to the user
+//         });
       
-        // Save the image to the database
-        await this.profileImageRepository.save(profileImage);
+//         // Save the image to the database
+//         await this.profileImageRepository.save(profileImage);
       
-        // Update User profile image
-        user.Profile_img = profileImage;
-        await this.userRepository.save(user);
+//         // Update User profile image
+//         user.Profile_img = profileImage;
+//         await this.userRepository.save(user);
       
-        return { message: 'Profile image uploaded successfully', fileUrl };
-  }
+//         return { message: 'Profile image uploaded successfully', fileUrl };
+//   }
   
-  async createPlateNumImage(file: Express.Multer.File, user: User) {
-    if (!file) {
-      throw new BadRequestException('Image file is required');
-    }
+//   async createPlateNumImage(file: Express.Multer.File, user: User) {
+//     if (!file) {
+//       throw new BadRequestException('Image file is required');
+//     }
   
-    // Upload the image and get the URL
-    const fileUrl = await this.uploadFileToLinode(file);
+//     // Upload the image and get the URL
+//     const fileUrl = await this.uploadFileToLinode(file);
   
-    // Create ProfileImage entity
-    const plateImage = this.plateImageRepository.create({
+//     // Create ProfileImage entity
+//     const plateImage = this.plateImageRepository.create({
+//       name: file.originalname,
+//       url: fileUrl,
+//       ext: path.extname(file.originalname).slice(1),
+//       user: user, // Link to the user
+//     });
+  
+//     // Save the image to the database
+//     await this.plateImageRepository.save(plateImage);
+  
+//     // Update User profile image
+//     user.Profile_img = plateImage;
+//     await this.userRepository.save(user);
+  
+//     return { message: 'Profile image uploaded successfully', fileUrl };
+// }
+
+// async createVehicleImage(file: Express.Multer.File, user: User) {
+//   if (!file) {
+//     throw new BadRequestException('Image file is required');
+//   }
+
+//   // Upload the image and get the URL
+//   const fileUrl = await this.uploadFileToLinode(file);
+
+//   // Create ProfileImage entity
+//   const vehicleImage = this.vehicleRegImageRepository.create({
+//     name: file.originalname,
+//     url: fileUrl,
+//     ext: path.extname(file.originalname).slice(1),
+//     user: user, // Link to the user
+//   });
+
+//   // Save the image to the database
+//   await this.vehicleRegImageRepository.save(vehicleImage);
+
+//   // Update User profile image
+//   user.Profile_img = vehicleImage;
+//   await this.userRepository.save(user);
+
+//   return { message: 'Profile image uploaded successfully', fileUrl };
+// }
+
+// async createLicenseImage(file: Express.Multer.File, user: User) {
+//   if (!file) {
+//     throw new BadRequestException('Image file is required');
+//   }
+
+//   // Upload the image and get the URL
+//   const fileUrl = await this.uploadFileToLinode(file);
+
+//   // Create ProfileImage entity
+//   const licenseImage = this.licenseImageRepository.create({
+//     name: file.originalname,
+//     url: fileUrl,
+//     ext: path.extname(file.originalname).slice(1),
+//     user: user, // Link to the user
+//   });
+
+//   // Save the image to the database
+//   await this.licenseImageRepository.save(licenseImage);
+
+//   // Update User profile image
+//   user.Profile_img = licenseImage;
+//   await this.userRepository.save(user);
+
+//   return { message: 'Profile image uploaded successfully', fileUrl };
+// }
+  
+//     async deleteVehicle(email: string) {
+//       const user = await this.userRepository.findOne({ where: { email }, relations: ['vehicle'] });
+  
+//       if (!user) {
+//         throw new NotFoundException(`User with email ${email} not found`);
+//       }
+  
+//       if (!user.vehicle) {
+//         throw new NotFoundException('Vehicle not found');
+//       }
+  
+//       await this.vehicleRepository.delete(user.vehicle.id);
+//       return { message: 'Vehicle deleted successfully' };
+//     }
+async createProfileImage(file: Express.Multer.File, user: User) {
+  if (!file) throw new BadRequestException('Image file is required');
+
+  const fileUrl = await this.uploadFileToLinode(file);
+
+  const existing = await this.profileImageRepository.findOne({
+    where: { user: { id: user.id } },
+    relations: ['user'],
+  });
+
+  let profileImage;
+
+  if (existing) {
+    existing.name = file.originalname;
+    existing.url = fileUrl;
+    existing.ext = path.extname(file.originalname).slice(1);
+    profileImage = await this.profileImageRepository.save(existing);
+  } else {
+    profileImage = this.profileImageRepository.create({
       name: file.originalname,
       url: fileUrl,
       ext: path.extname(file.originalname).slice(1),
-      user: user, // Link to the user
+      user: user,
     });
-  
-    // Save the image to the database
+    await this.profileImageRepository.save(profileImage);
+  }
+
+  user.Profile_img = profileImage;
+  await this.userRepository.save(user);
+
+  return { message: 'Profile image uploaded successfully', fileUrl };
+}
+
+async createPlateNumImage(file: Express.Multer.File, user: User) {
+  if (!file) throw new BadRequestException('Image file is required');
+
+  const fileUrl = await this.uploadFileToLinode(file);
+
+  const existing = await this.plateImageRepository.findOne({
+    where: { user: { id: user.id } },
+    relations: ['user'],
+  });
+
+  let plateImage;
+
+  if (existing) {
+    existing.name = file.originalname;
+    existing.url = fileUrl;
+    existing.ext = path.extname(file.originalname).slice(1);
+    plateImage = await this.plateImageRepository.save(existing);
+  } else {
+    plateImage = this.plateImageRepository.create({
+      name: file.originalname,
+      url: fileUrl,
+      ext: path.extname(file.originalname).slice(1),
+      user: user,
+    });
     await this.plateImageRepository.save(plateImage);
-  
-    // Update User profile image
-    user.Profile_img = plateImage;
-    await this.userRepository.save(user);
-  
-    return { message: 'Profile image uploaded successfully', fileUrl };
+  }
+
+  // Optional: assign to user if user has a plateNum relation
+  // user.plateNumImage = plateImage;
+  // await this.userRepository.save(user);
+
+  return { message: 'Plate number image uploaded successfully', fileUrl };
 }
 
 async createVehicleImage(file: Express.Multer.File, user: User) {
-  if (!file) {
-    throw new BadRequestException('Image file is required');
-  }
+  if (!file) throw new BadRequestException('Image file is required');
 
-  // Upload the image and get the URL
   const fileUrl = await this.uploadFileToLinode(file);
 
-  // Create ProfileImage entity
-  const vehicleImage = this.vehicleRegImageRepository.create({
-    name: file.originalname,
-    url: fileUrl,
-    ext: path.extname(file.originalname).slice(1),
-    user: user, // Link to the user
+  const existing = await this.vehicleRegImageRepository.findOne({
+    where: { user: { id: user.id } },
+    relations: ['user'],
   });
 
-  // Save the image to the database
-  await this.vehicleRegImageRepository.save(vehicleImage);
+  let vehicleImage;
 
-  // Update User profile image
-  user.Profile_img = vehicleImage;
-  await this.userRepository.save(user);
+  if (existing) {
+    existing.name = file.originalname;
+    existing.url = fileUrl;
+    existing.ext = path.extname(file.originalname).slice(1);
+    vehicleImage = await this.vehicleRegImageRepository.save(existing);
+  } else {
+    vehicleImage = this.vehicleRegImageRepository.create({
+      name: file.originalname,
+      url: fileUrl,
+      ext: path.extname(file.originalname).slice(1),
+      user: user,
+    });
+    await this.vehicleRegImageRepository.save(vehicleImage);
+  }
 
-  return { message: 'Profile image uploaded successfully', fileUrl };
+  // user.Vehicle_img = vehicleImage;
+  // await this.userRepository.save(user);
+
+  return { message: 'Vehicle registration image uploaded successfully', fileUrl };
 }
-
 async createLicenseImage(file: Express.Multer.File, user: User) {
-  if (!file) {
-    throw new BadRequestException('Image file is required');
-  }
+  if (!file) throw new BadRequestException('Image file is required');
 
-  // Upload the image and get the URL
   const fileUrl = await this.uploadFileToLinode(file);
 
-  // Create ProfileImage entity
-  const licenseImage = this.licenseImageRepository.create({
-    name: file.originalname,
-    url: fileUrl,
-    ext: path.extname(file.originalname).slice(1),
-    user: user, // Link to the user
+  const existing = await this.licenseImageRepository.findOne({
+    where: { user: { id: user.id } },
+    relations: ['user'],
   });
 
-  // Save the image to the database
-  await this.licenseImageRepository.save(licenseImage);
+  let licenseImage;
 
-  // Update User profile image
-  user.Profile_img = licenseImage;
-  await this.userRepository.save(user);
+  if (existing) {
+    existing.name = file.originalname;
+    existing.url = fileUrl;
+    existing.ext = path.extname(file.originalname).slice(1);
+    licenseImage = await this.licenseImageRepository.save(existing);
+  } else {
+    licenseImage = this.licenseImageRepository.create({
+      name: file.originalname,
+      url: fileUrl,
+      ext: path.extname(file.originalname).slice(1),
+      user: user,
+    });
+    await this.licenseImageRepository.save(licenseImage);
+  }
 
-  return { message: 'Profile image uploaded successfully', fileUrl };
+  // user.License_img = licenseImage;
+  // await this.userRepository.save(user);
+
+  return { message: 'License image uploaded successfully', fileUrl };
 }
-  
-    async deleteVehicle(email: string) {
-      const user = await this.userRepository.findOne({ where: { email }, relations: ['vehicle'] });
-  
-      if (!user) {
-        throw new NotFoundException(`User with email ${email} not found`);
-      }
-  
-      if (!user.vehicle) {
-        throw new NotFoundException('Vehicle not found');
-      }
-  
-      await this.vehicleRepository.delete(user.vehicle.id);
-      return { message: 'Vehicle deleted successfully' };
-    }
+
 }
