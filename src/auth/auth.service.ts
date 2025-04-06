@@ -842,5 +842,18 @@ async createLicenseImage(file: Express.Multer.File, user: User) {
 
   return { message: 'License image uploaded successfully', fileUrl };
 }
-
+    async deleteVehicle(email: string) {
+      const user = await this.userRepository.findOne({ where: { email }, relations: ['vehicle'] });
+  
+      if (!user) {
+        throw new NotFoundException(`User with email ${email} not found`);
+      }
+  
+      if (!user.vehicle) {
+        throw new NotFoundException('Vehicle not found');
+      }
+  
+      await this.vehicleRepository.delete(user.vehicle.id);
+      return { message: 'Vehicle deleted successfully' };
+    }
 }
