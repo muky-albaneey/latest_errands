@@ -95,7 +95,7 @@ export class AuthService {
       const uploadResult = await this.s3.upload(params).promise();
       return uploadResult.Location; // Return the URL of the uploaded file
     } catch (error) {
-      console.error('Linode Upload Error:', error); // 👈 Add this
+      // console.error('Linode Upload Error:', error); // 👈 Add this
       throw new BadRequestException('Error uploading file to Linode Object Storage',error);
     }
   }
