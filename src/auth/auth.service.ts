@@ -64,16 +64,16 @@ export class AuthService {
        // Set bucket 
     // this.s3 = new AWS.S3({
     //   endpoint: process.env.LINODE_BUCKET_ENDPOINT, // Linode bucket endpoint
-    //   accessKeyId: process.env.LINODE_ACCESS_KEY, // Access key
-    //   secretAccessKey: process.env.LINODE_SECRET_KEY, // Secret key
+    //   accessKeyId: process.env.LINODE_ACCESS_KEY, // Access key  
+    //   secretAccessKey: process.env.LINODE_SECRET_KEY, // Secret key  
     //   region: process.env.LINODE_BUCKET_REGION, // Bucket region
     //   s3ForcePathStyle: true, // Linode-specific setting
-    // });
+    // }); 
      this.s3 = new AWS.S3({
-      endpoint: 'https://us-southeast-1.linodeobjects.com',
-      region: 'us-southeast-1',
-      accessKeyId: 'TZDQ6OXF5EVG189VJ80R',
-      secretAccessKey: 'fcmd8yYuHeFOKja3QXcm6DyCTeRe9WglTfMWJJJX',
+      endpoint: process.env.LINODE_BUCKET_ENDPOINT,
+      region: process.env.LINODE_BUCKET_REGION,
+      accessKeyId: process.env.LINODE_SECRET_KEY,
+      secretAccessKey: process.env.LINODE_SECRET_KEY,
       signatureVersion: 'v4',
     });
     
