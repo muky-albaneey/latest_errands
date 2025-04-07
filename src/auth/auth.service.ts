@@ -64,16 +64,16 @@ export class AuthService {
        // Set bucket 
     // this.s3 = new AWS.S3({
     //   endpoint: process.env.LINODE_BUCKET_ENDPOINT, // Linode bucket endpoint
-    //   accessKeyId: process.env.LINODE_ACCESS_KEY, // Access key  
-    //   secretAccessKey: process.env.LINODE_SECRET_KEY, // Secret key  
+    //   accessKeyId: process.env.LINODE_ACCESS_KEY, // Access key
+    //   secretAccessKey: process.env.LINODE_SECRET_KEY, // Secret key
     //   region: process.env.LINODE_BUCKET_REGION, // Bucket region
     //   s3ForcePathStyle: true, // Linode-specific setting
-    // }); 
+    // });
      this.s3 = new AWS.S3({
-      endpoint: process.env.LINODE_BUCKET_ENDPOINT,
-      region: process.env.LINODE_BUCKET_REGION,
-      accessKeyId: process.env.LINODE_SECRET_KEY,
-      secretAccessKey: process.env.LINODE_SECRET_KEY,
+      endpoint: 'https://us-southeast-1.linodeobjects.com',
+      region: 'us-southeast-1',
+      accessKeyId: 'TZDQ6OXF5EVG189VJ80R',
+      secretAccessKey: 'fcmd8yYuHeFOKja3QXcm6DyCTeRe9WglTfMWJJJX',
       signatureVersion: 'v4',
     });
     
@@ -89,13 +89,13 @@ export class AuthService {
       ContentType: file.mimetype, // Set content type (e.g., image/jpeg)
       ACL: 'public-read', // Make the file publicly accessible
     };
- 
+  
     
     try {
       const uploadResult = await this.s3.upload(params).promise();
       return uploadResult.Location; // Return the URL of the uploaded file
     } catch (error) {
-      // console.error('Linode Upload Error:', error); // 👈 Add this
+      console.error('Linode Upload Error:', error); // 👈 Add this
       throw new BadRequestException('Error uploading file to Linode Object Storage',error);
     }
   }
