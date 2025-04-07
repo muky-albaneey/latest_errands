@@ -89,15 +89,7 @@ export class AuthService {
       ContentType: file.mimetype, // Set content type (e.g., image/jpeg)
       ACL: 'public-read', // Make the file publicly accessible
     };
-    console.log('Bucket name:', this.bucketName);
-    console.log('Key:', process.env.LINODE_ACCESS_KEY);
-    console.log('Secret:', process.env.LINODE_SECRET_KEY);
-
-    console.log('Uploading file:', {
-      originalname: file.originalname,
-      mimetype: file.mimetype,
-      size: file.size,
-    });
+ 
     
     try {
       const uploadResult = await this.s3.upload(params).promise();
