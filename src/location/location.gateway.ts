@@ -21,6 +21,7 @@ interface DriverPayload {
 @WebSocketGateway({
   cors: {
     origin: '*',
+    credentials: true,
   },
 })
 export class LocationGateway implements OnGatewayConnection, OnGatewayDisconnect {
