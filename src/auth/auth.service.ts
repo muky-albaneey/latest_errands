@@ -602,6 +602,7 @@ async getCarBrands(): Promise<any> {
 
     //   return user;
     // }
+
     async createOrUpdateVehicle(email: string, dto: CreateVehicleDto) {
       const user = await this.userRepository.findOne({
         where: { email },
@@ -616,23 +617,33 @@ async getCarBrands(): Promise<any> {
         throw new Error('Only riders can create or update a vehicle');
       }
     
-      // 🚨 Optional: Delete the old vehicle if it exists
+      // ✅ Immediately delete old vehicle if exists
       if (user.vehicle) {
-        await this.vehicleRepository.remove(user.vehicle); // or .delete(user.vehicle.id)
+        await this.vehicleRepository.delete(user.vehicle.id);
       }
     
-      // 🚗 Create a new vehicle instance
+      // 🚨 Check for license plate conflict
+      const existingVehicle = await this.vehicleRepository.findOne({
+        where: { licensePlate: dto.licensePlate },
+      });
+    
+      if (existingVehicle) {
+        throw new ConflictException('This license plate is already in use');
+      }
+    
+      // 🚗 Create new vehicle
       const vehicle = this.vehicleRepository.create(dto);
       vehicle.user = user;
     
       await this.vehicleRepository.save(vehicle);
     
-      // 👤 Update user’s relation
+      // 👤 Update user relation
       user.vehicle = vehicle;
       await this.userRepository.save(user);
     
       return user;
     }
+    
     
     async getVehicleByUser(email: string) {
       const user = await this.userRepository.findOne({ where: { email }, relations: ['vehicle'] });
