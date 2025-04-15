@@ -36,7 +36,7 @@ export class Vehicle {
   unit: string;
 
   @Column({ nullable: true })
-  specialEquipment: string;
+  specialEquipment?: string;
 
  // One-to-One relationship with User
  @OneToOne(() => User, (user) => user.vehicle)

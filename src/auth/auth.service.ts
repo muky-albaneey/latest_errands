@@ -572,37 +572,68 @@ async getCarBrands(): Promise<any> {
       }
     }
 
-    async createOrUpdateVehicle(email: string, dto: CreateVehicleDto) {
-      const user = await this.userRepository.findOne({ where: { email }, relations: ['vehicle'] });
+    // async createOrUpdateVehicle(email: string, dto: CreateVehicleDto) {
+    //   const user = await this.userRepository.findOne({ where: { email }, relations: ['vehicle'] });
   
+    //   if (!user) {
+    //     throw new NotFoundException(`User with email ${email} not found`);
+    //   }
+  
+    //   if (!user.isRider) {
+    //     throw new Error('Only riders can create or update a vehicle');
+    //   }
+  
+    //   let vehicle = await this.vehicleRepository.findOne({ where: { id: user.vehicle?.id } });
+  
+    //   if (vehicle) {
+    //     // Update existing vehicle
+    //     vehicle = this.vehicleRepository.merge(vehicle, dto);
+    //   } else {
+    //     // Create new vehicle
+    //     vehicle = this.vehicleRepository.create(dto);
+    //     vehicle.user = user;
+    //   }
+  
+    //   vehicle.user = user;
+    //   await this.vehicleRepository.save(vehicle);
+
+    //   user.vehicle = vehicle; // 🔥 Ensure the user object is aware of the relationship
+    //   await this.userRepository.save(user);
+
+    //   return user;
+    // }
+    async createOrUpdateVehicle(email: string, dto: CreateVehicleDto) {
+      const user = await this.userRepository.findOne({
+        where: { email },
+        relations: ['vehicle'],
+      });
+    
       if (!user) {
         throw new NotFoundException(`User with email ${email} not found`);
       }
-  
+    
       if (!user.isRider) {
         throw new Error('Only riders can create or update a vehicle');
       }
-  
-      let vehicle = await this.vehicleRepository.findOne({ where: { id: user.vehicle?.id } });
-  
-      if (vehicle) {
-        // Update existing vehicle
-        vehicle = this.vehicleRepository.merge(vehicle, dto);
-      } else {
-        // Create new vehicle
-        vehicle = this.vehicleRepository.create(dto);
-        vehicle.user = user;
+    
+      // 🚨 Optional: Delete the old vehicle if it exists
+      if (user.vehicle) {
+        await this.vehicleRepository.remove(user.vehicle); // or .delete(user.vehicle.id)
       }
-  
+    
+      // 🚗 Create a new vehicle instance
+      const vehicle = this.vehicleRepository.create(dto);
       vehicle.user = user;
+    
       await this.vehicleRepository.save(vehicle);
-
-      user.vehicle = vehicle; // 🔥 Ensure the user object is aware of the relationship
+    
+      // 👤 Update user’s relation
+      user.vehicle = vehicle;
       await this.userRepository.save(user);
-
+    
       return user;
     }
-  
+    
     async getVehicleByUser(email: string) {
       const user = await this.userRepository.findOne({ where: { email }, relations: ['vehicle'] });
   
