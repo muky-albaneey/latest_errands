@@ -95,7 +95,7 @@ export class AuthService {
       const uploadResult = await this.s3.upload(params).promise();
       return uploadResult.Location; // Return the URL of the uploaded file
     } catch (error) {
-      console.error('Linode Upload Error:', error); // 👈 Add this
+      // console.error('Linode Upload Error:', error); // 👈 Add this
       throw new BadRequestException('Error uploading file to Linode Object Storage',error);
     }
   }
@@ -219,7 +219,7 @@ export class AuthService {
     try {
       return await this.userRepository.count();
     } catch (error) {
-      console.error('Error counting users:', error);
+      // console.error('Error counting users:', error);
       throw error;
     }
   }
@@ -404,7 +404,7 @@ export class AuthService {
       if (!driverData) {
         throw new BadRequestException("Driver's license details could not be retrieved.");
       }
-      console.log(driverData,2);
+      // console.log(driverData,2);
       
       newUser = this.userRepository.create({
         phoneNumber: userData.phoneNumber,
@@ -415,7 +415,7 @@ export class AuthService {
         role: UserRole.USER,
         isRider: true,
       });
-      console.log(driverData, 3);
+      // console.log(driverData, 3);
 
       newUser = this.userRepository.create({
         phoneNumber: userData.phoneNumber,
@@ -430,7 +430,7 @@ export class AuthService {
       // Save the user first so it gets an ID
       newUser = await this.userRepository.save(newUser);
       
-      console.log(driverData, 4);
+      // console.log(driverData, 4);
       
       // Check if this user already has a DriverLicense
       const existingDriver = await this.licenseRepository.findOne({
@@ -490,7 +490,7 @@ async getNinDetails(nin: string) {
       throw new BadRequestException(response.data?.error?.message || 'Failed to fetch NIN details');
     }
   } catch (error) {
-    console.error('Error fetching NIN details:', error.message);
+    // console.error('Error fetching NIN details:', error.message);
     throw new BadRequestException('Error retrieving NIN details. Please try again later.');
   }
 }
@@ -509,10 +509,28 @@ async getDriverLicenseDetails(licenseNo: string) {
       throw new BadRequestException(response.data?.error?.message || 'Failed to fetch Driver License details');
     }
   } catch (error) {
-    console.error('Error fetching Driver License details:', error.message);
+    // console.error('Error fetching Driver License details:', error.message);
     throw new BadRequestException('Error retrieving Driver License details. Please try again later.');
   }
 }
+
+// GET BRANDS
+async getCarBrands(): Promise<any> {
+  try {
+    const response = await axios.get(this.apiUrl, {
+      params: {
+        cmd: 'getMakes',
+        callback: '', // Important to get JSON instead of JSONP
+      },
+    });
+
+    return response.data.Makes; // this contains the array of brands
+  } catch (error) {
+    throw new Error(`Error fetching car brands: ${error.message}`);
+  }
+}
+
+
   // Fetch car models based on make (e.g., Mercedes-Benz)
   async getCarModels(make: string): Promise<any> {
     try {
