@@ -542,20 +542,30 @@ async getCarBrands(): Promise<any> {
 
 
   // Fetch car models based on make (e.g., Mercedes-Benz)
+  // async getCarModels(make: string): Promise<any> {
+  //   try {
+  //     const response = await axios.get(this.apiUrl, {
+  //       params: {
+  //         cmd: 'getModels',
+  //         make: make,
+  //       },
+  //     });
+  //     return response.data;
+  //   } catch (error) {
+  //     throw new Error(`Error fetching car models: ${error.message}`);
+  //   }
+  // }
   async getCarModels(make: string): Promise<any> {
+    const url = `https://vpic.nhtsa.dot.gov/api/vehicles/GetModelsForMake/${make}?format=json`;
+    
     try {
-      const response = await axios.get(this.apiUrl, {
-        params: {
-          cmd: 'getModels',
-          make: make,
-        },
-      });
+      const response = await axios.get(url);
       return response.data;
     } catch (error) {
       throw new Error(`Error fetching car models: ${error.message}`);
     }
   }
-
+  
     // Fetch car model details based on make and model
     async getCarModelDetails(make: string, model: string): Promise<any> {
       try {
