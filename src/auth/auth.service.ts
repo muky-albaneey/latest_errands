@@ -628,7 +628,7 @@ async getCarBrands(): Promise<any> {
       });
     
       if (existingVehicle) {
-        throw new ConflictException('This license plate is already in use');
+        throw new ConflictException('This plate number is already in use');
       }
     
       // 🚗 Create new vehicle
