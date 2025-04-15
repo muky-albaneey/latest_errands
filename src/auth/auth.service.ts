@@ -566,22 +566,40 @@ async getCarBrands(): Promise<any> {
     }
   }
   
-    // Fetch car model details based on make and model
+    // // Fetch car model details based on make and model
+    // async getCarModelDetails(make: string, model: string): Promise<any> {
+    //   try {
+    //     const response = await axios.get(this.apiUrl, {
+    //       params: {
+    //         cmd: 'getModel',
+    //         make: make,
+    //         model: model,
+    //       },
+    //     });
+    //     return response.data;
+    //   } catch (error) {
+    //     throw new Error(`Error fetching car model details: ${error.message}`);
+    //   }
+    // }
     async getCarModelDetails(make: string, model: string): Promise<any> {
+      const url = `https://vpic.nhtsa.dot.gov/api/vehicles/GetModelsForMake/${make}?format=json`;
+    
       try {
-        const response = await axios.get(this.apiUrl, {
-          params: {
-            cmd: 'getModel',
-            make: make,
-            model: model,
-          },
-        });
-        return response.data;
+        const response = await axios.get(url);
+    
+        const filteredModels = response.data.Results.filter(
+          (m: any) => m.Model_Name.toLowerCase() === model.toLowerCase()
+        );
+    
+        return {
+          count: filteredModels.length,
+          results: filteredModels,
+        };
       } catch (error) {
         throw new Error(`Error fetching car model details: ${error.message}`);
       }
     }
-
+    
     // async createOrUpdateVehicle(email: string, dto: CreateVehicleDto) {
     //   const user = await this.userRepository.findOne({ where: { email }, relations: ['vehicle'] });
   
