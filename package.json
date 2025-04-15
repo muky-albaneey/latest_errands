@@ -27,7 +27,9 @@
     "@nestjs/jwt": "^11.0.0",
     "@nestjs/mapped-types": "^2.0.6",
     "@nestjs/platform-express": "^11.0.12",
+    "@nestjs/platform-socket.io": "^11.0.17",
     "@nestjs/typeorm": "^11.0.0",
+    "@nestjs/websockets": "^11.0.17",
     "aws-sdk": "^2.1692.0",
     "bcrypt": "^5.1.1",
     "class-transformer": "^0.5.1",
@@ -36,6 +38,7 @@
     "pg": "^8.13.1",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1",
+    "socket.io": "^4.8.1",
     "twilio": "^5.3.6",
     "typeorm": "^0.3.20"
   },

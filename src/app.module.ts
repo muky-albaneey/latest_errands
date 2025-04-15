@@ -16,6 +16,7 @@ import { ProfileImage } from './auth/entities/profile.entity';
 import { plateNum } from './auth/entities/plateNum.entity';
 import { LicenseImg } from './auth/entities/licenseImg.entity';
 import { VehicleReg } from './auth/entities/VehicleReg.entity';
+import { LocationModule } from './location/location.module';
 
 
 @Module({
@@ -43,7 +44,8 @@ import { VehicleReg } from './auth/entities/VehicleReg.entity';
       }),
     }),
     AuthModule,
-    SmsModule
+    SmsModule,
+    LocationModule
   ],
   controllers: [AppController],
   providers: [AppService],

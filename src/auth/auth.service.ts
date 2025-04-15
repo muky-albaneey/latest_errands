@@ -491,7 +491,7 @@ async getNinDetails(nin: string) {
     }
   } catch (error) {
     // console.error('Error fetching NIN details:', error.message);
-    throw new BadRequestException('Error retrieving NIN details. Please try again later.');
+    throw new BadRequestException('Error retrieving NIN details. Please try again later.',error);
   }
 }
 
@@ -510,7 +510,7 @@ async getDriverLicenseDetails(licenseNo: string) {
     }
   } catch (error) {
     // console.error('Error fetching Driver License details:', error.message);
-    throw new BadRequestException('Error retrieving Driver License details. Please try again later.');
+    throw new BadRequestException('Error retrieving Driver License details. Please try again later.',error);
   }
 }
 
