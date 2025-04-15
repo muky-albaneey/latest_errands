@@ -514,17 +514,27 @@ async getDriverLicenseDetails(licenseNo: string) {
   }
 }
 
-// GET BRANDS
+// // GET BRANDS
+// async getCarBrands(): Promise<any> {
+//   try {
+//     const response = await axios.get(this.apiUrl, {
+//       params: {
+//         cmd: 'getMakes',
+//         callback: '', // Important to get JSON instead of JSONP
+//       },
+//     });
+
+//     return response.data.Makes; // this contains the array of brands
+//   } catch (error) {
+//     throw new Error(`Error fetching car brands: ${error.message}`);
+//   }
+// }
 async getCarBrands(): Promise<any> {
   try {
-    const response = await axios.get(this.apiUrl, {
-      params: {
-        cmd: 'getMakes',
-        callback: '', // Important to get JSON instead of JSONP
-      },
-    });
-
-    return response.data.Makes; // this contains the array of brands
+    const response = await axios.get(
+      'https://vpic.nhtsa.dot.gov/api/vehicles/getallmakes?format=json',
+    );
+    return response.data.Results; // contains array of car brands
   } catch (error) {
     throw new Error(`Error fetching car brands: ${error.message}`);
   }
