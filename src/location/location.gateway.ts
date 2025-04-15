@@ -55,6 +55,7 @@ export class LocationGateway implements OnGatewayConnection, OnGatewayDisconnect
       this.connectedDrivers.set(email, client.id);
       this.server.emit('driver-joined', { email });
       console.log(`Driver with email ${email} joined`,latitude, longitude);
+      console.log(client.data)
     }
 
     // Emit location to all clients
