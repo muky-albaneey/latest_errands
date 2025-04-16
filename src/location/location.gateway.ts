@@ -35,7 +35,8 @@ export class LocationGateway implements OnGatewayConnection, OnGatewayDisconnect
   // }
 
   handleConnection(client: Socket) {
-    const email = client.handshake.query.email as string;
+    const email = [...this.connectedDrivers.entries()]
+    .find(([_, socketId]) => socketId === client.id)?.[0];
   
     if (email) {
       this.connectedDrivers.set(email, client.id);
