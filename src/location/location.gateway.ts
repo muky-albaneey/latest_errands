@@ -17,6 +17,11 @@ interface DriverPayload {
   latitude: number;
   longitude: number;
 }
+interface UserPayload {
+  userId: string;
+  latitude: number;
+  longitude: number;
+}
 
 @WebSocketGateway({
   cors: {
@@ -29,6 +34,7 @@ export class LocationGateway implements OnGatewayConnection, OnGatewayDisconnect
   server: Server;
 
   private connectedDrivers: Map<string, string> = new Map(); // email => socket.id
+  private connectedUsers: Map<string, string> = new Map(); // userId => socket.id
 
   // handleConnection(client: Socket) {
   //   console.log(`Client connected: ${client.id}`);
@@ -75,4 +81,19 @@ export class LocationGateway implements OnGatewayConnection, OnGatewayDisconnect
     // Emit location to all clients
     this.server.emit('location-update', { email, latitude, longitude });
   }
+
+  @SubscribeMessage('user-location')
+handleUserLocation(@MessageBody() payload: UserPayload, @ConnectedSocket() client: Socket) {
+  const { userId, latitude, longitude } = payload;
+
+  // Store user if not already connected
+  if (!this.connectedUsers.has(userId)) {
+    this.connectedUsers.set(userId, client.id);
+    console.log(`User with ID ${userId} joined`);
+  }
+
+  // Emit user's location to all drivers (or everyone)
+  this.server.emit('user-location-update', { userId, latitude, longitude });
+}
+
 }
