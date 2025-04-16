@@ -30,9 +30,22 @@ export class LocationGateway implements OnGatewayConnection, OnGatewayDisconnect
 
   private connectedDrivers: Map<string, string> = new Map(); // email => socket.id
 
+  // handleConnection(client: Socket) {
+  //   console.log(`Client connected: ${client.id}`);
+  // }
+
   handleConnection(client: Socket) {
-    console.log(`Client connected: ${client.id}`);
+    const email = client.handshake.query.email as string;
+  
+    if (email) {
+      this.connectedDrivers.set(email, client.id);
+      this.server.emit('driver-joined', { email });
+      console.log(`Driver connected: ${email} with socket ID ${client.id}`);
+    } else {
+      console.warn(`Client connected without email: ${client.id}`);
+    }
   }
+  
 
   handleDisconnect(client: Socket) {
     // Find email associated with socket
