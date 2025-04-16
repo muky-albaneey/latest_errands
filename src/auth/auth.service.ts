@@ -470,8 +470,10 @@ export class AuthService {
       email: user.email,
       role: user.role,
       isRider: user.isRider,
-      nin: user.nin ? { trackingId: user.nin.trackingId } : null,
-      driver: user.driverLicense ? { licenseNo: user.driverLicense.licenseNo } : null,
+      fname:user.fname,
+      lname:user.lname,
+      nin: user.nin ? { trackingId: user.nin.trackingId, birthDate: user.nin.birthDate } : null,
+      driver: user.driverLicense ? { licenseNo: user.driverLicense.licenseNo , birthdate:user.driverLicense.birthdate} : null,
     };
   }
   
