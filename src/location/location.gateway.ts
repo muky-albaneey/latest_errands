@@ -11,6 +11,8 @@ import {
   ConnectedSocket,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { AuthService } from 'src/auth/auth.service';
+import { TripService } from 'src/trip/trip.service';
 
 interface DriverPayload {
   email: string;
@@ -35,6 +37,12 @@ export class LocationGateway implements OnGatewayConnection, OnGatewayDisconnect
 
   private connectedDrivers: Map<string, string> = new Map(); // email => socket.id
   private connectedUsers: Map<string, string> = new Map(); // userId => socket.id
+
+  constructor(
+    private readonly tripService: TripService,
+    private readonly userService: AuthService,
+  ) {}
+
 
   // handleConnection(client: Socket) {
   //   console.log(`Client connected: ${client.id}`);
@@ -66,21 +74,59 @@ export class LocationGateway implements OnGatewayConnection, OnGatewayDisconnect
     }
   }
 
+  // @SubscribeMessage('driver-location')
+  // handleDriverLocation(@MessageBody() payload: DriverPayload, @ConnectedSocket() client: Socket) {
+  //   const { email, latitude, longitude } = payload;
+
+  //   // Store email and socket ID if not already
+  //   if (!this.connectedDrivers.has(email)) {
+  //     this.connectedDrivers.set(email, client.id);
+  //     this.server.emit('driver-joined', { email });
+  //     console.log(`Driver with email ${email} joined`,latitude, longitude);
+  //     console.log(client.data)
+  //   }
+
+  //   // Emit location to all clients
+  //   this.server.emit('location-update', { email, latitude, longitude });
+  // }
   @SubscribeMessage('driver-location')
-  handleDriverLocation(@MessageBody() payload: DriverPayload, @ConnectedSocket() client: Socket) {
-    const { email, latitude, longitude } = payload;
+async handleDriverLocation(
+  @MessageBody() payload: DriverPayload,
+  @ConnectedSocket() client: Socket,
+) {
+  const { email, latitude, longitude } = payload;
 
-    // Store email and socket ID if not already
-    if (!this.connectedDrivers.has(email)) {
-      this.connectedDrivers.set(email, client.id);
-      this.server.emit('driver-joined', { email });
-      console.log(`Driver with email ${email} joined`,latitude, longitude);
-      console.log(client.data)
-    }
-
-    // Emit location to all clients
-    this.server.emit('location-update', { email, latitude, longitude });
+  // Store email and socket ID if not already
+  if (!this.connectedDrivers.has(email)) {
+    this.connectedDrivers.set(email, client.id);
+    this.server.emit('driver-joined', { email });
+    console.log(`Driver with email ${email} joined`, latitude, longitude);
   }
+
+  // Emit location to all clients
+  this.server.emit('location-update', { email, latitude, longitude });
+
+  // 🧠 Lookup the user from email
+  const user = await this.userService.findOneByEmail(email);
+  if (!user) {
+    console.warn(`No user found for email ${email}`);
+    return;
+  }
+
+  // ✅ Update initial location
+  try {
+    await this.tripService.updateInitialLocation(
+      {
+        initialLat: latitude,
+        initialLong: longitude,
+      },
+      user,
+    );
+  } catch (err) {
+    console.error('Failed to update initial location:', err.message);
+  }
+}
+
 
   @SubscribeMessage('user-location')
 handleUserLocation(@MessageBody() payload: UserPayload, @ConnectedSocket() client: Socket) {

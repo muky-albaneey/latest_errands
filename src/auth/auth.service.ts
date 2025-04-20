@@ -1,6 +1,3 @@
-
-/* eslint-disable prettier/prettier */
-
 /* eslint-disable prettier/prettier */
 import { Injectable, ConflictException, NotFoundException, UnauthorizedException, BadRequestException,} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';

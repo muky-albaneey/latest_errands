@@ -17,6 +17,8 @@ import { plateNum } from './auth/entities/plateNum.entity';
 import { LicenseImg } from './auth/entities/licenseImg.entity';
 import { VehicleReg } from './auth/entities/VehicleReg.entity';
 import { LocationModule } from './location/location.module';
+import { TripModule } from './trip/trip.module';
+import { Trip } from './auth/entities/trip.entity';
 
 
 @Module({
@@ -35,7 +37,7 @@ import { LocationModule } from './location/location.module';
         username: configService.get<string>('DATABASE_USERNAME'),
         password: configService.get<string>('DATABASE_PASSWORD'),
         database: configService.get<string>('DATABASE_NAME'),
-        entities: [User, Card, DiverLicense, Nin, LocationDrive, Vehicle, ProfileImage, plateNum, LicenseImg, VehicleReg,],
+        entities: [User, Card, DiverLicense, Nin, LocationDrive, Vehicle, ProfileImage, plateNum, LicenseImg, VehicleReg, Trip],
         synchronize: true,
         extra: {
           max: 2 // Limit to 2 connections
@@ -45,7 +47,8 @@ import { LocationModule } from './location/location.module';
     }),
     AuthModule,
     SmsModule,
-    LocationModule
+    LocationModule,
+    TripModule
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -5,7 +5,6 @@ import {
     Column,
     OneToOne,
     JoinColumn,
-    BeforeInsert,
     OneToMany,
     ManyToMany,
     JoinTable
@@ -22,6 +21,7 @@ import { VehicleReg } from './VehicleReg.entity';
 import { ProfileImage } from './profile.entity';
 import { plateNum } from './plateNum.entity';
 import { LicenseImg } from './licenseImg.entity';
+import { Trip } from './trip.entity';
 
 export enum UserRole {
     ADMIN = "admin",
@@ -54,6 +54,12 @@ export class User {
     @Column({type: 'varchar', nullable : true})
     rememberToken?: string;
     
+    @Column({ type: 'decimal', precision: 10, scale: 6, nullable:true })
+    initialLat: number;
+    
+    @Column({ type: 'decimal', precision: 10, scale: 6, nullable:true })
+    initialLong: number;
+
     @Column({
         type: "enum",
         enum: UserRole,
@@ -122,6 +128,8 @@ export class User {
       @JoinColumn()
       licenseImg?: LicenseImg;
     
+      @OneToMany(() => Trip, trip => trip.user)
+        trips: Trip[];
     toJSON() {
         return instanceToPlain(this, { excludePrefixes: ['_'] });
     }
