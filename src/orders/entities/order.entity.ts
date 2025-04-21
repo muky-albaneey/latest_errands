@@ -16,8 +16,9 @@ export class Order {
 
   @OneToMany(() => ProductImg, (productImg) => productImg.order, {
     cascade: true,
+    nullable: true 
   })
-  productImages: ProductImg[];
+  productImages?: ProductImg[];
 
   @OneToOne(() => PaymentDetails, (paymentDetails) => paymentDetails.order, {
     cascade: true,
