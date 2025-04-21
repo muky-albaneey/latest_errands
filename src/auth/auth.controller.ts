@@ -28,7 +28,6 @@ import { CreateAuthDto, CreateAuthDtoDriver, LoginAuthDto } from './dto/create-a
 import { UpdateAuthDto } from './dto/update-auth.dto';
 import { User } from './entities/user.entity';
 import { CreateVehicleDto } from './dto/vehicle.dto';
-import { Request } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
 import * as path from 'path';
 import { ChangePasswordDto } from './dto/change-password.dto';
@@ -328,7 +327,7 @@ async getDriverById(@Param('id') id: string) {
       },
     }),
   )
-  
+
   async createPlateNumImage(
     @UploadedFile() file: Express.Multer.File,
     @Body('email') email: string,
