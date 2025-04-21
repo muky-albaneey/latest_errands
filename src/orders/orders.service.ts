@@ -12,9 +12,8 @@ import { CashPaymentDetails } from './entities/cashPaymentDetails.entity';
 @Injectable()
 export class OrdersService {
   private s3: AWS.S3;
-  private bucketName: string = 'your-bucket-name';
-  
-  
+  private bucketName: string;
+
   constructor(
     @InjectRepository(Order)
     private ordersRepository: Repository<Order>,
@@ -29,12 +28,14 @@ export class OrdersService {
     private cashPaymentRepository: Repository<CashPaymentDetails>,
   ) {
     this.s3 = new AWS.S3({
-      endpoint: 'https://your-linode-endpoint',
-      region: 'your-region',
-      accessKeyId: 'your-access-key-id',
-      secretAccessKey: 'your-secret-access-key',
+      endpoint: 'https://us-southeast-1.linodeobjects.com',
+      region: 'us-southeast-1',
+      accessKeyId: 'TZDQ6OXF5EVG189VJ80R',
+      secretAccessKey: 'fcmd8yYuHeFOKja3QXcm6DyCTeRe9WglTfMWJJJX',
       signatureVersion: 'v4',
     });
+    this.bucketName = process.env.LINODE_BUCKET_NAME; // Set bucket name
+
   }
   async initiatePayment(orderData: Partial<Order>) {
     // Create a payment details entry
