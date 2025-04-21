@@ -104,8 +104,7 @@ async handleDriverLocation(
     console.log(`Driver with email ${email} joined`, latitude, longitude);
   }
 
-  // Emit location to all clients
-  this.server.emit('location-update', { email, latitude, longitude });
+
 
   // 🧠 Lookup the user from email
   const user = await this.userService.findOneByEmail(email);
@@ -123,6 +122,8 @@ async handleDriverLocation(
       },
       user.id,
     );
+      // Emit location to all clients
+  this.server.emit('location-update', { email, latitude, longitude });
   } catch (err) {
     console.error('Failed to update initial location:', err.message);
   }

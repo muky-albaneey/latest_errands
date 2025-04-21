@@ -6,10 +6,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { HttpModule} from '@nestjs/axios'; // Import HttpModule
 import { Trip } from 'src/trip/entities/trip.entity';
+import { User } from 'src/auth/entities/user.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Trip]),
+    TypeOrmModule.forFeature([Trip, User]),
     ConfigModule,
     HttpModule,
   ],
