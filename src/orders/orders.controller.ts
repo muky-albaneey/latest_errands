@@ -16,14 +16,16 @@ import {
   import * as path from 'path';
 import { PaymentDetails } from './entities/paymentDetails.entity';
 import { CashPaymentDetails } from './entities/cashPaymentDetails.entity';
+import { CreateOrderWithPaymentDto } from './dto/create-order-with-payment.dto';
   
   @Controller('orders')
   export class OrdersController {
     constructor(private ordersService: OrdersService) {}
   
     // Endpoint to initiate payment
+  
     @Post('initiate-payment')
-    async initiatePayment(@Body() orderData: Partial<Order>) {
+    async initiatePayment(@Body() orderData: CreateOrderWithPaymentDto) {
       return this.ordersService.initiatePayment(orderData);
     }
   

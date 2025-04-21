@@ -8,6 +8,10 @@ import * as AWS from 'aws-sdk';
 import * as path from 'path';
 import { PaymentDetails } from './entities/paymentDetails.entity';
 import { CashPaymentDetails } from './entities/cashPaymentDetails.entity';
+import { HttpService } from '@nestjs/axios';
+import { firstValueFrom } from 'rxjs'; // 👈 for handling axios Observables
+import { CreateOrderWithPaymentDto } from './dto/create-order-with-payment.dto';
+import { User } from 'src/auth/entities/user.entity';
 
 @Injectable()
 export class OrdersService {
@@ -18,6 +22,9 @@ export class OrdersService {
     @InjectRepository(Order)
     private ordersRepository: Repository<Order>,
 
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
+
     @InjectRepository(ProductImg)
     private productImgRepository: Repository<ProductImg>,
 
@@ -26,6 +33,8 @@ export class OrdersService {
 
     @InjectRepository(CashPaymentDetails)
     private cashPaymentRepository: Repository<CashPaymentDetails>,
+
+    private readonly httpService: HttpService, // 👈 Inject HttpService
   ) {
     this.s3 = new AWS.S3({
       endpoint: 'https://us-southeast-1.linodeobjects.com',
@@ -37,55 +46,137 @@ export class OrdersService {
     this.bucketName = process.env.LINODE_BUCKET_NAME; // Set bucket name
 
   }
-  async initiatePayment(orderData: Partial<Order>) {
-    // Create a payment details entry
+  private PAYSTACK_SECRET = process.env.PAYSTACK_SECRET_KEY; // 👈 store your secret key in env
+
+  async initiatePayment(orderData: CreateOrderWithPaymentDto) {
+    const paymentReference = `PAY-${Date.now()}`;
+  
     const paymentDetails = this.paymentDetailsRepository.create({
       amount: orderData.cost,
-      paymentReference: `PAY-${Date.now()}`,
+      paymentReference,
       status: 'pending',
     });
     await this.paymentDetailsRepository.save(paymentDetails);
-
-    // Return payment session details (to be used with the payment gateway)
+  
+    const paystackResponse = await firstValueFrom(
+      this.httpService.post(
+        'https://api.paystack.co/transaction/initialize',
+        {
+          email: orderData.email,
+          amount: orderData.cost * 100,
+          reference: paymentReference,
+          metadata: {
+            orderData, // 👈 Send full order data in metadata so you can retrieve it later
+          },
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${this.PAYSTACK_SECRET}`,
+            'Content-Type': 'application/json',
+          },
+        },
+      ),
+    );
+  
+    if (!paystackResponse.data.status) {
+      throw new BadRequestException('Failed to initialize Paystack payment');
+    }
+  
     return {
-      paymentReference: paymentDetails.paymentReference,
+      authorizationUrl: paystackResponse.data.data.authorization_url,
+      paymentReference,
       amount: paymentDetails.amount,
     };
   }
+  
 
   async verifyPayment(paymentReference: string, gatewayResponse: any) {
     const paymentDetails = await this.paymentDetailsRepository.findOne({
       where: { paymentReference },
     });
-
+  
     if (!paymentDetails) {
       throw new NotFoundException('Payment details not found');
     }
-    if (!gatewayResponse.orderData) {
-        throw new BadRequestException('Order data is missing in the payment response');
-      }
+  
+    const metadata = gatewayResponse.data?.metadata;
+  
+    if (!gatewayResponse.success || !metadata?.orderData) {
+      throw new BadRequestException('Order data is missing in the payment response');
+    }
+  
+    const orderData = metadata.orderData;
+  
+    // ✅ 1. Fetch the user by email
+    const user = await this.userRepository.findOne({ where: { email: orderData.email } });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+  
+    // ✅ 2. Update paymentDetails and save
+    paymentDetails.status = 'success';
+    paymentDetails.gatewayResponse = JSON.stringify(gatewayResponse);
+    await this.paymentDetailsRepository.save(paymentDetails);
+  
+    // ✅ 3. Create and save the order, linking the user
+    const newOrder = this.ordersRepository.create({
+      ...orderData,
+      user, // ✅ attach the user entity
+      paymentDetails,
+    });
+  
+    return this.ordersRepository.save(newOrder);
+  }
+  
+  // async initiatePayment(orderData: Partial<Order>) {
+  //   // Create a payment details entry
+  //   const paymentDetails = this.paymentDetailsRepository.create({
+  //     amount: orderData.cost,
+  //     paymentReference: `PAY-${Date.now()}`,
+  //     status: 'pending',
+  //   });
+  //   await this.paymentDetailsRepository.save(paymentDetails);
+
+  //   // Return payment session details (to be used with the payment gateway)
+  //   return {
+  //     paymentReference: paymentDetails.paymentReference,
+  //     amount: paymentDetails.amount,
+  //   };
+  // }
+
+  // async verifyPayment(paymentReference: string, gatewayResponse: any) {
+  //   const paymentDetails = await this.paymentDetailsRepository.findOne({
+  //     where: { paymentReference },
+  //   });
+
+  //   if (!paymentDetails) {
+  //     throw new NotFoundException('Payment details not found');
+  //   }
+  //   if (!gatewayResponse.orderData) {
+  //       throw new BadRequestException('Order data is missing in the payment response');
+  //     }
       
 
-    // Update payment status based on gateway response
-    if (gatewayResponse.success) {
-      paymentDetails.status = 'success';
-      paymentDetails.gatewayResponse = JSON.stringify(gatewayResponse);
-      await this.paymentDetailsRepository.save(paymentDetails);
+  //   // Update payment status based on gateway response
+  //   if (gatewayResponse.success) {
+  //     paymentDetails.status = 'success';
+  //     paymentDetails.gatewayResponse = JSON.stringify(gatewayResponse);
+  //     await this.paymentDetailsRepository.save(paymentDetails);
 
-      // Create the order
-      const orderData = gatewayResponse.orderData; // Extract from response
-      const newOrder = this.ordersRepository.create({
-        ...orderData,
-        paymentDetails,
-      });
-      return this.ordersRepository.save(newOrder);
-    } else {
-      paymentDetails.status = 'failed';
-      paymentDetails.gatewayResponse = JSON.stringify(gatewayResponse);
-      await this.paymentDetailsRepository.save(paymentDetails);
-      throw new BadRequestException('Payment failed');
-    }
-  }
+  //     // Create the order
+  //     const orderData = gatewayResponse.orderData; // Extract from response
+  //     const newOrder = this.ordersRepository.create({
+  //       ...orderData,
+  //       paymentDetails,
+  //     });
+  //     return this.ordersRepository.save(newOrder);
+  //   } else {
+  //     paymentDetails.status = 'failed';
+  //     paymentDetails.gatewayResponse = JSON.stringify(gatewayResponse);
+  //     await this.paymentDetailsRepository.save(paymentDetails);
+  //     throw new BadRequestException('Payment failed');
+  //   }
+  // }
   async createOrder(orderData: Partial<Order>) {
     try {
       const newOrder = this.ordersRepository.create(orderData);
