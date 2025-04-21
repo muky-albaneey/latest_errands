@@ -7,12 +7,14 @@ import { ConfigModule } from '@nestjs/config';
 import { HttpModule} from '@nestjs/axios'; // Import HttpModule
 import { Trip } from 'src/trip/entities/trip.entity';
 import { User } from 'src/auth/entities/user.entity';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Trip, User]),
     ConfigModule,
     HttpModule,
+    JwtModule
   ],
   providers: [TripService],
   controllers: [TripController],
