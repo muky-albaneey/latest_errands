@@ -54,20 +54,23 @@ import { Request, Response } from 'express';
     
       // Step 1: Verify the signature
       if (hash !== signature) {
+        console.log('Invalid signature');
         return res.status(400).send('Invalid signature');
       }
     
       const event = req.body;
+      console.log('Webhook received:', event);  // Log the event for debugging
     
       try {
         // Step 2: Process the webhook event
         await this.ordersService.processWebhookEvent(event);
         return res.status(200).send('Webhook received');
       } catch (err) {
-        console.error('Webhook error:', err);
-        return res.status(500).send('Webhook processing failed');
+        console.error('Error processing webhook:', err);
+        return res.status(500).send('Error processing webhook');
       }
     }
+    
     
     @Post('create')
     async createOrder(@Body() orderData: Partial<Order>) {
