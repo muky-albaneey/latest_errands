@@ -40,29 +40,59 @@ import { Request, Response } from 'express';
     ) {
       return this.ordersService.verifyPayment(paymentReference, gatewayResponse);
     }
+    // @Post('webhook')
+    // async handleWebhook(
+    //   @Req() req: Request,
+    //   @Res() res: Response,
+    //   @Headers('x-paystack-signature') signature: string,
+    // ) {
+    //   const secret = process.env.PAYSTACK_SECRET_KEY;
+    //   const hash = crypto
+    //     .createHmac('sha512', secret)
+    //     .update(JSON.stringify(req.body))
+    //     .digest('hex');
+    
+    //   // Step 1: Verify the signature
+    //   if (hash !== signature) {
+    //     console.log('Invalid signature');
+    //     return res.status(400).send('Invalid signature');
+    //   }
+    
+    //   const event = req.body;
+    //   console.log('Webhook received:', event);  // Log the event for debugging
+    
+    //   try {
+    //     // Step 2: Process the webhook event
+    //     await this.ordersService.processWebhookEvent(event);
+    //     return res.status(200).send('Webhook received');
+    //   } catch (err) {
+    //     console.error('Error processing webhook:', err);
+    //     return res.status(500).send('Error processing webhook');
+    //   }
+    // }
+    
     @Post('webhook')
     async handleWebhook(
-      @Req() req: Request,
+      @Req() req: Request & { rawBody: Buffer },
       @Res() res: Response,
       @Headers('x-paystack-signature') signature: string,
     ) {
       const secret = process.env.PAYSTACK_SECRET_KEY;
+  
       const hash = crypto
         .createHmac('sha512', secret)
-        .update(JSON.stringify(req.body))
+        .update(req.rawBody) // use the raw body here
         .digest('hex');
-    
-      // Step 1: Verify the signature
+  
       if (hash !== signature) {
-        console.log('Invalid signature');
+        console.log('❌ Invalid signature');
         return res.status(400).send('Invalid signature');
       }
-    
+  
       const event = req.body;
-      console.log('Webhook received:', event);  // Log the event for debugging
-    
+      console.log('✅ Valid webhook received:', event);
+  
       try {
-        // Step 2: Process the webhook event
         await this.ordersService.processWebhookEvent(event);
         return res.status(200).send('Webhook received');
       } catch (err) {
@@ -70,7 +100,6 @@ import { Request, Response } from 'express';
         return res.status(500).send('Error processing webhook');
       }
     }
-    
     
     @Post('create')
     async createOrder(@Body() orderData: Partial<Order>) {
