@@ -3,8 +3,8 @@ import { Injectable, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateTripDto } from './dto/create-trip.dto';
-import { Trip } from 'src/auth/entities/trip.entity';
-import { User } from 'src/auth/entities/auth.entity';
+import { Trip } from 'src/trip/entities/trip.entity';
+import { User } from 'src/auth/entities/user.entity';
 import { Between } from 'typeorm';
 import { UpdateLocationDto } from './dto/update-location.dto';
 import * as dayjs from 'dayjs';
@@ -12,6 +12,8 @@ import * as dayjs from 'dayjs';
 @Injectable()
 export class TripService {
   constructor(
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
     @InjectRepository(Trip)
     private tripRepo: Repository<Trip>,
   ) {}
@@ -141,5 +143,17 @@ async updateInitialLocation(dto: UpdateLocationDto, user: User) {
     return this.tripRepo.save(newTrip);
   }
 }
+
+// trip.service.ts
+async updateUserLocation(userId, lat: number, long: number) {
+  const user = await this.userRepository.findOne({ where: { id: userId } });
+  if (!user) throw new Error('User not found');
+
+  user.lat = lat;
+  user.long = long;
+
+  return this.userRepository.save(user);
+}
+
 
 }

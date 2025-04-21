@@ -15,13 +15,14 @@ import {  Nin} from './nin';
 
 import { DiverLicense } from './license.entity';
 import { Exclude, instanceToPlain } from 'class-transformer';
-import { LocationDrive } from './location_drive';
+import { LocationDrive } from '../../trip/entities/location_drive';
 import { Vehicle } from './vehicle.entity';
 import { VehicleReg } from './VehicleReg.entity';
 import { ProfileImage } from './profile.entity';
 import { plateNum } from './plateNum.entity';
 import { LicenseImg } from './licenseImg.entity';
-import { Trip } from './trip.entity';
+import { Trip } from '../../trip/entities/trip.entity';
+import { Order } from 'src/orders/entities/order.entity';
 
 export enum UserRole {
     ADMIN = "admin",
@@ -55,10 +56,10 @@ export class User {
     rememberToken?: string;
     
     @Column({ type: 'decimal', precision: 10, scale: 6, nullable:true })
-    initialLat: number;
+    lat: number;
     
     @Column({ type: 'decimal', precision: 10, scale: 6, nullable:true })
-    initialLong: number;
+    long: number;
 
     @Column({
         type: "enum",
@@ -69,6 +70,9 @@ export class User {
     @Column({ type: 'boolean', nullable: true, default: false })
     isRider?: boolean;
 
+    @Column({ type: 'varchar', default: 'english', nullable: false })
+    language: string;
+    
     @OneToOne(() => Card, { cascade: true, nullable: true, onUpdate: 'CASCADE', onDelete: 'CASCADE' })
     @JoinColumn()
     card?: Card;
@@ -130,6 +134,10 @@ export class User {
     
       @OneToMany(() => Trip, trip => trip.user)
         trips: Trip[];
+
+        @OneToMany(() => Order, (order) => order.user, { cascade: true })
+        orders: Order[];
+        
     toJSON() {
         return instanceToPlain(this, { excludePrefixes: ['_'] });
     }

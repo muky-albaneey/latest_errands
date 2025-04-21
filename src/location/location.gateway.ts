@@ -128,8 +128,24 @@ async handleDriverLocation(
 }
 
 
-  @SubscribeMessage('user-location')
-handleUserLocation(@MessageBody() payload: UserPayload, @ConnectedSocket() client: Socket) {
+//   @SubscribeMessage('user-location')
+// handleUserLocation(@MessageBody() payload: UserPayload, @ConnectedSocket() client: Socket) {
+//   const { userId, latitude, longitude } = payload;
+
+//   // Store user if not already connected
+//   if (!this.connectedUsers.has(userId)) {
+//     this.connectedUsers.set(userId, client.id);
+//     console.log(`User with ID ${userId} joined`);
+//   }
+
+//   // Emit user's location to all drivers (or everyone)
+//   this.server.emit('user-location-update', { userId, latitude, longitude });
+// }
+@SubscribeMessage('user-location')
+async handleUserLocation(
+  @MessageBody() payload: UserPayload,
+  @ConnectedSocket() client: Socket,
+) {
   const { userId, latitude, longitude } = payload;
 
   // Store user if not already connected
@@ -140,6 +156,14 @@ handleUserLocation(@MessageBody() payload: UserPayload, @ConnectedSocket() clien
 
   // Emit user's location to all drivers (or everyone)
   this.server.emit('user-location-update', { userId, latitude, longitude });
+
+  // ✅ Update user's location in DB
+  try {
+    await this.tripService.updateUserLocation(userId, latitude, longitude);
+    console.log(`Updated location for user ${userId}`);
+  } catch (err) {
+    console.error('Failed to update user location:', err.message);
+  }
 }
 
 }

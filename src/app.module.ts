@@ -5,12 +5,12 @@ import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
-import { User } from './auth/entities/auth.entity';
+import { User } from './auth/entities/user.entity';
 import { Card } from './auth/entities/card.entity';
 import { SmsModule } from './sms/sms.module';
 import { DiverLicense } from './auth/entities/license.entity';
 import { Nin } from './auth/entities/nin';
-import { LocationDrive } from './auth/entities/location_drive';
+import { LocationDrive } from './trip/entities/location_drive';
 import { Vehicle } from './auth/entities/vehicle.entity';
 import { ProfileImage } from './auth/entities/profile.entity';
 import { plateNum } from './auth/entities/plateNum.entity';
@@ -18,7 +18,14 @@ import { LicenseImg } from './auth/entities/licenseImg.entity';
 import { VehicleReg } from './auth/entities/VehicleReg.entity';
 import { LocationModule } from './location/location.module';
 import { TripModule } from './trip/trip.module';
-import { Trip } from './auth/entities/trip.entity';
+import { Trip } from './trip/entities/trip.entity';
+import { OrdersModule } from './orders/orders.module';
+import { RidesModule } from './rides/rides.module';
+import { ProductImg } from './orders/entities/productImg.entity';
+import { Order } from './orders/entities/order.entity';
+import { Ride } from './rides/entities/ride.entity';
+import { CashPaymentDetails } from './orders/entities/cashPaymentDetails.entity';
+import { PaymentDetails } from './orders/entities/paymentDetails.entity';
 
 
 @Module({
@@ -37,7 +44,11 @@ import { Trip } from './auth/entities/trip.entity';
         username: configService.get<string>('DATABASE_USERNAME'),
         password: configService.get<string>('DATABASE_PASSWORD'),
         database: configService.get<string>('DATABASE_NAME'),
-        entities: [User, Card, DiverLicense, Nin, LocationDrive, Vehicle, ProfileImage, plateNum, LicenseImg, VehicleReg, Trip],
+        entities: [User, Card, DiverLicense, Nin, LocationDrive, 
+          Vehicle, ProfileImage, plateNum, LicenseImg, VehicleReg, 
+          Trip, Order, ProductImg, Ride,
+          PaymentDetails, CashPaymentDetails
+        ],
         synchronize: true,
         extra: {
           max: 2 // Limit to 2 connections
@@ -48,7 +59,9 @@ import { Trip } from './auth/entities/trip.entity';
     AuthModule,
     SmsModule,
     LocationModule,
-    TripModule
+    TripModule,
+    OrdersModule,
+    RidesModule
   ],
   controllers: [AppController],
   providers: [AppService],

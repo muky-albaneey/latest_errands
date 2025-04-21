@@ -16,6 +16,7 @@ import {
   Req,
   UseInterceptors,
   UploadedFile,
+  Request,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 // import { CreateAuthDto, LoginAuthDto } from './dto/create-auth.dto';
@@ -25,11 +26,12 @@ import { JwtService } from '@nestjs/jwt';
 import type { Response } from 'express';
 import { CreateAuthDto, CreateAuthDtoDriver, LoginAuthDto } from './dto/create-auth.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
-import { User } from './entities/auth.entity';
+import { User } from './entities/user.entity';
 import { CreateVehicleDto } from './dto/vehicle.dto';
 import { Request } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
 import * as path from 'path';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 
 @Controller('auth')
@@ -205,6 +207,15 @@ async logout(@Res({ passthrough: true }) response: Response): Promise<any> {
       data: updatedUser,
     });
   }
+@Patch('change-password')
+async changePassword(
+  @Request() req, // Assuming you're using a session or JWT for authentication
+  @Body() changePasswordDto: ChangePasswordDto,
+) {
+  const { oldPassword, newPassword } = changePasswordDto;
+  const userId = req.user.id; // Extract user ID from the authenticated request
+  return this.authService.changePassword(userId, oldPassword, newPassword);
+}
 
   @Delete(':id')
   async remove(@Param('id') id: string, @Res() response: Response) {
@@ -230,7 +241,17 @@ async logout(@Res({ passthrough: true }) response: Response): Promise<any> {
   }
 
 
+  @Get('drivers')
+  async getDrivers() {
+    return this.authService.getDrivers();
+  }
 
+  @Get('drivers/:id')
+async getDriverById(@Param('id') id: string) {
+  return this.authService.getDriverById(id);
+}
+
+  
   @Get('car/:make')
   async getCarModels(@Param('make') make: string): Promise<any> {
     return this.authService.getCarModels(make);

@@ -1,21 +1,18 @@
 /* eslint-disable prettier/prettier */
 import { Injectable, ConflictException, NotFoundException, UnauthorizedException, BadRequestException,} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindManyOptions, Like, Repository} from 'typeorm';
+import { FindManyOptions, Like, Not, Repository} from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { HttpService } from '@nestjs/axios';
-// import { CreateAuthDto, LoginAuthDto } from './dto/create-auth.dto';
-// import { UpdateAuthDto } from './dto/update-auth.dto';
-import { User, UserRole } from './entities/auth.entity';
+import { User, UserRole } from './entities/user.entity';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { CreateAuthDto, CreateAuthDtoDriver, LoginAuthDto } from './dto/create-auth.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
 import { DiverLicense } from './entities/license.entity';
 import { Nin, RiderType } from './entities/nin';
-import { firstValueFrom } from 'rxjs';
 import axios from 'axios';
-import { LocationDrive } from './entities/location_drive';
+import { LocationDrive } from '../trip/entities/location_drive';
 import { Vehicle } from './entities/vehicle.entity';
 import { CreateVehicleDto } from './dto/vehicle.dto';
 import * as AWS from 'aws-sdk';
@@ -247,6 +244,30 @@ export class AuthService {
   
     return { data, total };
   }
+  async changePassword(userId, oldPassword: string, newPassword: string): Promise<string> {
+    // Fetch the user by ID
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+  
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+  
+    // Verify the old password
+    const isPasswordValid = await bcrypt.compare(oldPassword, user.password);
+    if (!isPasswordValid) {
+      throw new BadRequestException('Incorrect old password');
+    }
+  
+    // Hash the new password
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+  
+    // Update the user's password
+    user.password = hashedNewPassword;
+    await this.userRepository.save(user);
+  
+    return 'Password changed successfully';
+  }
+  
   async createUserDriver(createUserDto: CreateAuthDtoDriver): Promise<User> {
     const { email, phoneNumber, password, fname, lname, role, drive_country, drive_city } = createUserDto;
   
@@ -513,21 +534,62 @@ async getDriverLicenseDetails(licenseNo: string) {
   }
 }
 
-// // GET BRANDS
-// async getCarBrands(): Promise<any> {
-//   try {
-//     const response = await axios.get(this.apiUrl, {
-//       params: {
-//         cmd: 'getMakes',
-//         callback: '', // Important to get JSON instead of JSONP
-//       },
-//     });
+async getDrivers() {
+  // Query users where isRider is true and they have a driverLicense
+  const drivers = await this.userRepository.find({
+    where: { 
+      isRider: true
+    },
+    relations: ['driverLicense','nin'], // Load the driver's license details
+  });
 
-//     return response.data.Makes; // this contains the array of brands
-//   } catch (error) {
-//     throw new Error(`Error fetching car brands: ${error.message}`);
-//   }
-// }
+  // Format the response to include only necessary data
+  return drivers.map(driver => ({
+    id: driver.id,
+    fname: driver.fname,
+    lname: driver.lname,
+    phoneNumber: driver.phoneNumber,
+    email: driver.email,
+    driverLicense: {
+      licenseNo: driver.driverLicense.licenseNo,
+      birthdate: driver.driverLicense.birthdate,
+      issuedDate: driver.driverLicense.issuedDate,
+      expiryDate: driver.driverLicense.expiryDate,
+      stateOfIssue: driver.driverLicense.stateOfIssue,
+    },
+  }));
+}
+async getDriverById(driverId: string) {
+  // Find the user by id and ensure they are a driver
+  const driver = await this.userRepository.findOne({
+    where: { 
+      id: driverId, 
+      isRider: true 
+    },
+    relations: ['driverLicense'], // Load the driver's license details
+  });
+
+  if (!driver) {
+    throw new NotFoundException('Driver not found or user is not a driver');
+  }
+
+  // Format the response to include only necessary data
+  return {
+    id: driver.id,
+    fname: driver.fname,
+    lname: driver.lname,
+    phoneNumber: driver.phoneNumber,
+    email: driver.email,
+    driverLicense: {
+      licenseNo: driver.driverLicense.licenseNo,
+      birthdate: driver.driverLicense.birthdate,
+      issuedDate: driver.driverLicense.issuedDate,
+      expiryDate: driver.driverLicense.expiryDate,
+      stateOfIssue: driver.driverLicense.stateOfIssue,
+    },
+  };
+}
+
 async getCarBrands(): Promise<any> {
   try {
     const response = await axios.get(
@@ -540,20 +602,6 @@ async getCarBrands(): Promise<any> {
 }
 
 
-  // Fetch car models based on make (e.g., Mercedes-Benz)
-  // async getCarModels(make: string): Promise<any> {
-  //   try {
-  //     const response = await axios.get(this.apiUrl, {
-  //       params: {
-  //         cmd: 'getModels',
-  //         make: make,
-  //       },
-  //     });
-  //     return response.data;
-  //   } catch (error) {
-  //     throw new Error(`Error fetching car models: ${error.message}`);
-  //   }
-  // }
   async getCarModels(make: string): Promise<any> {
     const url = `https://vpic.nhtsa.dot.gov/api/vehicles/GetModelsForMake/${make}?format=json`;
     
@@ -565,21 +613,7 @@ async getCarBrands(): Promise<any> {
     }
   }
   
-    // // Fetch car model details based on make and model
-    // async getCarModelDetails(make: string, model: string): Promise<any> {
-    //   try {
-    //     const response = await axios.get(this.apiUrl, {
-    //       params: {
-    //         cmd: 'getModel',
-    //         make: make,
-    //         model: model,
-    //       },
-    //     });
-    //     return response.data;
-    //   } catch (error) {
-    //     throw new Error(`Error fetching car model details: ${error.message}`);
-    //   }
-    // }
+ 
     async getCarModelDetails(make: string, model: string): Promise<any> {
       const url = `https://vpic.nhtsa.dot.gov/api/vehicles/GetModelsForMake/${make}?format=json`;
     
@@ -598,37 +632,7 @@ async getCarBrands(): Promise<any> {
         throw new Error(`Error fetching car model details: ${error.message}`);
       }
     }
-    
-    // async createOrUpdateVehicle(email: string, dto: CreateVehicleDto) {
-    //   const user = await this.userRepository.findOne({ where: { email }, relations: ['vehicle'] });
-  
-    //   if (!user) {
-    //     throw new NotFoundException(`User with email ${email} not found`);
-    //   }
-  
-    //   if (!user.isRider) {
-    //     throw new Error('Only riders can create or update a vehicle');
-    //   }
-  
-    //   let vehicle = await this.vehicleRepository.findOne({ where: { id: user.vehicle?.id } });
-  
-    //   if (vehicle) {
-    //     // Update existing vehicle
-    //     vehicle = this.vehicleRepository.merge(vehicle, dto);
-    //   } else {
-    //     // Create new vehicle
-    //     vehicle = this.vehicleRepository.create(dto);
-    //     vehicle.user = user;
-    //   }
-  
-    //   vehicle.user = user;
-    //   await this.vehicleRepository.save(vehicle);
-
-    //   user.vehicle = vehicle; // 🔥 Ensure the user object is aware of the relationship
-    //   await this.userRepository.save(user);
-
-    //   return user;
-    // }
+   
 
     async createOrUpdateVehicle(email: string, dto: CreateVehicleDto) {
       const user = await this.userRepository.findOne({
@@ -859,4 +863,6 @@ async createLicenseImage(file: Express.Multer.File, user: User) {
       await this.vehicleRepository.delete(user.vehicle.id);
       return { message: 'Vehicle deleted successfully' };
     }
+
+
 }

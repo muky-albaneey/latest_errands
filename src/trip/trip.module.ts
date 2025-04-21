@@ -5,7 +5,7 @@ import { TripController } from './trip.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { HttpModule} from '@nestjs/axios'; // Import HttpModule
-import { Trip } from 'src/auth/entities/trip.entity';
+import { Trip } from 'src/trip/entities/trip.entity';
 
 @Module({
   imports: [

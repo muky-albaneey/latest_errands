@@ -6,11 +6,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { HttpModule, HttpService } from '@nestjs/axios'; // Import HttpModule
-import { User } from './entities/auth.entity';
+import { User } from './entities/user.entity';
 import { Card } from './entities/card.entity';
 import { DiverLicense } from './entities/license.entity';
 import { Nin } from './entities/nin';
-import { LocationDrive } from './entities/location_drive';
+import { LocationDrive } from '../trip/entities/location_drive';
 import { Vehicle } from './entities/vehicle.entity';
 import { ProfileImage } from './entities/profile.entity';
 import { plateNum } from './entities/plateNum.entity';

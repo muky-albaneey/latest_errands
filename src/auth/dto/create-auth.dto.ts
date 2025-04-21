@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 // import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, MinLength } from 'class-validator';
-import { UserRole } from '../entities/auth.entity';
+import { UserRole } from '../entities/user.entity';
 import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, MinLength } from 'class-validator';
 
 

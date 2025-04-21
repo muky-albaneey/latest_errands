@@ -24,4 +24,10 @@ async updateLocation(@Body() dto: UpdateLocationDto, @Req() req: Request) {
   const user = req.user as any;
   return this.tripService.updateInitialLocation(dto, user);
 }
+
+@Post('user/update')
+  async updateUserLocation(@Body() body: { userId: string; lat: number; long: number }) {
+    return this.tripService.updateUserLocation(body.userId, body.lat, body.long);
+  }
+  
 }
