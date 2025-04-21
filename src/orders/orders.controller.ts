@@ -71,6 +71,35 @@ import { Request, Response } from 'express';
     //   }
     // }
     
+    // @Post('webhook')
+    // async handleWebhook(
+    //   @Req() req: Request & { rawBody: Buffer },
+    //   @Res() res: Response,
+    //   @Headers('x-paystack-signature') signature: string,
+    // ) {
+    //   const secret = process.env.PAYSTACK_SECRET_KEY;
+  
+    //   const hash = crypto
+    //     .createHmac('sha512', secret)
+    //     .update(req.rawBody) // use the raw body here
+    //     .digest('hex');
+  
+    //   if (hash !== signature) {
+    //     console.log('❌ Invalid signature');
+    //     return res.status(400).send('Invalid signature');
+    //   }
+  
+    //   const event = req.body;
+    //   console.log('✅ Valid webhook received:', event);
+  
+    //   try {
+    //     await this.ordersService.processWebhookEvent(event);
+    //     return res.status(200).send('Webhook received');
+    //   } catch (err) {
+    //     console.error('Error processing webhook:', err);
+    //     return res.status(500).send('Error processing webhook');
+    //   }
+    // }
     @Post('webhook')
     async handleWebhook(
       @Req() req: Request & { rawBody: Buffer },
@@ -78,20 +107,22 @@ import { Request, Response } from 'express';
       @Headers('x-paystack-signature') signature: string,
     ) {
       const secret = process.env.PAYSTACK_SECRET_KEY;
-  
+    
       const hash = crypto
         .createHmac('sha512', secret)
-        .update(req.rawBody) // use the raw body here
+        .update(req.rawBody)
         .digest('hex');
-  
+    
       if (hash !== signature) {
         console.log('❌ Invalid signature');
         return res.status(400).send('Invalid signature');
       }
-  
-      const event = req.body;
-      console.log('✅ Valid webhook received:', event);
-  
+    
+      // ✅ Parse raw body to access event type
+      const event = JSON.parse(req.rawBody.toString());
+    
+      console.log('✅ Valid webhook received. Event:', event.event);
+    
       try {
         await this.ordersService.processWebhookEvent(event);
         return res.status(200).send('Webhook received');
