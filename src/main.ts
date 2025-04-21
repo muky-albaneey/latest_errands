@@ -12,7 +12,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
 // Middleware to parse raw body for Stripe webhooks
-app.use('/paystack/webhook', express.raw({ type: 'application/json' }));
+app.use('/orders/webhook', express.raw({ type: 'application/json' }));
 
   // Default JSON body parser for other routes
   app.use(express.json());
