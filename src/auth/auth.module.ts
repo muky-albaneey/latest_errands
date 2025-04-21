@@ -32,7 +32,7 @@ import { VehicleReg } from './entities/VehicleReg.entity';
       inject: [ConfigService],
     }),
   ],
-  exports: [TypeOrmModule, HttpModule,  AuthService], // Export HttpModule if needed in other modules
+  exports: [TypeOrmModule, HttpModule,  AuthService, JwtModule], // Export HttpModule if needed in other modules
   controllers: [AuthController],
   providers: [AuthService], // Remove HttpService from providers
 })
