@@ -121,7 +121,7 @@ async handleDriverLocation(
         initialLat: latitude,
         initialLong: longitude,
       },
-      user,
+      user.id,
     );
   } catch (err) {
     console.error('Failed to update initial location:', err.message);
