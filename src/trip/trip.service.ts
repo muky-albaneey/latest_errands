@@ -168,7 +168,7 @@ export class TripService {
     private readonly tripRepo: Repository<Trip>,
   ) {}
 
-  async createTrip(createTripDto: CreateTripDto, userId: string) {
+  async createTrip(createTripDto: CreateTripDto, userId) {
     const user = await this.userRepository.findOne({ where: { id: userId } });
     if (!user) throw new ForbiddenException('User not found');
 
@@ -212,7 +212,7 @@ export class TripService {
     }
   }
 
-  async updateInitialLocation(dto: UpdateLocationDto, userId: string) {
+  async updateInitialLocation(dto: UpdateLocationDto, userId) {
     const user = await this.userRepository.findOne({ where: { id: userId } });
     if (!user) throw new ForbiddenException('User not found');
 
@@ -245,7 +245,7 @@ export class TripService {
     }
   }
 
-  async updateUserLocation(userId: string, lat: number, long: number) {
+  async updateUserLocation(userId, lat: number, long: number) {
     const user = await this.userRepository.findOne({ where: { id: userId } });
     if (!user) throw new Error('User not found');
 

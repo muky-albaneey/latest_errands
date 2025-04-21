@@ -116,7 +116,7 @@ export class OrdersService {
   }
   
 
-  getOrderById(orderId: string) {
+  getOrderById(orderId) {
     return this.ordersRepository.findOne({
       where: { id: orderId },
       relations: ['productImages'],
