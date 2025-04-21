@@ -32,5 +32,4 @@ async updateLocation(@Body() dto: UpdateLocationDto, @User('sub') userId: string
   async updateUserLocation(@Body() body: { userId: string; lat: number; long: number }) {
     return this.tripService.updateUserLocation(body.userId, body.lat, body.long);
   }
-  
 }
