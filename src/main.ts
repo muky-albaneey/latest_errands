@@ -11,8 +11,8 @@ async function bootstrap() {
   dotenv.config();
   const app = await NestFactory.create(AppModule);
 
-  // Middleware to parse raw body for Stripe webhooks
-  // app.use('/stripe/webhook', express.raw({ type: 'application/json' }));
+// Middleware to parse raw body for Stripe webhooks
+app.use('/paystack/webhook', express.raw({ type: 'application/json' }));
 
   // Default JSON body parser for other routes
   app.use(express.json());

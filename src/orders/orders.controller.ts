@@ -8,7 +8,8 @@ import {
     Param, 
     UploadedFile, 
     UseInterceptors, 
-    BadRequestException 
+    BadRequestException,
+    Headers, Req, Res
   } from '@nestjs/common';
   import { OrdersService } from './orders.service';
   import { Order } from './entities/order.entity';
@@ -17,7 +18,9 @@ import {
 import { PaymentDetails } from './entities/paymentDetails.entity';
 import { CashPaymentDetails } from './entities/cashPaymentDetails.entity';
 import { CreateOrderWithPaymentDto } from './dto/create-order-with-payment.dto';
-  
+import * as crypto from 'crypto';
+import { Request, Response } from 'express';
+
   @Controller('orders')
   export class OrdersController {
     constructor(private ordersService: OrdersService) {}
@@ -37,7 +40,35 @@ import { CreateOrderWithPaymentDto } from './dto/create-order-with-payment.dto';
     ) {
       return this.ordersService.verifyPayment(paymentReference, gatewayResponse);
     }
-  
+    @Post('webhook')
+    async handleWebhook(
+      @Req() req: Request,
+      @Res() res: Response,
+      @Headers('x-paystack-signature') signature: string,
+    ) {
+      const secret = process.env.PAYSTACK_SECRET_KEY;
+      const hash = crypto
+        .createHmac('sha512', secret)
+        .update(JSON.stringify(req.body))
+        .digest('hex');
+    
+      // Step 1: Verify the signature
+      if (hash !== signature) {
+        return res.status(400).send('Invalid signature');
+      }
+    
+      const event = req.body;
+    
+      try {
+        // Step 2: Process the webhook event
+        await this.ordersService.processWebhookEvent(event);
+        return res.status(200).send('Webhook received');
+      } catch (err) {
+        console.error('Webhook error:', err);
+        return res.status(500).send('Webhook processing failed');
+      }
+    }
+    
     @Post('create')
     async createOrder(@Body() orderData: Partial<Order>) {
     return this.ordersService.createOrder(orderData);
