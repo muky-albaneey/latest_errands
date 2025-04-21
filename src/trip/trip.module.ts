@@ -14,6 +14,7 @@ import { Trip } from 'src/trip/entities/trip.entity';
     HttpModule,
   ],
   providers: [TripService],
-  controllers: [TripController]
+  controllers: [TripController],
+  exports: [TripService], // 👈 Add this
 })
 export class TripModule {}
