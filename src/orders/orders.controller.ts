@@ -73,14 +73,14 @@ import { CashPaymentDetails } from './entities/cashPaymentDetails.entity';
         },
       }),
     )
-    async uploadPackageImage(@Param('id') id: string, @UploadedFile() file: Express.Multer.File) {
+async uploadPackageImage(@Param('id') id: string, @UploadedFile() file: Express.Multer.File) {
       if (!file) {
         throw new BadRequestException('Image file is required');
       }
       return this.ordersService.uploadPackageImage(id, file);
-    }
+}
 
-    @Post(':id/payment')
+@Post(':id/payment')
 async addPaymentDetails(
   @Param('id') orderId: string,
   @Body() paymentData: Partial<PaymentDetails>,

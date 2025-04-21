@@ -19,6 +19,7 @@ interface DriverPayload {
   latitude: number;
   longitude: number;
 }
+
 interface UserPayload {
   userId: string;
   latitude: number;

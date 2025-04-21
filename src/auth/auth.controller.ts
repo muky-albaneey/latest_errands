@@ -328,6 +328,7 @@ async getDriverById(@Param('id') id: string) {
       },
     }),
   )
+  
   async createPlateNumImage(
     @UploadedFile() file: Express.Multer.File,
     @Body('email') email: string,
