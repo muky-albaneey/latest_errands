@@ -10,11 +10,13 @@ import { ProductImg } from './entities/productImg.entity';
 import { CashPaymentDetails } from './entities/cashPaymentDetails.entity';
 import { PaymentDetails } from './entities/paymentDetails.entity';
 import { User } from 'src/auth/entities/user.entity';
+import { AuthModule } from 'src/auth/auth.module';
 @Module({
    imports: [
       TypeOrmModule.forFeature([Order, ProductImg, PaymentDetails, CashPaymentDetails, User]),
       ConfigModule,
       HttpModule,
+      AuthModule
     ],
   providers: [OrdersService],
   controllers: [OrdersController]
