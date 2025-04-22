@@ -51,10 +51,13 @@ export class OrdersService {
   async initiatePayment(orderData: CreateOrderWithPaymentDto, userId: string) {
     const paymentReference = `PAY-${Date.now()}`;
   
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+
     const order = this.ordersRepository.create({
       ...orderData,
-      user: { id: userId }, // 👈 Attach user like this
+      user,
     });
+
   
     await this.ordersRepository.save(order);
   
