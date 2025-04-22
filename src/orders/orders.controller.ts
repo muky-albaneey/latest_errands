@@ -10,7 +10,8 @@ import {
     UseInterceptors, 
     BadRequestException,
     Headers, Req, Res,
-    UseGuards
+    UseGuards,
+    NotFoundException
   } from '@nestjs/common';
   import { OrdersService } from './orders.service';
   import { Order } from './entities/order.entity';
@@ -23,10 +24,15 @@ import * as crypto from 'crypto';
 import { Request, Response } from 'express';
 import { JwtGuard } from 'src/guards/jwt.guards';
 import { User } from 'src/decorators/user.decorator';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
   @Controller('orders')
   export class OrdersController {
-    constructor(private ordersService: OrdersService) {}
+    constructor(private ordersService: OrdersService, 
+      @InjectRepository(PaymentDetails)
+        private paymentDetailsRepository: Repository<PaymentDetails>,
+      ) {}
   
     // Endpoint to initiate payment
   
@@ -88,6 +94,24 @@ import { User } from 'src/decorators/user.decorator';
     async createOrder(@Body() orderData: Partial<Order>) {
     return this.ordersService.createOrder(orderData);
     }
+    @Get('status/:paymentReference')
+    @UseGuards(JwtGuard)
+    async getPaymentStatus(@Param('paymentReference') paymentReference: string) {
+      const payment = await this.paymentDetailsRepository.findOne({
+        where: { paymentReference },
+        relations: ['order'],
+      });
+
+      if (!payment) {
+        throw new NotFoundException('Payment not found');
+      }
+
+      return {
+        status: payment.status,
+        orderStatus: payment.order?.status,
+      };
+    }
+
     @Patch(':id/attach-cash-payment')
     async attachCashPayment(
     @Param('id') orderId: string,
