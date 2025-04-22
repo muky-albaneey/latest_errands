@@ -48,14 +48,69 @@ export class OrdersService {
   }
   private PAYSTACK_SECRET = process.env.PAYSTACK_SECRET_KEY; // 👈 store your secret key in env
 
-  async initiatePayment(orderData: CreateOrderWithPaymentDto) {
+  // async initiatePayment(orderData: CreateOrderWithPaymentDto) {
+  //   const paymentReference = `PAY-${Date.now()}`;
+  
+  //   const order = this.ordersRepository.create(orderData);
+  //   await this.ordersRepository.save(order);
+
+  //   const paymentDetails = this.paymentDetailsRepository.create({
+  //     amount: order.cost,
+  //     paymentReference,
+  //     status: 'pending',
+  //     order, // 👈 Associate the order here
+  //   });
+  //   await this.paymentDetailsRepository.save(paymentDetails);
+
+  //   await this.paymentDetailsRepository.save(paymentDetails);
+  
+  //   const paystackResponse = await firstValueFrom(
+  //     this.httpService.post(
+  //       'https://api.paystack.co/transaction/initialize',
+  //       {
+  //         email: orderData.email,
+  //         amount: orderData.cost * 100,
+  //         reference: paymentReference,
+  //         metadata: {
+  //           orderData, // 👈 Send full order data in metadata so you can retrieve it later
+  //         },
+  //       },
+  //       {
+  //         headers: {
+  //           Authorization: `Bearer ${this.PAYSTACK_SECRET}`,
+  //           'Content-Type': 'application/json',
+  //         },
+  //       },
+  //     ),
+  //   );
+  
+  //   if (!paystackResponse.data.status) {
+  //     throw new BadRequestException('Failed to initialize Paystack payment');
+  //   }
+  
+  //   return {
+  //     authorizationUrl: paystackResponse.data.data.authorization_url,
+  //     paymentReference,
+  //     amount: paymentDetails.amount,
+  //   };
+  // }
+  async initiatePayment(orderData: CreateOrderWithPaymentDto, userId: string) {
     const paymentReference = `PAY-${Date.now()}`;
   
+    const order = this.ordersRepository.create({
+      ...orderData,
+      user: { id: userId }, // 👈 Attach user like this
+    });
+  
+    await this.ordersRepository.save(order);
+  
     const paymentDetails = this.paymentDetailsRepository.create({
-      amount: orderData.cost,
+      amount: order.cost,
       paymentReference,
       status: 'pending',
+      order,
     });
+  
     await this.paymentDetailsRepository.save(paymentDetails);
   
     const paystackResponse = await firstValueFrom(
@@ -66,7 +121,7 @@ export class OrdersService {
           amount: orderData.cost * 100,
           reference: paymentReference,
           metadata: {
-            orderData, // 👈 Send full order data in metadata so you can retrieve it later
+            orderData,
           },
         },
         {
@@ -89,44 +144,8 @@ export class OrdersService {
     };
   }
   
-
-  // async verifyPayment(paymentReference: string, gatewayResponse: any) {
-  //   const paymentDetails = await this.paymentDetailsRepository.findOne({
-  //     where: { paymentReference },
-  //   });
   
-  //   if (!paymentDetails) {
-  //     throw new NotFoundException('Payment details not found');
-  //   }
   
-  //   const metadata = gatewayResponse.data?.metadata;
-  
-  //   if (!gatewayResponse.success || !metadata?.orderData) {
-  //     throw new BadRequestException('Order data is missing in the payment response');
-  //   }
-  
-  //   const orderData = metadata.orderData;
-  
-  //   // ✅ 1. Fetch the user by email
-  //   const user = await this.userRepository.findOne({ where: { email: orderData.email } });
-  //   if (!user) {
-  //     throw new NotFoundException('User not found');
-  //   }
-  
-  //   // ✅ 2. Update paymentDetails and save
-  //   paymentDetails.status = 'success';
-  //   paymentDetails.gatewayResponse = JSON.stringify(gatewayResponse);
-  //   await this.paymentDetailsRepository.save(paymentDetails);
-  
-  //   // ✅ 3. Create and save the order, linking the user
-  //   const newOrder = this.ordersRepository.create({
-  //     ...orderData,
-  //     user, // ✅ attach the user entity
-  //     paymentDetails,
-  //   });
-  
-  //   return this.ordersRepository.save(newOrder);
-  // }
   async processWebhookEvent(event: any) {
     const eventType = event.event;
   
@@ -134,23 +153,29 @@ export class OrdersService {
     if (eventType === 'charge.success') {
       const paymentReference = event.data.reference;
       
-      // Step 1: Fetch payment details by reference
       const paymentDetails = await this.paymentDetailsRepository.findOne({
         where: { paymentReference },
-        relations: ['order'],
+        relations: ['order', 'order.user'], // 👈 include user
       });
-  
+      
       if (!paymentDetails) {
         throw new NotFoundException('Payment not found');
       }
-  
-      // Step 2: Verify payment with Paystack API if needed
-      const gatewayResponse = event.data; // this contains the gateway response
+      
+      // ✅ Log the user that made the payment
+      const user = paymentDetails.order.user;
+      console.log('✅ Payment made by user:', user.id, user.email);
+      
+      // Step 2: Verify payment
+      const gatewayResponse = event.data;
       const verificationResult = await this.verifyPayment(paymentReference, gatewayResponse);
-  
+      
       if (!verificationResult) {
         throw new BadRequestException('Payment verification failed');
       }
+      
+      // Step 3: Update payment & order status...
+      
   
       // Step 3: Mark payment as successful and update database
       paymentDetails.status = 'success';

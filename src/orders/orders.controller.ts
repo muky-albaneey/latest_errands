@@ -9,7 +9,8 @@ import {
     UploadedFile, 
     UseInterceptors, 
     BadRequestException,
-    Headers, Req, Res
+    Headers, Req, Res,
+    UseGuards
   } from '@nestjs/common';
   import { OrdersService } from './orders.service';
   import { Order } from './entities/order.entity';
@@ -20,6 +21,8 @@ import { CashPaymentDetails } from './entities/cashPaymentDetails.entity';
 import { CreateOrderWithPaymentDto } from './dto/create-order-with-payment.dto';
 import * as crypto from 'crypto';
 import { Request, Response } from 'express';
+import { JwtGuard } from 'src/guards/jwt.guards';
+import { User } from 'src/decorators/user.decorator';
 
   @Controller('orders')
   export class OrdersController {
@@ -27,11 +30,20 @@ import { Request, Response } from 'express';
   
     // Endpoint to initiate payment
   
+    // @Post('initiate-payment')
+    // async initiatePayment(@Body() orderData: CreateOrderWithPaymentDto) {
+    //   return this.ordersService.initiatePayment(orderData);
+    // }
     @Post('initiate-payment')
-    async initiatePayment(@Body() orderData: CreateOrderWithPaymentDto) {
-      return this.ordersService.initiatePayment(orderData);
+    @UseGuards(JwtGuard) // ensure the user is authenticated
+    async initiatePayment(
+      @Body() orderData: CreateOrderWithPaymentDto,
+      // @Req() req: RequestWithUser, // custom type with user info
+       @User('sub') userId: string
+    ) {
+      return this.ordersService.initiatePayment(orderData, userId);
     }
-  
+    
     // Endpoint to verify payment and create the order
     @Post('verify-payment/:paymentReference')
     async verifyPayment(
@@ -40,66 +52,6 @@ import { Request, Response } from 'express';
     ) {
       return this.ordersService.verifyPayment(paymentReference, gatewayResponse);
     }
-    // @Post('webhook')
-    // async handleWebhook(
-    //   @Req() req: Request,
-    //   @Res() res: Response,
-    //   @Headers('x-paystack-signature') signature: string,
-    // ) {
-    //   const secret = process.env.PAYSTACK_SECRET_KEY;
-    //   const hash = crypto
-    //     .createHmac('sha512', secret)
-    //     .update(JSON.stringify(req.body))
-    //     .digest('hex');
-    
-    //   // Step 1: Verify the signature
-    //   if (hash !== signature) {
-    //     console.log('Invalid signature');
-    //     return res.status(400).send('Invalid signature');
-    //   }
-    
-    //   const event = req.body;
-    //   console.log('Webhook received:', event);  // Log the event for debugging
-    
-    //   try {
-    //     // Step 2: Process the webhook event
-    //     await this.ordersService.processWebhookEvent(event);
-    //     return res.status(200).send('Webhook received');
-    //   } catch (err) {
-    //     console.error('Error processing webhook:', err);
-    //     return res.status(500).send('Error processing webhook');
-    //   }
-    // }
-    
-    // @Post('webhook')
-    // async handleWebhook(
-    //   @Req() req: Request & { rawBody: Buffer },
-    //   @Res() res: Response,
-    //   @Headers('x-paystack-signature') signature: string,
-    // ) {
-    //   const secret = process.env.PAYSTACK_SECRET_KEY;
-  
-    //   const hash = crypto
-    //     .createHmac('sha512', secret)
-    //     .update(req.rawBody) // use the raw body here
-    //     .digest('hex');
-  
-    //   if (hash !== signature) {
-    //     console.log('❌ Invalid signature');
-    //     return res.status(400).send('Invalid signature');
-    //   }
-  
-    //   const event = req.body;
-    //   console.log('✅ Valid webhook received:', event);
-  
-    //   try {
-    //     await this.ordersService.processWebhookEvent(event);
-    //     return res.status(200).send('Webhook received');
-    //   } catch (err) {
-    //     console.error('Error processing webhook:', err);
-    //     return res.status(500).send('Error processing webhook');
-    //   }
-    // }
     @Post('webhook')
     async handleWebhook(
       @Req() req: Request & { rawBody: Buffer },
