@@ -160,7 +160,7 @@ export class AuthService {
 
   async findAll(): Promise<User[]> {
     const users = await this.userRepository.find({
-      relations: ['card', 'driverLicense', 'nin', 'vehicle', 'location_drive','vehicle_reg_image','Profile_img','plateNum_img','licenseImg'], // include all needed relations
+      relations: ['card', 'driverLicense', 'nin', 'vehicle', 'location_drive','vehicle_reg_image','Profile_img','plateNum_img','licenseImg','orders'], // include all needed relations
     });
   
     if (users.length === 0) {
@@ -174,7 +174,7 @@ export class AuthService {
   async findOne(id): Promise<User> {
     const user = await this.userRepository.findOne({
       where: { id },
-      relations: ['card', 'driverLicense', 'nin','vehicle','location_drive','vehicle_reg_image','Profile_img','plateNum_img','licenseImg',], // Include related entities
+      relations: ['card', 'driverLicense', 'nin','vehicle','location_drive','vehicle_reg_image','Profile_img','plateNum_img','licenseImg','orders'], // Include related entities
     });
   
     if (!user) {
