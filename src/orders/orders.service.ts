@@ -48,52 +48,6 @@ export class OrdersService {
   }
   private PAYSTACK_SECRET = process.env.PAYSTACK_SECRET_KEY; // 👈 store your secret key in env
 
-  // async initiatePayment(orderData: CreateOrderWithPaymentDto) {
-  //   const paymentReference = `PAY-${Date.now()}`;
-  
-  //   const order = this.ordersRepository.create(orderData);
-  //   await this.ordersRepository.save(order);
-
-  //   const paymentDetails = this.paymentDetailsRepository.create({
-  //     amount: order.cost,
-  //     paymentReference,
-  //     status: 'pending',
-  //     order, // 👈 Associate the order here
-  //   });
-  //   await this.paymentDetailsRepository.save(paymentDetails);
-
-  //   await this.paymentDetailsRepository.save(paymentDetails);
-  
-  //   const paystackResponse = await firstValueFrom(
-  //     this.httpService.post(
-  //       'https://api.paystack.co/transaction/initialize',
-  //       {
-  //         email: orderData.email,
-  //         amount: orderData.cost * 100,
-  //         reference: paymentReference,
-  //         metadata: {
-  //           orderData, // 👈 Send full order data in metadata so you can retrieve it later
-  //         },
-  //       },
-  //       {
-  //         headers: {
-  //           Authorization: `Bearer ${this.PAYSTACK_SECRET}`,
-  //           'Content-Type': 'application/json',
-  //         },
-  //       },
-  //     ),
-  //   );
-  
-  //   if (!paystackResponse.data.status) {
-  //     throw new BadRequestException('Failed to initialize Paystack payment');
-  //   }
-  
-  //   return {
-  //     authorizationUrl: paystackResponse.data.data.authorization_url,
-  //     paymentReference,
-  //     amount: paymentDetails.amount,
-  //   };
-  // }
   async initiatePayment(orderData: CreateOrderWithPaymentDto, userId: string) {
     const paymentReference = `PAY-${Date.now()}`;
   
@@ -121,7 +75,7 @@ export class OrdersService {
           amount: orderData.cost * 100,
           reference: paymentReference,
           metadata: {
-            orderData,
+            orderData: JSON.parse(JSON.stringify(orderData)),
           },
         },
         {
@@ -136,6 +90,8 @@ export class OrdersService {
     if (!paystackResponse.data.status) {
       throw new BadRequestException('Failed to initialize Paystack payment');
     }
+    console.log('Paystack init response metadata:', paystackResponse.data.data.metadata);
+
   
     return {
       authorizationUrl: paystackResponse.data.data.authorization_url,
@@ -162,6 +118,7 @@ export class OrdersService {
         throw new NotFoundException('Payment not found');
       }
       
+      console.log('Webhook payload:', JSON.stringify(event, null, 2));
       // ✅ Log the user that made the payment
       const user = paymentDetails.order.user;
       console.log('✅ Payment made by user:', user.id, user.email);
@@ -207,7 +164,8 @@ export class OrdersService {
   
     const metadata = gatewayResponse.metadata;
   
-    if (!gatewayResponse.success || !metadata?.orderData) {
+    // if (!gatewayResponse.success || !metadata?.orderData) {
+      if (!metadata?.orderData) {
       throw new BadRequestException('Order data is missing in the payment response');
     }
   
