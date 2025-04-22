@@ -217,53 +217,29 @@ export class OrdersService {
       throw new BadRequestException('Failed to create order', error.message);
     }
   }
-  
-  // async attachCashPaymentToOrder(orderId, cashPaymentData: Partial<CashPaymentDetails>) {
-  //   // Find the existing order
-  //   const order = await this.ordersRepository.findOne({ where: { id: orderId } });
-  //   if (!order) {
-  //     throw new NotFoundException('Order not found');
-  //   }
-  
-  //   // Create and save the cash payment, linking it to the order
-  //   const cashPayment = this.cashPaymentRepository.create({
-  //     ...cashPaymentData,
-  //     order,
-  //   });
 
-  //   await this.cashPaymentRepository.save(cashPayment);
-  //   // Step 3: Update the order status to 'confirmed'
-  //   order.status = 'confirmed';
-  //   await this.ordersRepository.save(order);
-
-  //    // Step 4: Return the response
-  //   return {
-  //     message: 'Cash payment attached successfully',
-  //     order,
-  //     cashPayment,
-  //   };
-  // }
   async attachCashPaymentToOrder(orderId, cashPaymentData: Partial<CashPaymentDetails>) {
-    // Step 1: Find the existing order
+    // Find the existing order
     const order = await this.ordersRepository.findOne({ where: { id: orderId } });
     if (!order) {
       throw new NotFoundException('Order not found');
     }
   
-    // Step 2: Create and save the cash payment
+    // Create and save the cash payment, linking it to the order
     const cashPayment = this.cashPaymentRepository.create({
       ...cashPaymentData,
       order,
     });
+
     await this.cashPaymentRepository.save(cashPayment);
-  
     // Step 3: Update the order status to 'confirmed'
     order.status = 'confirmed';
     await this.ordersRepository.save(order);
-  
-    // Step 4: Refetch the updated order (and optionally, cashPayment too)
+
+      // Step 4: Refetch the updated order (and optionally, cashPayment too)
     const updatedOrder = await this.ordersRepository.findOne({ where: { id: orderId } });
-  
+
+    
     return {
       message: 'Cash payment attached successfully',
       order: updatedOrder,
@@ -272,6 +248,22 @@ export class OrdersService {
         order: updatedOrder, // Override with the updated order status
       },
     };
+  }
+
+  async getOrdersByUser(userId: string) {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+  
+    const orders = await this.ordersRepository.find({
+      where: { user: { id: userId } },
+      relations: ['productImages', 'paymentDetails', 'cashPayment'], // include relations as needed
+      order: { createAt: 'DESC' }, // optional: order by newest first
+    });
+  
+    return orders;
   }
   
 

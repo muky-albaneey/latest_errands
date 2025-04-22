@@ -61,4 +61,7 @@ export class Order {
 
   @Column({ type: 'varchar', default: 'Pending' })
   status: string;
+
+  @Column({ type: 'date', nullable: true })
+  createAt?: string;
 }
