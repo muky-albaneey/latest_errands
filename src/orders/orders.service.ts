@@ -230,8 +230,13 @@ export class OrdersService {
       ...cashPaymentData,
       order,
     });
+
     await this.cashPaymentRepository.save(cashPayment);
-  
+    // Step 3: Update the order status to 'confirmed'
+    order.status = 'confirmed';
+    await this.ordersRepository.save(order);
+
+     // Step 4: Return the response
     return {
       message: 'Cash payment attached successfully',
       order,

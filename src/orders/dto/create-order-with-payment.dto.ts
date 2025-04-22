@@ -1,8 +1,8 @@
 import { IsEmail, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateOrderWithPaymentDto {
-  @IsEmail()
-  email: string;
+  // @IsEmail()
+  // email: string;
 
   @IsString()
   @IsNotEmpty()
