@@ -91,8 +91,9 @@ import { Repository } from 'typeorm';
     }
     
     @Post('create')
-    async createOrder(@Body() orderData: Partial<Order>) {
-    return this.ordersService.createOrder(orderData);
+    @UseGuards(JwtGuard)
+    async createOrder(@Body() orderData: Partial<Order>,@User('sub') userId: string) {
+    return this.ordersService.createOrder(orderData, userId);
     }
     @Get('status/:paymentReference')
     @UseGuards(JwtGuard)

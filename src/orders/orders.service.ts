@@ -196,15 +196,29 @@ export class OrdersService {
   }
   
  
-  async createOrder(orderData: Partial<Order>) {
+  async createOrder(orderData: Partial<Order>, userId) {
     try {
-      const newOrder = this.ordersRepository.create(orderData);
+      // Step 1: Find the user
+      const user = await this.userRepository.findOne({ where: { id: userId } });
+  
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+  
+      // Step 2: Attach user to the order
+      const newOrder = this.ordersRepository.create({
+        ...orderData,
+        user, // attaching the user to the order
+      });
+  
+      // Step 3: Save the new order
       return await this.ordersRepository.save(newOrder);
     } catch (error) {
-      throw new BadRequestException('Failed to create order',error);
+      throw new BadRequestException('Failed to create order', error.message);
     }
   }
-  async attachCashPaymentToOrder(orderId: string, cashPaymentData: Partial<CashPaymentDetails>) {
+  
+  async attachCashPaymentToOrder(orderId, cashPaymentData: Partial<CashPaymentDetails>) {
     // Find the existing order
     const order = await this.ordersRepository.findOne({ where: { id: orderId } });
     if (!order) {
