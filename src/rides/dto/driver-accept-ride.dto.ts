@@ -1,6 +1,6 @@
-import { IsUUID } from 'class-validator';
+import { IsString, IsUUID } from 'class-validator';
 
 export class DriverAcceptRideDto {
-  @IsUUID()
+  @IsString()
   driverId: string;
 }
