@@ -63,9 +63,9 @@ export class RidesController {
   @Patch(':id/accept')
   driverAcceptRide(
     @Param('id', new ParseUUIDPipe()) id: string,
-    @Body('driverId') driverAcceptRideDto: DriverAcceptRideDto,
+    @Body('driverId') driverId: DriverAcceptRideDto,
   ) {
-    return this.ridesService.driverAcceptRide(id, driverAcceptRideDto.driverId);
+    return this.ridesService.driverAcceptRide(id, driverId);
   }
 
   @Patch(':id/reject')
