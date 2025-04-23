@@ -107,7 +107,7 @@ export class RidesService {
     });
   }
 
-  async completeRide(rideId: string): Promise<void> {
+  async completeRide(rideId): Promise<void> {
     const ride = await this.ridesRepository.findOne({
       where: { id: rideId },
       relations: ['order', 'driver'],
