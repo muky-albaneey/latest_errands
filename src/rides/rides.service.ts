@@ -16,11 +16,24 @@ export class RidesService {
         return this.ridesRepository.save(newRide);
       }
     
-      updateRideStatus(rideId: number, status: string) {
+      updateRideStatus(rideId, status: string) {
         return this.ridesRepository.update(rideId, { status });
       }
-    
-      assignDriver(rideId: number, driverId: number) {
+      async driverAcceptRide(rideId, driverId: string) {
+        return this.ridesRepository.update(rideId, {
+          driverId,
+          status: 'Accepted',
+        });
+      }
+      async driverRejectRide(rideId, driverId) {
+        return this.ridesRepository.update(rideId, {
+          driverId: null,
+          status: 'Rejected',
+        });
+      }
+      
+      
+      assignDriver(rideId, driverId) {
         return this.ridesRepository.update(rideId, { driverId, status: 'Assigned' });
       }
 }

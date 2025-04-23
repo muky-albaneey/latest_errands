@@ -178,6 +178,7 @@ async logout(@Res({ passthrough: true }) response: Response): Promise<any> {
       },
     });
   }
+
   @Get('brands')
   async getCarBrands(): Promise<any> {
     return this.authService.getCarBrands();
@@ -185,6 +186,10 @@ async logout(@Res({ passthrough: true }) response: Response): Promise<any> {
   @Get('health')
   healthCheck(): string {
     return 'OK';
+  }
+  @Get('available_drivers')
+  async getAvailableDrivers() {
+    return this.authService.findAvailableDrivers();
   }
   @Get('drivers')
   async getDrivers() {

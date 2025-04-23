@@ -4,6 +4,7 @@ import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, OneToOne 
 import { ProductImg } from './productImg.entity';
 import { PaymentDetails } from './paymentDetails.entity';
 import { CashPaymentDetails } from './cashPaymentDetails.entity';
+import { Ride } from 'src/rides/entities/ride.entity';
 
 
 @Entity('orders')
@@ -28,6 +29,9 @@ export class Order {
 
   @OneToMany(() => CashPaymentDetails, (cashPayment) => cashPayment.order)
   cashPayments: CashPaymentDetails[];
+
+  @OneToMany(() => Ride, (ride) => ride.order)
+  rides: Ride[];
 
   @Column({ type: 'varchar', nullable: false })
   recipientName: string;

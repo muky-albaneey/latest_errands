@@ -1,19 +1,33 @@
 /* eslint-disable prettier/prettier */
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Order } from 'src/orders/entities/order.entity';
+import { User } from 'src/auth/entities/user.entity';
 
 @Entity('rides')
 export class Ride {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
-  @Column()
-  userId: number;
+  @ManyToOne(() => User, (user) => user.rides, { eager: true })
+  @JoinColumn({ name: 'userId' })
+  user: User;
 
-  @Column()
-  orderId: number;
+  @Column('uuid')
+  userId: string;
 
-  @Column()
-  driverId: number;
+  @ManyToOne(() => Order, (order) => order.rides, { eager: true })
+  @JoinColumn({ name: 'orderId' })
+  order: Order;
+
+  @Column('uuid')
+  orderId: string;
+
+  @ManyToOne(() => User, { eager: true })
+  @JoinColumn({ name: 'driverId' })
+  driver: User;
+
+  @Column('uuid')
+  driverId: string;
 
   @Column({ default: 'Searching' })
   status: string;

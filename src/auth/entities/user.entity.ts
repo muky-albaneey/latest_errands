@@ -23,6 +23,7 @@ import { plateNum } from './plateNum.entity';
 import { LicenseImg } from './licenseImg.entity';
 import { Trip } from '../../trip/entities/trip.entity';
 import { Order } from 'src/orders/entities/order.entity';
+import { Ride } from 'src/rides/entities/ride.entity';
 
 export enum UserRole {
     ADMIN = "admin",
@@ -135,9 +136,15 @@ export class User {
       @OneToMany(() => Trip, trip => trip.user)
         trips: Trip[];
 
-        @OneToMany(() => Order, (order) => order.user, { cascade: true })
-        orders: Order[];
-        
+    @OneToMany(() => Order, (order) => order.user, { cascade: true })
+    orders: Order[];
+
+    @OneToMany(() => Ride, (ride) => ride.user)
+    rides: Ride[];
+
+    @OneToMany(() => Ride, (ride) => ride.driver)
+    drivenRides: Ride[];
+
     toJSON() {
         return instanceToPlain(this, { excludePrefixes: ['_'] });
     }

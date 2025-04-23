@@ -21,6 +21,7 @@ import * as path from 'path';
 import { plateNum } from './entities/plateNum.entity';
 import { LicenseImg } from './entities/licenseImg.entity';
 import { VehicleReg } from './entities/VehicleReg.entity';
+import { Ride } from 'src/rides/entities/ride.entity';
 
 @Injectable()
 export class AuthService {
@@ -47,6 +48,8 @@ export class AuthService {
     private readonly licenseImageRepository: Repository<LicenseImg>,
     @InjectRepository(VehicleReg)
     private readonly vehicleRegImageRepository: Repository<VehicleReg>,
+    @InjectRepository(Ride)
+    private rideRepository: Repository<Ride>,
 
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
@@ -560,22 +563,33 @@ async getDriverById(driverId) {
   }
 
   // Format the response to include only necessary data
-  return {
-    id: driver.id,
-    fname: driver.fname,
-    lname: driver.lname,
-    phoneNumber: driver.phoneNumber,
-    email: driver.email,
-    driverLicense: {
-      licenseNo: driver.driverLicense.licenseNo,
-      birthdate: driver.driverLicense.birthdate,
-      issuedDate: driver.driverLicense.issuedDate,
-      expiryDate: driver.driverLicense.expiryDate,
-      stateOfIssue: driver.driverLicense.stateOfIssue,
-    },
-  };
+  // return {
+  //   id: driver.id,
+  //   fname: driver.fname,
+  //   lname: driver.lname,
+  //   phoneNumber: driver.phoneNumber,
+  //   email: driver.email,
+  //   driverLicense: {
+  //     licenseNo: driver.driverLicense.licenseNo,
+  //     birthdate: driver.driverLicense.birthdate,
+  //     issuedDate: driver.driverLicense.issuedDate,
+  //     expiryDate: driver.driverLicense.expiryDate,
+  //     stateOfIssue: driver.driverLicense.stateOfIssue,
+  //   },
+  // };
+  return driver
 }
 
+async findAvailableDrivers() {
+  const availableDrivers = await this.userRepository
+    .createQueryBuilder('user')
+    .leftJoinAndSelect('user.drivenRides', 'ride') // join with drivenRides to check for ongoing rides
+    .where('user.isRider = :isRider', { isRider: true }) // only drivers or riders
+    .andWhere('ride.status IS NULL OR ride.status != :status', { status: 'Accepted' }) // not on an active trip
+    .getMany();
+
+  return availableDrivers;
+}
 async getCarBrands(): Promise<any> {
   try {
     const response = await axios.get(
