@@ -244,7 +244,7 @@ export class AuthService {
   
     return { data, total };
   }
-  async changePassword(userId, oldPassword, newPassword: string): Promise<string> {
+  async changePassword(userId, oldPassword:string, newPassword: string): Promise<string> {
     // Fetch the user by ID
     const user = await this.userRepository.findOne({ where: { id: userId } });
   
