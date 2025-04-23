@@ -226,14 +226,14 @@ async changePassword(
   @Users('sub') userId: string,
   @Body() body: any
 ) {
-  const dto = plainToInstance(ChangePasswordDto, body);
-  const errors = await validate(dto);
-  if (errors.length > 0) {
-    console.log('Validation failed:', errors);
-    throw new BadRequestException(errors);
-  }
+  // const dto = plainToInstance(ChangePasswordDto, body);
+  // const errors = await validate(dto);
+  // if (errors.length > 0) {
+  //   console.log('Validation failed:', errors);
+  //   throw new BadRequestException(errors);
+  // }
 
-  return dto;
+  return body;
 }
 
   @Delete(':id')
