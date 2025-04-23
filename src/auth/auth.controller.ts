@@ -187,6 +187,7 @@ async logout(@Res({ passthrough: true }) response: Response): Promise<any> {
     return 'OK';
   }
   @Patch('password')
+  @UseGuards(JwtGuard)
   async changePassword(
     @Users('sub') userId: string,
     @Body() body: any
@@ -208,6 +209,7 @@ async logout(@Res({ passthrough: true }) response: Response): Promise<any> {
     @Param('id') id: string,
     @Body() updateAuthDto: UpdateAuthDto,
     @Res() response: Response,
+    
   ) {
     const updatedUser = await this.authService.update(id, updateAuthDto);
     return response.status(HttpStatus.OK).json({
