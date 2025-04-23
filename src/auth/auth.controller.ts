@@ -214,9 +214,9 @@ async changePassword(
  @Users('sub') userId: string, // Assuming you're using a session or JWT for authentication
   @Body() changePasswordDto: ChangePasswordDto,
 ) {
-  const { oldPassword, newPassword } = changePasswordDto;
-  // const userId = req.user.id; // Extract user ID from the authenticated request
-  return this.authService.changePassword(userId, oldPassword, newPassword);
+  return changePasswordDto
+  // const { oldPassword, newPassword } = changePasswordDto;
+  // return this.authService.changePassword(userId, oldPassword, newPassword);
 }
 
   @Delete(':id')
