@@ -34,6 +34,8 @@ import * as path from 'path';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { JwtGuard } from 'src/guards/jwt.guards';
 import { Users } from 'src/decorators/user.decorator';
+import { plainToInstance } from 'class-transformer';
+import { validate } from 'class-validator';
 
 @Controller('auth')
 export class AuthController {
@@ -208,15 +210,30 @@ async logout(@Res({ passthrough: true }) response: Response): Promise<any> {
       data: updatedUser,
     });
   }
+// @Patch('change-password')
+//  @UseGuards(JwtGuard)
+// async changePassword(
+//  @Users('sub') userId: string, // Assuming you're using a session or JWT for authentication
+//   @Body() changePasswordDto: ChangePasswordDto,
+// ) {
+//   return changePasswordDto
+//   // const { oldPassword, newPassword } = changePasswordDto;
+//   // return this.authService.changePassword(userId, oldPassword, newPassword);
+// }
 @Patch('change-password')
- @UseGuards(JwtGuard)
+@UseGuards(JwtGuard)
 async changePassword(
- @Users('sub') userId: string, // Assuming you're using a session or JWT for authentication
-  @Body() changePasswordDto: ChangePasswordDto,
+  @Users('sub') userId: string,
+  @Body() body: any
 ) {
-  return changePasswordDto
-  // const { oldPassword, newPassword } = changePasswordDto;
-  // return this.authService.changePassword(userId, oldPassword, newPassword);
+  const dto = plainToInstance(ChangePasswordDto, body);
+  const errors = await validate(dto);
+  if (errors.length > 0) {
+    console.log('Validation failed:', errors);
+    throw new BadRequestException(errors);
+  }
+
+  return dto;
 }
 
   @Delete(':id')
