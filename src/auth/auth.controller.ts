@@ -192,7 +192,7 @@ async logout(@Res({ passthrough: true }) response: Response): Promise<any> {
     @Users('sub') userId: string,
     @Body() body: any
   ){
-    return body
+    return this.authService.changePassword(userId, body.oldPassword, body.newPassword)
   }
   @Get(':id')
   async findOne(@Param('id') id: string, @Res() response: Response) {
