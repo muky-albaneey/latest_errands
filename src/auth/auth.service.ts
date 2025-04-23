@@ -543,7 +543,7 @@ async getDrivers() {
     where: { 
       isRider: true
     },
-    relations: ['driverLicense','nin','vehicle','location_drive','vehicle_reg_image','Profile_img','plateNum_img','licenseImg','trips'], // Load the driver's license details
+    relations: ['driverLicense','nin','vehicle','location_drive','vehicle_reg_image','Profile_img','plateNum_img','licenseImg','trips','rides','drivenRides'], // Load the driver's license details
   });
 
   return drivers
