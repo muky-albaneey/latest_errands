@@ -35,8 +35,8 @@ export class Ride {
   @JoinColumn({ name: 'driverId' })
   driver: User;
 
-  @Column('uuid')
-  driverId: string;
+  @Column('uuid', { nullable: true })
+  driverId: string;  
 
   // @Column({ default: 'Searching' })
   // status: string;
