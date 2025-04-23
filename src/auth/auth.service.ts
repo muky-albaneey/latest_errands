@@ -562,21 +562,6 @@ async getDriverById(driverId) {
     throw new NotFoundException('Driver not found or user is not a driver');
   }
 
-  // Format the response to include only necessary data
-  // return {
-  //   id: driver.id,
-  //   fname: driver.fname,
-  //   lname: driver.lname,
-  //   phoneNumber: driver.phoneNumber,
-  //   email: driver.email,
-  //   driverLicense: {
-  //     licenseNo: driver.driverLicense.licenseNo,
-  //     birthdate: driver.driverLicense.birthdate,
-  //     issuedDate: driver.driverLicense.issuedDate,
-  //     expiryDate: driver.driverLicense.expiryDate,
-  //     stateOfIssue: driver.driverLicense.stateOfIssue,
-  //   },
-  // };
   return driver
 }
 
@@ -685,38 +670,7 @@ async getCarBrands(): Promise<any> {
   
       return user.vehicle;
     }
-    // private async upsertUserImage<T extends { name: string; url: string; ext: string; user: User }>(
-    //   repo: Repository<T>,
-    //   file: Express.Multer.File,
-    //   user: User,
-    // ): Promise<T> {
-    //   const fileUrl = await this.uploadFileToLinode(file);
-    
-    //   const existing = await repo.findOne({
-    //     where: { user: { id: user.id } },
-    //     relations: ['user'],
-    //   });
-    
-    //   if (existing) {
-    //     existing.name = file.originalname;
-    //     existing.url = fileUrl;
-    //     existing.ext = path.extname(file.originalname).slice(1);
-    //     return await repo.save(existing);
-    //   } else {
-    //     const newImage = repo.create({
-    //       name: file.originalname,
-    //       url: fileUrl,
-    //       ext: path.extname(file.originalname).slice(1),
-    //       user,
-    //     });
-    //     return await repo.save(newImage);
-    //   }
-    // }
-    
-    // Then just call:
-//     const img = await this.upsertUserImage(this.profileImageRepository, file, user);
-// user.Profile_img = img;
-// await this.userRepository.save(user);
+
 
 async createProfileImage(file: Express.Multer.File, user: User) {
   if (!file) throw new BadRequestException('Image file is required');

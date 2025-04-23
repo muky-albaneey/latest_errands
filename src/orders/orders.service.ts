@@ -248,11 +248,7 @@ export class OrdersService {
       order: updatedOrder, // Override with the updated order status
     },
   }
-    // return {
-    //   message: 'Cash payment attached successfully',
-    //   order,
-    //   cashPayment,
-    // };
+  
   }
   async getOrdersByUser(userId) {
     const user = await this.userRepository.findOne({ where: { id: userId } });
@@ -306,28 +302,7 @@ export class OrdersService {
     return this.ordersRepository.update(orderId, { status });
   }
 
-//   async uploadPackageImage(orderId: string, file: Express.Multer.File) {
-//     const order = await this.ordersRepository.findOne({ where: { id: orderId } });
 
-//     if (!order) {
-//       throw new NotFoundException('Order not found');
-//     }
-
-//     const fileExtension = path.extname(file.originalname);
-//     const fileName = `${Date.now()}-${file.originalname}`;
-//     const fileUrl = await this.uploadFileToS3(file, fileName);
-
-//     const productImg = this.productImgRepository.create({
-//         url: fileUrl,
-//         ext:fileExtension,
-//         name:fileName,
-//       order,
-//     });
-
-//     await this.productImgRepository.save(productImg);
-
-//     return { message: 'Image uploaded successfully', fileUrl };
-//   }
 async uploadPackageImage(orderId, file: Express.Multer.File) {
     // Find the order in the database
     const order = await this.ordersRepository.findOne({ where: { id: orderId } });
