@@ -254,6 +254,21 @@ export class OrdersService {
     //   cashPayment,
     // };
   }
+  async getOrdersByUser(userId) {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+  
+    const orders = await this.ordersRepository.find({
+      where: { user: { id: userId } },
+      relations: ['productImages', 'paymentDetails', 'cashPayment'], // include relations as needed
+      order: { createAt: 'DESC' }, // optional: order by newest first
+    });
+  
+    return orders;
+  }
   
 
   getOrderById(orderId) {

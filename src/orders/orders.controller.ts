@@ -120,7 +120,11 @@ import { Repository } from 'typeorm';
     ) {
     return this.ordersService.attachCashPaymentToOrder(orderId, cashPaymentData);
     }
-
+    @Get('user/:userId')
+    getUserOrders(@Param('userId') userId: string) {
+      return this.ordersService.getOrdersByUser(userId);
+    }
+    
     // Existing endpoint to get an order
     @Get(':id')
     getOrder(@Param('id') id: string) {
