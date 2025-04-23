@@ -21,5 +21,8 @@ export class PaymentDetails {
   @OneToOne(() => Order, (order) => order.paymentDetails, { onDelete: 'CASCADE' })
   @JoinColumn()
   order: Order;
+
+  @Column({ type: 'date', nullable: true })
+  createAt?: string;
 }
 

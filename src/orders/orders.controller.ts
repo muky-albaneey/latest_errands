@@ -35,11 +35,7 @@ import { Repository } from 'typeorm';
       ) {}
   
     // Endpoint to initiate payment
-  
-    // @Post('initiate-payment')
-    // async initiatePayment(@Body() orderData: CreateOrderWithPaymentDto) {
-    //   return this.ordersService.initiatePayment(orderData);
-    // }
+
     @Post('initiate-payment')
     @UseGuards(JwtGuard) // ensure the user is authenticated
     async initiatePayment(
@@ -120,11 +116,22 @@ import { Repository } from 'typeorm';
     ) {
     return this.ordersService.attachCashPaymentToOrder(orderId, cashPaymentData);
     }
-    @Get('user/:userId')
+    @Get('user_order/:userId')
     getUserOrders(@Param('userId') userId: string) {
       return this.ordersService.getOrdersByUser(userId);
     }
-    
+    @Get('user_payments/:userId')
+    async getPaymentsByUser(@Param('userId') userId: string) {
+      try {
+        const payments = await this.ordersService.getPaymentsByUser(userId);
+        return { success: true, data: payments };
+      } catch (error) {
+        if (error instanceof NotFoundException) {
+          throw error;
+        }
+        return { success: false, message: 'An error occurred while retrieving payments.' };
+      }
+    }
     // Existing endpoint to get an order
     @Get(':id')
     getOrder(@Param('id') id: string) {

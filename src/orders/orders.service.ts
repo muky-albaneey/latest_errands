@@ -263,7 +263,7 @@ export class OrdersService {
   
     const orders = await this.ordersRepository.find({
       where: { user: { id: userId } },
-      relations: ['productImages', 'paymentDetails', 'cashPayment'], // include relations as needed
+      relations: ['productImages', 'paymentDetails', 'cashPayments'], // include relations as needed
       order: { createAt: 'DESC' }, // optional: order by newest first
     });
   
@@ -278,6 +278,30 @@ export class OrdersService {
     });
   }
 
+  async getPaymentsByUser(userId) {
+    // Find the user in the repository
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+  
+    // If the user is not found, throw an exception
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+  
+    // Find all orders made by the user, including the associated payment details
+    const orders = await this.ordersRepository.find({
+      where: { user: { id: userId } },
+      relations: ['paymentDetails'], // Include the related payment details for each order
+      order: { createAt: 'DESC' }, // Optional: order by the most recent order
+    });
+  
+    // Extract the payment details from each order
+    const payments = orders.flatMap((order) => order.paymentDetails ? [order.paymentDetails] : []);
+  
+    // Return the found payments
+    return payments;
+  }
+  
+  
   updateOrderStatus(orderId, status: string) {
     return this.ordersRepository.update(orderId, { status });
   }

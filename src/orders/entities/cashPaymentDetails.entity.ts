@@ -22,4 +22,7 @@ export class CashPaymentDetails {
   @ManyToOne(() => Order, (order) => order.cashPayments, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'order_id' })
   order: Order;
+
+  @Column({ type: 'date', nullable: true })
+  createAt?: string;
 }
