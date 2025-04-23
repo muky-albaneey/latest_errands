@@ -17,6 +17,7 @@ import {
   UseInterceptors,
   UploadedFile,
   Request,
+  UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 // import { CreateAuthDto, LoginAuthDto } from './dto/create-auth.dto';
@@ -31,7 +32,8 @@ import { CreateVehicleDto } from './dto/vehicle.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import * as path from 'path';
 import { ChangePasswordDto } from './dto/change-password.dto';
-
+import { JwtGuard } from 'src/guards/jwt.guards';
+import { Users } from 'src/decorators/user.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -207,12 +209,13 @@ async logout(@Res({ passthrough: true }) response: Response): Promise<any> {
     });
   }
 @Patch('change-password')
+ @UseGuards(JwtGuard)
 async changePassword(
-  @Request() req, // Assuming you're using a session or JWT for authentication
+ @Users('sub') userId: string, // Assuming you're using a session or JWT for authentication
   @Body() changePasswordDto: ChangePasswordDto,
 ) {
   const { oldPassword, newPassword } = changePasswordDto;
-  const userId = req.user.id; // Extract user ID from the authenticated request
+  // const userId = req.user.id; // Extract user ID from the authenticated request
   return this.authService.changePassword(userId, oldPassword, newPassword);
 }
 

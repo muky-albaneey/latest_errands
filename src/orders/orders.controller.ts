@@ -23,7 +23,7 @@ import { CreateOrderWithPaymentDto } from './dto/create-order-with-payment.dto';
 import * as crypto from 'crypto';
 import { Request, Response } from 'express';
 import { JwtGuard } from 'src/guards/jwt.guards';
-import { User } from 'src/decorators/user.decorator';
+import { Users } from 'src/decorators/user.decorator';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -41,7 +41,7 @@ import { Repository } from 'typeorm';
     async initiatePayment(
       @Body() orderData: CreateOrderWithPaymentDto,
       // @Req() req: RequestWithUser, // custom type with user info
-       @User('sub') userId: string
+       @Users('sub') userId: string
     ) {
       return this.ordersService.initiatePayment(orderData, userId);
     }
@@ -88,7 +88,7 @@ import { Repository } from 'typeorm';
     
     @Post('create')
     @UseGuards(JwtGuard)
-    async createOrder(@Body() orderData: Partial<Order>,@User('sub') userId: string) {
+    async createOrder(@Body() orderData: Partial<Order>,@Users('sub') userId: string) {
     return this.ordersService.createOrder(orderData, userId);
     }
     @Get('status/:paymentReference')

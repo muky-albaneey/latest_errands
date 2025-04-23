@@ -7,7 +7,7 @@ import { CreateTripDto } from './dto/create-trip.dto';
 import { Request } from 'express';
 import { UpdateLocationDto } from './dto/update-location.dto';
 import { JwtGuard } from 'src/guards/jwt.guards';
-import { User } from 'src/decorators/user.decorator';
+import { Users } from 'src/decorators/user.decorator';
 
 @Controller('trip')
 export class TripController {
@@ -15,14 +15,14 @@ export class TripController {
 
   @UseGuards(JwtGuard)
   @Post()
-  async createTrip(@Body() createTripDto: CreateTripDto, @User('sub') userId: string, @Req() req: Request) {
+  async createTrip(@Body() createTripDto: CreateTripDto, @Users('sub') userId: string, @Req() req: Request) {
     // const user = req.user as any;
     return this.tripService.createTrip(createTripDto, userId);
   }
 
 @UseGuards(JwtGuard)
 @Post('update-location')
-async updateLocation(@Body() dto: UpdateLocationDto, @User('sub') userId: string, @Req() req: Request) {
+async updateLocation(@Body() dto: UpdateLocationDto, @Users('sub') userId: string, @Req() req: Request) {
   
   // const user = req.user as any;
   return this.tripService.updateInitialLocation(dto, userId);
