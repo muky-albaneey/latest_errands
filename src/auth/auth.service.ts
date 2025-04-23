@@ -160,7 +160,7 @@ export class AuthService {
 
   async findAll(): Promise<User[]> {
     const users = await this.userRepository.find({
-      relations: ['card', 'driverLicense', 'nin', 'vehicle', 'location_drive','vehicle_reg_image','Profile_img','plateNum_img','licenseImg','orders','orders.cashPayments','orders.paymentDetails'], // include all needed relations
+      relations: ['card', 'driverLicense', 'nin', 'vehicle', 'location_drive','vehicle_reg_image','Profile_img','plateNum_img','licenseImg','orders','orders.cashPayments','orders.paymentDetails','trips'], // include all needed relations
     });
   
     if (users.length === 0) {
@@ -174,7 +174,7 @@ export class AuthService {
   async findOne(id): Promise<User> {
     const user = await this.userRepository.findOne({
       where: { id },
-      relations: ['card', 'driverLicense', 'nin','vehicle','location_drive','vehicle_reg_image','Profile_img','plateNum_img','licenseImg','orders','orders.cashPayments','orders.paymentDetails'], // Include related entities
+      relations: ['card', 'driverLicense', 'nin','vehicle','location_drive','vehicle_reg_image','Profile_img','plateNum_img','licenseImg','orders','orders.cashPayments','orders.paymentDetails','trips'], // Include related entities
     });
   
     if (!user) {
@@ -540,24 +540,9 @@ async getDrivers() {
     where: { 
       isRider: true
     },
-    relations: ['driverLicense','nin'], // Load the driver's license details
+    relations: ['driverLicense','nin','vehicle','location_drive','vehicle_reg_image','Profile_img','plateNum_img','licenseImg','trips'], // Load the driver's license details
   });
 
-  // Format the response to include only necessary data
-  // return drivers.map(driver => ({
-  //   id: driver.id,
-  //   fname: driver.fname,
-  //   lname: driver.lname,
-  //   phoneNumber: driver.phoneNumber,
-  //   email: driver.email,
-  //   driverLicense: {
-  //     licenseNo: driver.driverLicense.licenseNo,
-  //     birthdate: driver.driverLicense.birthdate,
-  //     issuedDate: driver.driverLicense.issuedDate,
-  //     expiryDate: driver.driverLicense.expiryDate,
-  //     stateOfIssue: driver.driverLicense.stateOfIssue,
-  //   },
-  // }));
   return drivers
 }
 async getDriverById(driverId) {
