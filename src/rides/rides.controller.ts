@@ -60,13 +60,20 @@ export class RidesController {
     return this.ridesService.createRide(rideData);
   }
 
+  // @Patch(':id/accept')
+  // driverAcceptRide(
+  //   @Param('id', new ParseUUIDPipe()) id: string,
+  //   @Body('driverId') driverId: DriverAcceptRideDto,
+  // ) {
+  //   return this.ridesService.driverAcceptRide(id, driverId);
+  // }
   @Patch(':id/accept')
-  driverAcceptRide(
-    @Param('id', new ParseUUIDPipe()) id: string,
-    @Body('driverId') driverId: DriverAcceptRideDto,
-  ) {
-    return this.ridesService.driverAcceptRide(id, driverId);
-  }
+driverAcceptRide(
+  @Param('id', new ParseUUIDPipe()) id: string,
+  @Body() driverAcceptRideDto: DriverAcceptRideDto,
+) {
+  return this.ridesService.driverAcceptRide(id, driverAcceptRideDto.driverId);
+}
 
   @Patch(':id/reject')
   driverRejectRide(
