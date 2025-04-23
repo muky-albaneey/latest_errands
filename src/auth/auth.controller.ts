@@ -186,6 +186,10 @@ async logout(@Res({ passthrough: true }) response: Response): Promise<any> {
   healthCheck(): string {
     return 'OK';
   }
+  @Get('drivers')
+  async getDrivers() {
+    return this.authService.getDrivers();
+  }
   @Patch('password')
   @UseGuards(JwtGuard)
   async changePassword(
@@ -269,10 +273,7 @@ async logout(@Res({ passthrough: true }) response: Response): Promise<any> {
   }
 
 
-  @Get('drivers')
-  async getDrivers() {
-    return this.authService.getDrivers();
-  }
+ 
 
   @Get('drivers/:id')
 async getDriverById(@Param('id') id: string) {
