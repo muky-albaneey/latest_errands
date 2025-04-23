@@ -145,6 +145,10 @@ export class User {
     @OneToMany(() => Ride, (ride) => ride.driver)
     drivenRides: Ride[];
 
+    @OneToMany(() => DriverEarning, (earning) => earning.driver)
+    driverEarnings: DriverEarning[];
+
+
     toJSON() {
         return instanceToPlain(this, { excludePrefixes: ['_'] });
     }

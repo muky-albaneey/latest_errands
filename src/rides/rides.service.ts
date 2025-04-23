@@ -42,6 +42,7 @@ import { Injectable, BadRequestException, NotFoundException } from '@nestjs/comm
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Ride, RideStatus } from './entities/ride.entity';
+import { DriverEarning } from './entities/driverEarnings.entity';
 // import { RideStatus } from './ride-status.enum';
 
 @Injectable()
@@ -49,6 +50,9 @@ export class RidesService {
   constructor(
     @InjectRepository(Ride)
     private ridesRepository: Repository<Ride>,
+
+    @InjectRepository(DriverEarning)
+    private earningRepository: Repository<DriverEarning>,
   ) {}
 
   createRide(rideData: Partial<Ride>) {
@@ -102,4 +106,32 @@ export class RidesService {
       status: RideStatus.ASSIGNED,
     });
   }
+
+  async completeRide(rideId: string): Promise<void> {
+    const ride = await this.ridesRepository.findOne({
+      where: { id: rideId },
+      relations: ['order', 'driver'],
+    });
+  
+    if (!ride || !ride.order || !ride.driver) {
+      throw new Error('Ride, order, or driver not found');
+    }
+  
+    const percent = 60;
+    const amountEarned = (percent / 100) * Number(ride.order.cost);
+  
+    const earning = this.earningRepository.create({
+      driver: ride.driver,
+      ride: ride,
+      order: ride.order,
+      amountEarned,
+      payoutStatus: 'unpaid',
+    });
+  
+    await this.earningRepository.save(earning);
+  
+    ride.status = RideStatus.COMPLETED;
+    await this.ridesRepository.save(ride);
+  }
+  
 }
