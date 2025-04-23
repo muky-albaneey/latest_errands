@@ -6,10 +6,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { HttpModule} from '@nestjs/axios'; // Import HttpModule
 import { Ride } from './entities/ride.entity';
+import { DriverEarning } from './entities/driverEarnings.entity';
 
 @Module({
     imports: [
-        TypeOrmModule.forFeature([Ride]),
+        TypeOrmModule.forFeature([Ride, DriverEarning]),
         ConfigModule,
         HttpModule,
       ],
