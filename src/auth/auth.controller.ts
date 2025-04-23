@@ -186,7 +186,13 @@ async logout(@Res({ passthrough: true }) response: Response): Promise<any> {
   healthCheck(): string {
     return 'OK';
   }
-
+  @Patch('password')
+  async changePassword(
+    @Users('sub') userId: string,
+    @Body() body: any
+  ){
+    return body
+  }
   @Get(':id')
   async findOne(@Param('id') id: string, @Res() response: Response) {
     const user = await this.authService.findOne(id);
@@ -220,21 +226,22 @@ async logout(@Res({ passthrough: true }) response: Response): Promise<any> {
 //   // const { oldPassword, newPassword } = changePasswordDto;
 //   // return this.authService.changePassword(userId, oldPassword, newPassword);
 // }
-@Patch('change-password')
-@UseGuards(JwtGuard)
-async changePassword(
-  @Users('sub') userId: string,
-  @Body() body: any
-) {
-  // const dto = plainToInstance(ChangePasswordDto, body);
-  // const errors = await validate(dto);
-  // if (errors.length > 0) {
-  //   console.log('Validation failed:', errors);
-  //   throw new BadRequestException(errors);
-  // }
+// @Patch('change-password')
+// @UseGuards(JwtGuard)
+// async changePassword(
+//   @Users('sub') userId: string,
+//   @Body() body: any
+// ) {
+//   // const dto = plainToInstance(ChangePasswordDto, body);
+//   // const errors = await validate(dto);
+//   // if (errors.length > 0) {
+//   //   console.log('Validation failed:', errors);
+//   //   throw new BadRequestException(errors);
+//   // }
 
-  return body;
-}
+//   return body;
+// }
+
 
   @Delete(':id')
   async remove(@Param('id') id: string, @Res() response: Response) {
