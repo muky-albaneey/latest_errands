@@ -544,22 +544,23 @@ async getDrivers() {
   });
 
   // Format the response to include only necessary data
-  return drivers.map(driver => ({
-    id: driver.id,
-    fname: driver.fname,
-    lname: driver.lname,
-    phoneNumber: driver.phoneNumber,
-    email: driver.email,
-    driverLicense: {
-      licenseNo: driver.driverLicense.licenseNo,
-      birthdate: driver.driverLicense.birthdate,
-      issuedDate: driver.driverLicense.issuedDate,
-      expiryDate: driver.driverLicense.expiryDate,
-      stateOfIssue: driver.driverLicense.stateOfIssue,
-    },
-  }));
+  // return drivers.map(driver => ({
+  //   id: driver.id,
+  //   fname: driver.fname,
+  //   lname: driver.lname,
+  //   phoneNumber: driver.phoneNumber,
+  //   email: driver.email,
+  //   driverLicense: {
+  //     licenseNo: driver.driverLicense.licenseNo,
+  //     birthdate: driver.driverLicense.birthdate,
+  //     issuedDate: driver.driverLicense.issuedDate,
+  //     expiryDate: driver.driverLicense.expiryDate,
+  //     stateOfIssue: driver.driverLicense.stateOfIssue,
+  //   },
+  // }));
+  return drivers
 }
-async getDriverById(driverId: string) {
+async getDriverById(driverId) {
   // Find the user by id and ensure they are a driver
   const driver = await this.userRepository.findOne({
     where: { 
