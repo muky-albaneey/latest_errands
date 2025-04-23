@@ -9,6 +9,7 @@ export enum RideStatus {
   ACCEPTED = 'accepted',
   REJECTED = 'rejected',
   SEARCHING = 'Searching',
+  COMPLETED = 'completed',
   // possibly CANCELED, COMPLETED etc.
 }
 

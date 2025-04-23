@@ -63,17 +63,17 @@ export class RidesController {
   @Patch(':id/accept')
   driverAcceptRide(
     @Param('id') id: string,
-    @Body('driverId') driverId: DriverAcceptRideDto,
+    @Body('driverId') driverAcceptRideDto: DriverAcceptRideDto,
   ) {
-    return this.ridesService.driverAcceptRide(id, driverId);
+    return this.ridesService.driverAcceptRide(id, driverAcceptRideDto.driverId);
   }
 
   @Patch(':id/reject')
   driverRejectRide(
     @Param('id') id: string,
-    @Body('driverId') driverId: DriverRejectRideDto,
+    @Body('driverId') driverRejectRideDto: DriverRejectRideDto,
   ) {
-    return this.ridesService.driverRejectRide(id, driverId);
+    return this.ridesService.driverRejectRide(id, driverRejectRideDto.driverId);
   }
 
   @Patch(':id/status')
@@ -83,12 +83,17 @@ export class RidesController {
   ) {
     return this.ridesService.updateRideStatus(id, status);
   }
+  @Patch(':id/complete')
+completeRide(@Param('id') id: string) {
+  return this.ridesService.updateRideStatus(id, RideStatus.COMPLETED);
+}
+
 
   @Patch(':id/assign')
   assignDriver(
     @Param('id') id: string,
-    @Body('driverId') driverId: AssignDriverDto,
+    @Body('driverId') assignDriverDto: AssignDriverDto,
   ) {
-    return this.ridesService.assignDriver(id, driverId);
+    return this.ridesService.assignDriver(id, assignDriverDto.driverId);
   }
 }
