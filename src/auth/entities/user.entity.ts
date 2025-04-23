@@ -24,6 +24,7 @@ import { LicenseImg } from './licenseImg.entity';
 import { Trip } from '../../trip/entities/trip.entity';
 import { Order } from 'src/orders/entities/order.entity';
 import { Ride } from 'src/rides/entities/ride.entity';
+import { DriverEarning } from 'src/rides/entities/driverEarnings.entity';
 
 export enum UserRole {
     ADMIN = "admin",
