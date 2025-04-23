@@ -43,7 +43,7 @@
 //   }
 // }
 /* eslint-disable prettier/prettier */
-import { Controller, Post, Patch, Body, Param } from '@nestjs/common';
+import { Controller, Post, Patch, Body, Param, ParseUUIDPipe } from '@nestjs/common';
 import { RidesService } from './rides.service';
 import { RideStatus } from './entities/ride.entity';
 import { AssignDriverDto } from './dto/assign-driver.dto';
@@ -62,7 +62,7 @@ export class RidesController {
 
   @Patch(':id/accept')
   driverAcceptRide(
-    @Param('id') id: string,
+    @Param('id', new ParseUUIDPipe()) id: string,
     @Body('driverId') driverAcceptRideDto: DriverAcceptRideDto,
   ) {
     return this.ridesService.driverAcceptRide(id, driverAcceptRideDto.driverId);
