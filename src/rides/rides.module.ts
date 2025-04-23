@@ -14,6 +14,8 @@ import { Ride } from './entities/ride.entity';
         HttpModule,
       ],
   providers: [RidesService],
-  controllers: [RidesController]
+  controllers: [RidesController],
+  exports: [TypeOrmModule], // This allows other modules to use the Ride repository
+  
 })
 export class RidesModule {}

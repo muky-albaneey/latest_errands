@@ -16,6 +16,7 @@ import { ProfileImage } from './entities/profile.entity';
 import { plateNum } from './entities/plateNum.entity';
 import { LicenseImg } from './entities/licenseImg.entity';
 import { VehicleReg } from './entities/VehicleReg.entity';
+import { RidesModule } from 'src/rides/rides.module';
 
 
 @Module({
@@ -23,6 +24,7 @@ import { VehicleReg } from './entities/VehicleReg.entity';
     TypeOrmModule.forFeature([User, Card, DiverLicense, Nin, LocationDrive, Vehicle, ProfileImage, plateNum, LicenseImg, VehicleReg, ]),
     ConfigModule,
     HttpModule, // Add HttpModule here
+    RidesModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
