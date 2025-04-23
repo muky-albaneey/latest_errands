@@ -543,7 +543,7 @@ async getDrivers() {
     where: { 
       isRider: true
     },
-    relations: ['driverLicense','nin','vehicle','location_drive','vehicle_reg_image','Profile_img','plateNum_img','licenseImg','trips','rides','drivenRides'], // Load the driver's license details
+    relations: ['driverLicense','nin','vehicle','location_drive','vehicle_reg_image','Profile_img','plateNum_img','licenseImg','trips','rides','drivenRides','driverEarnings'], // Load the driver's license details
   });
 
   return drivers
@@ -555,7 +555,7 @@ async getDriverById(driverId) {
       id: driverId, 
       isRider: true 
     },
-    relations: ['driverLicense','nin','vehicle','location_drive','vehicle_reg_image','Profile_img','plateNum_img','licenseImg','trips','rides','drivenRides'], // Load the driver's license details
+    relations: ['driverLicense','nin','vehicle','location_drive','vehicle_reg_image','Profile_img','plateNum_img','licenseImg','trips','rides','drivenRides','driverEarnings'], // Load the driver's license details
   });
 
   if (!driver) {

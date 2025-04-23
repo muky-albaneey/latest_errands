@@ -98,8 +98,8 @@ completeRide(@Param('id') id: string) {
 
   @Patch(':id/assign')
   assignDriver(
-    @Param('id') id: string,
-    @Body('driverId') assignDriverDto: AssignDriverDto,
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body() assignDriverDto: AssignDriverDto,
   ) {
     return this.ridesService.assignDriver(id, assignDriverDto.driverId);
   }
