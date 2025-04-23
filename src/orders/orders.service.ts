@@ -237,11 +237,22 @@ export class OrdersService {
     await this.ordersRepository.save(order);
 
      // Step 4: Return the response
-    return {
-      message: 'Cash payment attached successfully',
-      order,
-      cashPayment,
-    };
+       // Step 4: Refetch the updated order (and optionally, cashPayment too)
+  const updatedOrder = await this.ordersRepository.findOne({ where: { id: orderId } });
+
+  return {
+    message: 'Cash payment attached successfully',
+    order: updatedOrder,
+    cashPayment: {
+      ...cashPayment,
+      order: updatedOrder, // Override with the updated order status
+    },
+  }
+    // return {
+    //   message: 'Cash payment attached successfully',
+    //   order,
+    //   cashPayment,
+    // };
   }
   
 
