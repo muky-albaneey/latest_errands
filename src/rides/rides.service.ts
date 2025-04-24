@@ -16,7 +16,7 @@ export class RidesService {
   constructor(
     private readonly emailservice: MailService,
 
-    private readonly userService: AuthService,
+    // private readonly userService: AuthService,
     
     @InjectRepository(Ride)
     private ridesRepository: Repository<Ride>,
@@ -220,7 +220,7 @@ async getUnpaidEarningsForDriver(driverId): Promise<{ totalEarning: number, earn
     }
   
     // Fetch the driver/user data (userSaved) based on driverId
-    const userSaved = await this.userService.findOne({ where: { id: driverId } });
+    const userSaved = await this.userRepository.findOne({ where: { id: driverId } });
   
     if (!userSaved) {
       throw new NotFoundException('Driver not found');

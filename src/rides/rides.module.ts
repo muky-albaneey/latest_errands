@@ -12,14 +12,15 @@ import { WithdrawalRequest } from './entities/withdrawalRequest.entity';
 import { Charge } from 'src/charges/entities/charge.entity';
 import { MailService } from 'src/mail/mail.service';
 import { AuthService } from 'src/auth/auth.service';
+import { DiverLicense } from 'src/auth/entities/license.entity';
 
 @Module({
     imports: [
-        TypeOrmModule.forFeature([Ride, DriverEarning, WithdrawalRequest, User, Charge]),
+        TypeOrmModule.forFeature([Ride, DriverEarning, WithdrawalRequest, User, Charge, DiverLicense]),
         ConfigModule,
         HttpModule,
       ],
-  providers: [RidesService, MailService, AuthService],
+  providers: [RidesService, MailService],
   controllers: [RidesController],
   exports: [TypeOrmModule], // This allows other modules to use the Ride repository
   
