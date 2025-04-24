@@ -28,14 +28,25 @@ async getLatestPaidEarnings(): Promise<DriverEarning[]> {
 }
 
 // Get unpaid earnings for a specific driver
+// @Get('unpaid/:driverId')
+// async getUnpaidEarningsForDriver(@Param('driverId') driverId: string): Promise<DriverEarning[]> {
+//   const unpaidEarnings = await this.ridesService.getUnpaidEarningsForDriver(driverId);
+//   if (unpaidEarnings.length === 0) {
+//     throw new NotFoundException(`No unpaid earnings found for driver with ID ${driverId}`);
+//   }
+//   return unpaidEarnings;
+// }
 @Get('unpaid/:driverId')
-async getUnpaidEarningsForDriver(@Param('driverId') driverId: string): Promise<DriverEarning[]> {
-  const unpaidEarnings = await this.ridesService.getUnpaidEarningsForDriver(driverId);
-  if (unpaidEarnings.length === 0) {
+async getUnpaidEarningsForDriver(@Param('driverId') driverId: string) {
+  const result = await this.ridesService.getUnpaidEarningsForDriver(driverId);
+
+  if (result.earnings.length === 0) {
     throw new NotFoundException(`No unpaid earnings found for driver with ID ${driverId}`);
   }
-  return unpaidEarnings;
+
+  return result;
 }
+
 
 // Get all unpaid earnings
 @Get('unpaid')

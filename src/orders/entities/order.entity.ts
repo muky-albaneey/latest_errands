@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { User } from 'src/auth/entities/user.entity';
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, OneToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, OneToOne, CreateDateColumn } from 'typeorm';
 import { ProductImg } from './productImg.entity';
 import { PaymentDetails } from './paymentDetails.entity';
 import { CashPaymentDetails } from './cashPaymentDetails.entity';
@@ -66,6 +66,7 @@ export class Order {
   @Column({ type: 'varchar', default: 'Pending' })
   status: string;
 
-  @Column({ type: 'date', nullable: true })
-  createAt?: string;
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })  
+  createdAt: Date;
+  
 }

@@ -141,8 +141,18 @@ export class RidesService {
 
     return latestPaidEarnings;
   }
-async getUnpaidEarningsForDriver(driverId): Promise<DriverEarning[]> {
-  return this.earningRepository.find({
+// async getUnpaidEarningsForDriver(driverId): Promise<DriverEarning[]> {
+//   return this.earningRepository.find({
+//     where: {
+//       driver: { id: driverId },
+//       payoutStatus: 'unpaid',
+//     },
+//     relations: ['driver', 'ride', 'order'],
+//     order: { createdAt: 'DESC' },
+//   });
+// }
+async getUnpaidEarningsForDriver(driverId): Promise<{ totalEarning: number, earnings: DriverEarning[] }> {
+  const earnings = await this.earningRepository.find({
     where: {
       driver: { id: driverId },
       payoutStatus: 'unpaid',
@@ -150,7 +160,15 @@ async getUnpaidEarningsForDriver(driverId): Promise<DriverEarning[]> {
     relations: ['driver', 'ride', 'order'],
     order: { createdAt: 'DESC' },
   });
+
+  const totalEarning = earnings.reduce((sum, earning) => sum + Number(earning.amountEarned), 0);
+
+  return {
+    totalEarning,
+    earnings,
+  };
 }
+
 
   async markEarningsAsPaid(driverId): Promise<void> {
     const unpaidEarnings = await this.earningRepository.find({
