@@ -7,11 +7,17 @@ import { DriverEarning } from './entities/driverEarnings.entity';
 import { WithdrawalRequest } from './entities/withdrawalRequest.entity';
 import { User } from 'src/auth/entities/user.entity';
 import { Charge } from 'src/charges/entities/charge.entity';
+import { MailService } from 'src/mail/mail.service';
+import { AuthService } from 'src/auth/auth.service';
 // import { RideStatus } from './ride-status.enum';
 
 @Injectable()
 export class RidesService {
   constructor(
+    private readonly emailservice: MailService,
+
+    private readonly userService: AuthService,
+    
     @InjectRepository(Ride)
     private ridesRepository: Repository<Ride>,
 
@@ -170,7 +176,38 @@ async getUnpaidEarningsForDriver(driverId): Promise<{ totalEarning: number, earn
 }
 
 
-  async markEarningsAsPaid(driverId): Promise<void> {
+  // async markEarningsAsPaid(driverId): Promise<void> {
+  //   const unpaidEarnings = await this.earningRepository.find({
+  //     where: {
+  //       driver: { id: driverId },
+  //       payoutStatus: 'unpaid',
+  //     },
+  //   });
+  
+  //   if (unpaidEarnings.length === 0) {
+  //     throw new NotFoundException('No unpaid earnings found for this driver');
+  //   }
+  
+  //   for (const earning of unpaidEarnings) {
+  //     earning.payoutStatus = 'paid';
+  //   }
+  //   await this.emailservice.dispatchEmail(
+  //     userSaved.email, // ✅ Use userSaved instead of userValidate
+  //     'Welcome to Our Errands!',
+  //     `<div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+  //         <h2 style="color: #28a745;">Welcome to Our Errands!</h2>
+  //         <p>Hi ${userSaved.fname},</p>
+  //         <p>Your requested withdrawal for oyur earning has been succesfully paid into your account attached to err:</p>
+  //         <p style="text-align: center;">
+          
+  //         </p>
+  //         <p>If you didn't sign up for an account, please ignore this email.</p>
+  //      </div>`
+  //   );
+  //   await this.earningRepository.save(unpaidEarnings);
+  // }
+  async markEarningsAsPaid(driverId: string): Promise<void> {
+    // Fetch the unpaid earnings for the driver
     const unpaidEarnings = await this.earningRepository.find({
       where: {
         driver: { id: driverId },
@@ -182,10 +219,31 @@ async getUnpaidEarningsForDriver(driverId): Promise<{ totalEarning: number, earn
       throw new NotFoundException('No unpaid earnings found for this driver');
     }
   
+    // Fetch the driver/user data (userSaved) based on driverId
+    const userSaved = await this.userService.findOne({ where: { id: driverId } });
+  
+    if (!userSaved) {
+      throw new NotFoundException('Driver not found');
+    }
+  
+    // Mark all unpaid earnings as paid
     for (const earning of unpaidEarnings) {
       earning.payoutStatus = 'paid';
     }
   
+    // Send email notification to the driver
+    await this.emailservice.dispatchEmail(
+      userSaved.email, // Use userSaved.email to get the email address
+      'Earnings Paid Successfully',
+      `<div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+          <h2 style="color: #28a745;">Earnings Paid Successfully</h2>
+          <p>Hi ${userSaved.fname},</p>
+          <p>Your requested withdrawal for your earnings has been successfully paid into your account.</p>
+          <p>If you didn't request this withdrawal, please ignore this email.</p>
+       </div>`
+    );
+  
+    // Save the updated earnings status
     await this.earningRepository.save(unpaidEarnings);
   }
     // Request a withdrawal

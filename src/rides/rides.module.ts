@@ -10,6 +10,8 @@ import { DriverEarning } from './entities/driverEarnings.entity';
 import { User } from 'src/auth/entities/user.entity';
 import { WithdrawalRequest } from './entities/withdrawalRequest.entity';
 import { Charge } from 'src/charges/entities/charge.entity';
+import { MailService } from 'src/mail/mail.service';
+import { AuthService } from 'src/auth/auth.service';
 
 @Module({
     imports: [
@@ -17,7 +19,7 @@ import { Charge } from 'src/charges/entities/charge.entity';
         ConfigModule,
         HttpModule,
       ],
-  providers: [RidesService],
+  providers: [RidesService, MailService, AuthService],
   controllers: [RidesController],
   exports: [TypeOrmModule], // This allows other modules to use the Ride repository
   
