@@ -28,6 +28,7 @@ import { CashPaymentDetails } from './orders/entities/cashPaymentDetails.entity'
 import { PaymentDetails } from './orders/entities/paymentDetails.entity';
 import { DriverEarning } from './rides/entities/driverEarnings.entity';
 import { WithdrawalRequest } from './rides/entities/withdrawalRequest.entity';
+import { ChargesModule } from './charges/charges.module';
 
 
 @Module({
@@ -63,7 +64,8 @@ import { WithdrawalRequest } from './rides/entities/withdrawalRequest.entity';
     LocationModule,
     TripModule,
     OrdersModule,
-    RidesModule
+    RidesModule,
+    ChargesModule
   ],
   controllers: [AppController],
   providers: [AppService],
