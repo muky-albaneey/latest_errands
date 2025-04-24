@@ -27,6 +27,7 @@ import { Ride } from './rides/entities/ride.entity';
 import { CashPaymentDetails } from './orders/entities/cashPaymentDetails.entity';
 import { PaymentDetails } from './orders/entities/paymentDetails.entity';
 import { DriverEarning } from './rides/entities/driverEarnings.entity';
+import { WithdrawalRequest } from './rides/entities/withdrawalRequest.entity';
 
 
 @Module({
@@ -48,7 +49,7 @@ import { DriverEarning } from './rides/entities/driverEarnings.entity';
         entities: [User, Card, DiverLicense, Nin, LocationDrive, 
           Vehicle, ProfileImage, plateNum, LicenseImg, VehicleReg, 
           Trip, Order, ProductImg, Ride,
-          PaymentDetails, CashPaymentDetails, DriverEarning
+          PaymentDetails, CashPaymentDetails, DriverEarning, WithdrawalRequest
         ],
         synchronize: true,
         extra: {

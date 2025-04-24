@@ -7,10 +7,12 @@ import { ConfigModule } from '@nestjs/config';
 import { HttpModule} from '@nestjs/axios'; // Import HttpModule
 import { Ride } from './entities/ride.entity';
 import { DriverEarning } from './entities/driverEarnings.entity';
+import { User } from 'src/auth/entities/user.entity';
+import { WithdrawalRequest } from './entities/withdrawalRequest.entity';
 
 @Module({
     imports: [
-        TypeOrmModule.forFeature([Ride, DriverEarning]),
+        TypeOrmModule.forFeature([Ride, DriverEarning, WithdrawalRequest, User]),
         ConfigModule,
         HttpModule,
       ],
