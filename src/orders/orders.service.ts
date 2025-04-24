@@ -260,7 +260,7 @@ export class OrdersService {
     const orders = await this.ordersRepository.find({
       where: { user: { id: userId } },
       relations: ['productImages', 'paymentDetails', 'cashPayments'], // include relations as needed
-      order: { createAt: 'DESC' }, // optional: order by newest first
+      order: { createdAt: 'DESC' }, // optional: order by newest first
     });
   
     return orders;
@@ -287,7 +287,7 @@ export class OrdersService {
     const orders = await this.ordersRepository.find({
       where: { user: { id: userId } },
       relations: ['paymentDetails'], // Include the related payment details for each order
-      order: { createAt: 'DESC' }, // Optional: order by the most recent order
+      order: { createdAt: 'DESC' }, // Optional: order by the most recent order
     });
   
     // Extract the payment details from each order
