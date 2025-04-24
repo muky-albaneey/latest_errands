@@ -4,7 +4,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Charge } from './entities/charge.entity';
-import { Repository } from 'typeorm';
+import { IsNull, Not, Repository } from 'typeorm';
 
 @Injectable()
 export class ChargesService {
@@ -51,8 +51,12 @@ async setCharges(stateCharges: Record<string, number>): Promise<Charge> {
   }
 
   async getAllStateCharges(): Promise<Record<string, number>> {
-    const charge = await this.chargeRepo.findOne({ where: {} });
-  
+    // const charge = await this.chargeRepo.findOne({ where: {} });
+    const charge = await this.chargeRepo.findOne({
+      where: { stateCharges: Not(IsNull()) }, // Only get a charge that has stateCharges
+      order: { createdAt: 'DESC' },           // Get the most recent one
+    });
+    
     if (!charge) {
       return {};
     }
