@@ -6,6 +6,7 @@ import { Ride, RideStatus } from './entities/ride.entity';
 import { DriverEarning } from './entities/driverEarnings.entity';
 import { WithdrawalRequest } from './entities/withdrawalRequest.entity';
 import { User } from 'src/auth/entities/user.entity';
+import { Charge } from 'src/charges/entities/charge.entity';
 // import { RideStatus } from './ride-status.enum';
 
 @Injectable()
@@ -22,6 +23,9 @@ export class RidesService {
 
     @InjectRepository(User)
     private userRepository: Repository<User>,
+
+    @InjectRepository(Charge) 
+    private readonly chargeRepository: Repository<Charge>
 
   ) {}
 
@@ -86,8 +90,12 @@ export class RidesService {
     if (!ride || !ride.order || !ride.driver) {
       throw new Error('Ride, order, or driver not found');
     }
-  
-    const percent = 60;
+   // ✅ Fetch the global charge configuration
+    const charge = await this.chargeRepository.findOne({ where: {} });
+    if (!charge) {
+      throw new Error('Charge configuration not found');
+    }
+    const percent = Number(charge.percentageCharge);
     const amountEarned = (percent / 100) * Number(ride.order.cost);
   
     const earning = this.earningRepository.create({
