@@ -59,6 +59,20 @@ async setCharges(stateCharges: Record<string, number>): Promise<Charge> {
   
     return charge.stateCharges || {};
   }
-  
+ // Sets the percentageCharge for the current configuration
+ async setPercentageCharge(percentageCharge: number): Promise<Charge> {
+  let charge = await this.chargeRepo.findOne({ where: {} });
+
+  if (charge) {
+    // Update the existing charge config with the new percentageCharge
+    charge.percentageCharge = percentageCharge;
+  } else {
+    // Create a new charge config if one does not exist
+    charge = this.chargeRepo.create({ percentageCharge, stateCharges: {} });
+  }
+
+  // Save and return the updated or new charge config
+  return this.chargeRepo.save(charge);
+}  
   
 }

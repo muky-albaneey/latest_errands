@@ -58,5 +58,14 @@ async getAllStateCharges() {
   };
 }
 
-
+@Post('set-percentage')
+async setPercentageCharge(
+  @Body('percentageCharge') percentageCharge: number,
+) {
+  const charge = await this.chargesService.setPercentageCharge(percentageCharge);
+  return {
+    message: 'Percentage charge updated successfully',
+    percentageCharge: charge.percentageCharge,
+  };
+}
 }
