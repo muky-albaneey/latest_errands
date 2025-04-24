@@ -25,6 +25,7 @@ import { Trip } from '../../trip/entities/trip.entity';
 import { Order } from 'src/orders/entities/order.entity';
 import { Ride } from 'src/rides/entities/ride.entity';
 import { DriverEarning } from 'src/rides/entities/driverEarnings.entity';
+import { WithdrawalRequest } from 'src/rides/entities/withdrawalRequest.entity';
 
 export enum UserRole {
     ADMIN = "admin",
@@ -148,6 +149,10 @@ export class User {
 
     @OneToMany(() => DriverEarning, (earning) => earning.driver)
     driverEarnings: DriverEarning[];
+
+    // One-to-Many relationship with WithdrawalRequest
+  @OneToMany(() => WithdrawalRequest, (withdrawalRequest) => withdrawalRequest.driver)
+  withdrawalRequests: WithdrawalRequest[];  // This will hold the list of withdrawal requests for this user
 
 
     toJSON() {

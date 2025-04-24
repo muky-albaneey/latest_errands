@@ -1,48 +1,11 @@
 /* eslint-disable prettier/prettier */
-// import { Injectable } from '@nestjs/common';
-// import { InjectRepository } from '@nestjs/typeorm';
-// import { Repository } from 'typeorm';
-// import { Ride } from './entities/ride.entity';
-
-// @Injectable()
-// export class RidesService {
-//     constructor(
-//         @InjectRepository(Ride)
-//         private ridesRepository: Repository<Ride>,
-//       ) {}
-
-//       createRide(rideData: Partial<Ride>) {
-//         const newRide = this.ridesRepository.create(rideData);
-//         return this.ridesRepository.save(newRide);
-//       }
-    
-//       updateRideStatus(rideId, status: string) {
-//         return this.ridesRepository.update(rideId, { status });
-//       }
-//       async driverAcceptRide(rideId, driverId: string) {
-//         return this.ridesRepository.update(rideId, {
-//           driverId,
-//           status: 'Accepted',
-//         });
-//       }
-//       async driverRejectRide(rideId, driverId) {
-//         return this.ridesRepository.update(rideId, {
-//           driverId: null,
-//           status: 'Rejected',
-//         });
-//       }
-      
-      
-//       assignDriver(rideId, driverId) {
-//         return this.ridesRepository.update(rideId, { driverId, status: 'Assigned' });
-//       }
-// }
-/* eslint-disable prettier/prettier */
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Ride, RideStatus } from './entities/ride.entity';
 import { DriverEarning } from './entities/driverEarnings.entity';
+import { WithdrawalRequest } from './entities/withdrawalRequest.entity';
+import { User } from 'src/auth/entities/user.entity';
 // import { RideStatus } from './ride-status.enum';
 
 @Injectable()
@@ -53,6 +16,13 @@ export class RidesService {
 
     @InjectRepository(DriverEarning)
     private earningRepository: Repository<DriverEarning>,
+
+    @InjectRepository(WithdrawalRequest)
+    private withdrawalRepository: Repository<WithdrawalRequest>,
+
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
+
   ) {}
 
   createRide(rideData: Partial<Ride>) {
@@ -133,5 +103,103 @@ export class RidesService {
     ride.status = RideStatus.COMPLETED;
     await this.ridesRepository.save(ride);
   }
+
+  async getUnpaidEarnings(): Promise<DriverEarning[]> {
+    return this.earningRepository.find({
+      where: { payoutStatus: 'unpaid' },
+      relations: ['driver', 'ride', 'order'],
+      order: { createdAt: 'DESC' },
+    });
+  }
+  // Add this to the RidesService class
+  async getLatestPaidEarnings(): Promise<DriverEarning[]> {
+    const latestPaidEarnings = await this.earningRepository
+      .createQueryBuilder('earning')
+      .innerJoinAndSelect('earning.driver', 'driver')
+      .innerJoinAndSelect('earning.ride', 'ride')
+      .innerJoinAndSelect('earning.order', 'order')
+      .where('earning.payoutStatus = :status', { status: 'paid' })
+      .andWhere(qb => {
+        const subQuery = qb
+          .subQuery()
+          .select('MAX(subEarning.createdAt)', 'max')
+          .from(DriverEarning, 'subEarning')
+          .where('subEarning.driver = earning.driver')
+          .andWhere('subEarning.payoutStatus = :status', { status: 'paid' })
+          .getQuery();
+        return `earning.createdAt = ${subQuery}`;
+      })
+      .getMany();
+
+    return latestPaidEarnings;
+  }
+async getUnpaidEarningsForDriver(driverId): Promise<DriverEarning[]> {
+  return this.earningRepository.find({
+    where: {
+      driver: { id: driverId },
+      payoutStatus: 'unpaid',
+    },
+    relations: ['driver', 'ride', 'order'],
+    order: { createdAt: 'DESC' },
+  });
+}
+
+  async markEarningsAsPaid(driverId): Promise<void> {
+    const unpaidEarnings = await this.earningRepository.find({
+      where: {
+        driver: { id: driverId },
+        payoutStatus: 'unpaid',
+      },
+    });
   
+    if (unpaidEarnings.length === 0) {
+      throw new NotFoundException('No unpaid earnings found for this driver');
+    }
+  
+    for (const earning of unpaidEarnings) {
+      earning.payoutStatus = 'paid';
+    }
+  
+    await this.earningRepository.save(unpaidEarnings);
+  }
+    // Request a withdrawal
+    async requestWithdrawal(userId, amount: number): Promise<WithdrawalRequest> {
+      // Fetch the user
+      const user = await this.userRepository.findOne({
+        where: { id: userId },
+      });
+  
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+  
+      // Check if the user is a driver (isRider flag should be true)
+      if (!user.isRider) {
+        throw new BadRequestException('User is not a driver');
+      }
+  
+      // Fetch unpaid earnings for the driver
+      const unpaidEarnings = await this.earningRepository.find({
+        where: {
+          driver: { id: userId },
+          payoutStatus: 'unpaid',
+        },
+      });
+  
+      const totalUnpaidAmount = unpaidEarnings.reduce((sum, earning) => sum + earning.amountEarned, 0);
+  
+      // Check if the requested amount is less than or equal to the total unpaid earnings
+      if (amount > totalUnpaidAmount) {
+        throw new BadRequestException('Requested amount exceeds unpaid earnings');
+      }
+  
+      // Create and save the withdrawal request
+      const withdrawalRequest = this.withdrawalRepository.create({
+        driver: user,
+        amount,
+        status: 'pending',
+      });
+  
+      return this.withdrawalRepository.save(withdrawalRequest);
+    }
 }
