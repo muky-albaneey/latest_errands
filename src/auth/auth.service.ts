@@ -570,7 +570,7 @@ async findAvailableDrivers() {
     .createQueryBuilder('user')
     .leftJoinAndSelect('user.drivenRides', 'ride') // join with drivenRides to check for ongoing rides
     .where('user.isRider = :isRider', { isRider: true }) // only drivers or riders
-    .andWhere('ride.status IS NULL OR ride.status != :status', { status: 'Accepted' }) // not on an active trip
+    .andWhere('ride.status IS NULL OR ride.status != :status', { status: 'accepted' }) // not on an active trip
     .getMany();
 
   return availableDrivers;

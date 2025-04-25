@@ -101,6 +101,7 @@ driverAcceptRide(
   ) {
     return this.ridesService.updateRideStatus(id, status);
   }
+  
   @Patch(':id/complete')
 completeRide(@Param('id') id: string) {
   return this.ridesService.completeRide(id);
