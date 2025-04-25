@@ -3,6 +3,7 @@
 
 import { Controller, Get, Post, Body } from '@nestjs/common';
 import { ChargesService } from './charges.service';
+import { SetChargesDto } from './dto/charges.dto';
 
 @Controller('charges')
 export class ChargesController {
@@ -12,14 +13,15 @@ export class ChargesController {
 
 @Post('set')
 async setCharges(
-  @Body('stateCharges') stateCharges: Record<string, Record<string, number>>,
+  @Body() body: SetChargesDto
 ) {
-  const charge = await this.chargesService.setCharges(stateCharges);
+  const charge = await this.chargesService.setCharges(body.stateCharges);
   return {
     message: 'Charges updated successfully',
     stateCharges: charge.stateCharges,
   };
 }
+
 
   @Get()
 async getCharges() {

@@ -32,23 +32,25 @@ async setCharges(stateCharges: Record<string, Record<string, number>>): Promise<
 
 
   // Retrieves the global charges
-  async getCharges(): Promise<Charge> {
-    return this.chargeRepo.findOne({ where: {} });
+  async getCharges(): Promise<Record<string, Record<string, number>>> {
+    const charge = await this.chargeRepo.findOne({ where: {} });
+    return charge?.stateCharges || {};
   }
+  
 
-  async getAllStateCharges(): Promise<Record<string, number>> {
-    // const charge = await this.chargeRepo.findOne({ where: {} });
+  async getAllStateCharges(): Promise<Record<string, Record<string, number>>> {
     const charge = await this.chargeRepo.findOne({
-      where: { stateCharges: Not(IsNull()) }, // Only get a charge that has stateCharges
-      order: { createdAt: 'DESC' },           // Get the most recent one
+      where: { stateCharges: Not(IsNull()) },
+      order: { createdAt: 'DESC' },
     });
-    
+  
     if (!charge) {
       return {};
     }
   
     return charge.stateCharges || {};
   }
+  
  // Sets the percentageCharge for the current configuration
  async setPercentageCharge(percentageCharge: number): Promise<Charge> {
   let charge = await this.chargeRepo.findOne({ where: {} });

@@ -1,9 +1,6 @@
-/* eslint-disable prettier/prettier */
 // src/charges/entities/charge.entity.ts
 
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
-
-// src/charges/entities/charge.entity.ts
 
 @Entity()
 export class Charge {
@@ -11,7 +8,7 @@ export class Charge {
   id: string;
 
   @Column('jsonb', { nullable: false, default: {} })
-  stateCharges: Record<string, Record<string, number>>; // Now allows nested charge objects
+  stateCharges: Record<string, Record<string, number>>;
 
   @Column('decimal', { precision: 5, scale: 2, default: 0 })
   percentageCharge: number;
