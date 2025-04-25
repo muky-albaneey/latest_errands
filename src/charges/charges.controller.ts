@@ -12,16 +12,13 @@ export class ChargesController {
 // src/charges/charges.controller.ts
 
 @Post('set')
-async setCharges(
-  @Body() body: SetChargesDto
-) {
+async setCharges(@Body() body: SetChargesDto) {
   const charge = await this.chargesService.setCharges(body.stateCharges);
   return {
     message: 'Charges updated successfully',
     stateCharges: charge.stateCharges,
   };
 }
-
 
   @Get()
 async getCharges() {
