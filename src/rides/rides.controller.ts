@@ -23,19 +23,16 @@ async getLatestPaidEarnings(): Promise<DriverEarning[]> {
   try {
     return await this.ridesService.getLatestPaidEarnings();
   } catch (error) {
-    throw new NotFoundException('No latest paid earnings found',error);
-  }
+    console.error(error);
+    throw new NotFoundException('No latest paid earnings found');
+      }
 }
 
-// Get unpaid earnings for a specific driver
-// @Get('unpaid/:driverId')
-// async getUnpaidEarningsForDriver(@Param('driverId') driverId: string): Promise<DriverEarning[]> {
-//   const unpaidEarnings = await this.ridesService.getUnpaidEarningsForDriver(driverId);
-//   if (unpaidEarnings.length === 0) {
-//     throw new NotFoundException(`No unpaid earnings found for driver with ID ${driverId}`);
-//   }
-//   return unpaidEarnings;
-// }
+// Get all unpaid earnings
+@Get('unpaid')
+async getUnpaidEarnings(): Promise<DriverEarning[]> {
+  return await this.ridesService.getUnpaidEarnings();
+}
 @Get('unpaid/:driverId')
 async getUnpaidEarningsForDriver(@Param('driverId') driverId: string) {
   const result = await this.ridesService.getUnpaidEarningsForDriver(driverId);
@@ -46,13 +43,28 @@ async getUnpaidEarningsForDriver(@Param('driverId') driverId: string) {
 
   return result;
 }
+@Get('paid/:driverId')
+async getPaidEarningsForDriver(@Param('driverId') driverId: string) {
+  const result = await this.ridesService.getPaidEarningsForDriver(driverId);
 
+  if (result.earnings.length === 0) {
+    throw new NotFoundException(`No paid earnings found for driver with ID ${driverId}`);
+  }
 
-// Get all unpaid earnings
-@Get('unpaid')
-async getUnpaidEarnings(): Promise<DriverEarning[]> {
-  return await this.ridesService.getUnpaidEarnings();
+  return result;
 }
+
+@Get('earnings/:driverId')
+async getAllEarningsForDriver(@Param('driverId') driverId: string) {
+  const result = await this.ridesService.getAllEarningsForDriver(driverId);
+
+  if (result.earnings.length === 0) {
+    throw new NotFoundException(`No earnings found for driver with ID ${driverId}`);
+  }
+
+  return result;
+}
+
 @Post('request/:userId')
 async requestWithdrawal(
   @Param('userId') userId: string,
@@ -65,6 +77,7 @@ async requestWithdrawal(
     if (error instanceof NotFoundException || error instanceof BadRequestException) {
       throw error;
     }
+    
     throw new Error('Unexpected error while processing the withdrawal request');
   }
 }
@@ -101,7 +114,7 @@ driverAcceptRide(
   ) {
     return this.ridesService.updateRideStatus(id, status);
   }
-  
+
   @Patch(':id/complete')
 completeRide(@Param('id') id: string) {
   return this.ridesService.completeRide(id);

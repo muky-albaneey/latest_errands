@@ -118,6 +118,47 @@ export class RidesService {
     await this.ridesRepository.save(ride);
   }
 
+    // Add this to the RidesService class
+    async getLatestPaidEarnings(): Promise<DriverEarning[]> {
+      const latestPaidEarnings = await this.earningRepository
+        .createQueryBuilder('earning')
+        .innerJoinAndSelect('earning.driver', 'driver')
+        .innerJoinAndSelect('earning.ride', 'ride')
+        .innerJoinAndSelect('earning.order', 'order')
+        .where('earning.payoutStatus = :status', { status: 'paid' })
+        .andWhere(qb => {
+          const subQuery = qb
+            .subQuery()
+            .select('MAX(subEarning.createdAt)', 'max')
+            .from(DriverEarning, 'subEarning')
+            .where('subEarning.driver = earning.driver')
+            .andWhere('subEarning.payoutStatus = :status', { status: 'paid' })
+            .getQuery();
+          return `earning.createdAt = ${subQuery}`;
+        })
+        .getMany();
+  
+      return latestPaidEarnings;
+    }
+
+    async getPaidEarningsForDriver(driverId): Promise<{ totalEarning: number, earnings: DriverEarning[] }> {
+      const earnings = await this.earningRepository.find({
+        where: {
+          driver: { id: driverId },
+          payoutStatus: 'paid',
+        },
+        relations: ['driver', 'ride', 'order'],
+        order: { createdAt: 'DESC' },
+      });
+    
+      const totalEarning = earnings.reduce((sum, earning) => sum + Number(earning.amountEarned), 0);
+    
+      return {
+        totalEarning,
+        earnings,
+      };
+    }
+    
   async getUnpaidEarnings(): Promise<DriverEarning[]> {
     return this.earningRepository.find({
       where: { payoutStatus: 'unpaid' },
@@ -125,38 +166,8 @@ export class RidesService {
       order: { createdAt: 'DESC' },
     });
   }
-  // Add this to the RidesService class
-  async getLatestPaidEarnings(): Promise<DriverEarning[]> {
-    const latestPaidEarnings = await this.earningRepository
-      .createQueryBuilder('earning')
-      .innerJoinAndSelect('earning.driver', 'driver')
-      .innerJoinAndSelect('earning.ride', 'ride')
-      .innerJoinAndSelect('earning.order', 'order')
-      .where('earning.payoutStatus = :status', { status: 'paid' })
-      .andWhere(qb => {
-        const subQuery = qb
-          .subQuery()
-          .select('MAX(subEarning.createdAt)', 'max')
-          .from(DriverEarning, 'subEarning')
-          .where('subEarning.driver = earning.driver')
-          .andWhere('subEarning.payoutStatus = :status', { status: 'paid' })
-          .getQuery();
-        return `earning.createdAt = ${subQuery}`;
-      })
-      .getMany();
 
-    return latestPaidEarnings;
-  }
-// async getUnpaidEarningsForDriver(driverId): Promise<DriverEarning[]> {
-//   return this.earningRepository.find({
-//     where: {
-//       driver: { id: driverId },
-//       payoutStatus: 'unpaid',
-//     },
-//     relations: ['driver', 'ride', 'order'],
-//     order: { createdAt: 'DESC' },
-//   });
-// }
+
 async getUnpaidEarningsForDriver(driverId): Promise<{ totalEarning: number, earnings: DriverEarning[] }> {
   const earnings = await this.earningRepository.find({
     where: {
@@ -174,39 +185,25 @@ async getUnpaidEarningsForDriver(driverId): Promise<{ totalEarning: number, earn
     earnings,
   };
 }
+async getAllEarningsForDriver(driverId): Promise<{ totalEarning: number, earnings: DriverEarning[] }> {
+  const earnings = await this.earningRepository.find({
+    where: {
+      driver: { id: driverId },
+    },
+    relations: ['driver', 'ride', 'order'],
+    order: { createdAt: 'DESC' },
+  });
+
+  const totalEarning = earnings.reduce((sum, earning) => sum + Number(earning.amountEarned), 0);
+
+  return {
+    totalEarning,
+    earnings,
+  };
+}
 
 
-  // async markEarningsAsPaid(driverId): Promise<void> {
-  //   const unpaidEarnings = await this.earningRepository.find({
-  //     where: {
-  //       driver: { id: driverId },
-  //       payoutStatus: 'unpaid',
-  //     },
-  //   });
-  
-  //   if (unpaidEarnings.length === 0) {
-  //     throw new NotFoundException('No unpaid earnings found for this driver');
-  //   }
-  
-  //   for (const earning of unpaidEarnings) {
-  //     earning.payoutStatus = 'paid';
-  //   }
-  //   await this.emailservice.dispatchEmail(
-  //     userSaved.email, // ✅ Use userSaved instead of userValidate
-  //     'Welcome to Our Errands!',
-  //     `<div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-  //         <h2 style="color: #28a745;">Welcome to Our Errands!</h2>
-  //         <p>Hi ${userSaved.fname},</p>
-  //         <p>Your requested withdrawal for oyur earning has been succesfully paid into your account attached to err:</p>
-  //         <p style="text-align: center;">
-          
-  //         </p>
-  //         <p>If you didn't sign up for an account, please ignore this email.</p>
-  //      </div>`
-  //   );
-  //   await this.earningRepository.save(unpaidEarnings);
-  // }
-  async markEarningsAsPaid(driverId: string): Promise<void> {
+  async markEarningsAsPaid(driverId): Promise<void> {
     // Fetch the unpaid earnings for the driver
     const unpaidEarnings = await this.earningRepository.find({
       where: {
@@ -270,8 +267,9 @@ async getUnpaidEarningsForDriver(driverId): Promise<{ totalEarning: number, earn
         },
       });
   
-      const totalUnpaidAmount = unpaidEarnings.reduce((sum, earning) => sum + earning.amountEarned, 0);
-  
+      // const totalUnpaidAmount = unpaidEarnings.reduce((sum, earning) => sum + earning.amountEarned, 0);
+      const totalUnpaidAmount = unpaidEarnings.reduce((sum, earning) => sum + Number(earning.amountEarned), 0);
+
       // Check if the requested amount is less than or equal to the total unpaid earnings
       if (amount > totalUnpaidAmount) {
         throw new BadRequestException('Requested amount exceeds unpaid earnings');
