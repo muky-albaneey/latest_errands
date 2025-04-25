@@ -8,21 +8,11 @@ import { ChargesService } from './charges.service';
 export class ChargesController {
   constructor(private readonly chargesService: ChargesService) {}
 
-  // @Post('set')
-  // async setCharges(
-  //   @Body('percentageCharge') percentageCharge: number,
-  //   @Body('distanceChargePerKm') distanceChargePerKm: number,
-  // ) {
-  //   const charge = await this.chargesService.setCharges(percentageCharge, distanceChargePerKm);
-  //   return {
-  //     message: 'Charges updated successfully',
-  //     percentageCharge: charge.percentageCharge,
-  //     distanceChargePerKm: charge.distanceChargePerKm,
-  //   };
-  // }
-  @Post('set')
+// src/charges/charges.controller.ts
+
+@Post('set')
 async setCharges(
-  @Body('stateCharges') stateCharges: Record<string, number>,
+  @Body('stateCharges') stateCharges: Record<string, Record<string, number>>,
 ) {
   const charge = await this.chargesService.setCharges(stateCharges);
   return {
@@ -31,15 +21,6 @@ async setCharges(
   };
 }
 
-  // @Get()
-  // async getCharges() {
-  //   const charge = await this.chargesService.getCharges();
-  //   return {
-  //     message: 'Current charge configuration retrieved successfully',
-  //     percentageCharge: charge?.percentageCharge ?? 0,
-  //     distanceChargePerKm: charge?.distanceChargePerKm ?? 0,
-  //   };
-  // }
   @Get()
 async getCharges() {
   const charge = await this.chargesService.getCharges();

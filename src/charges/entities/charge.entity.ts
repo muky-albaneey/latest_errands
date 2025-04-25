@@ -3,13 +3,15 @@
 
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
+// src/charges/entities/charge.entity.ts
+
 @Entity()
 export class Charge {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column('jsonb', { nullable: false, default: {} })
-  stateCharges: Record<string, number>; // e.g. { "Kebbi": 2300, "Abuja": 12000 }
+  stateCharges: Record<string, Record<string, number>>; // Now allows nested charge objects
 
   @Column('decimal', { precision: 5, scale: 2, default: 0 })
   percentageCharge: number;
