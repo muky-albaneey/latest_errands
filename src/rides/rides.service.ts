@@ -119,7 +119,10 @@ export class RidesService {
   }
 
     // Add this to the RidesService class
-    async getLatestPaidEarnings(): Promise<DriverEarning[]> {
+    async getLatestPaidEarningsWithTotal(): Promise<{
+      totalEarning: number;
+      latestPaidEarnings: DriverEarning[];
+    }> {
       const latestPaidEarnings = await this.earningRepository
         .createQueryBuilder('earning')
         .innerJoinAndSelect('earning.driver', 'driver')
@@ -137,9 +140,15 @@ export class RidesService {
           return `earning.createdAt = ${subQuery}`;
         })
         .getMany();
-  
-      return latestPaidEarnings;
+    
+      const totalEarning = latestPaidEarnings.reduce((sum, earning) => sum + Number(earning.amountEarned), 0);
+    
+      return {
+        totalEarning,
+        latestPaidEarnings,
+      };
     }
+    
 
     async getPaidEarningsForDriver(driverId): Promise<{ totalEarning: number, earnings: DriverEarning[] }> {
       const earnings = await this.earningRepository.find({

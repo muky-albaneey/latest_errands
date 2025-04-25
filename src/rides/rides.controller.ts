@@ -17,16 +17,11 @@ export class RidesController {
   createRide(@Body() rideData: CreateRideDto) {
     return this.ridesService.createRide(rideData);
   }
-// Get latest paid earnings
-@Get('latest-paid')
-async getLatestPaidEarnings(): Promise<DriverEarning[]> {
-  try {
-    return await this.ridesService.getLatestPaidEarnings();
-  } catch (error) {
-    console.error(error);
-    throw new NotFoundException('No latest paid earnings found');
-      }
+// Get latest paid earnings@Get('latest-paid-earnings')
+async getLatestPaidEarningsWithTotal() {
+  return this.ridesService.getLatestPaidEarningsWithTotal();
 }
+
 
 // Get all unpaid earnings
 @Get('unpaid')
