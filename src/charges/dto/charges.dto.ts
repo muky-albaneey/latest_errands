@@ -6,4 +6,4 @@ export class SetChargesDto {
     @IsNotEmpty()
     stateCharges: Record<string, Record<string, number>>;
   }
-  
+    

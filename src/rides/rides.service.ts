@@ -68,8 +68,11 @@ export class RidesService {
   async driverRejectRide(rideId, driverId) {
     const ride = await this.ridesRepository.findOneBy({ id: rideId });
     if (!ride) throw new NotFoundException('Ride not found');
-    if (ride.status !== RideStatus.ASSIGNED) {
-      throw new BadRequestException('Ride must be assigned before rejection');
+    // if (ride.status !== RideStatus.ASSIGNED) {
+    //   throw new BadRequestException('Ride must be assigned before rejection');
+    // }
+    if (![RideStatus.ASSIGNED, RideStatus.PENDING].includes(ride.status)) {
+      throw new BadRequestException('Ride must be assigned or pending before acceptance');
     }
     if (ride.driverId !== driverId) {
       throw new BadRequestException('Driver not assigned to this ride');
