@@ -89,7 +89,37 @@ export class RidesService {
       status: RideStatus.ASSIGNED,
     });
   }
+  async driverArrivedAtPickUpLocation(rideId, driverId) {
+    const ride = await this.ridesRepository.findOneBy({ id: rideId });
+    if (!ride) throw new NotFoundException('Ride not found');
+    if (ride.status !== RideStatus.ACCEPTED) {
+      throw new BadRequestException('Ride must be accepted by you before arriving at the trip');
+    }
+ 
+    
+    if (ride.driverId !== driverId) {
+      throw new BadRequestException('Driver not assigned to this ride');
+    }
 
+    ride.status = RideStatus.ARRIVED;
+    return this.ridesRepository.save(ride);
+  }
+  async driverOnTrip(rideId, driverId) {
+    const ride = await this.ridesRepository.findOneBy({ id: rideId });
+    if (!ride) throw new NotFoundException('Ride not found');
+      if (![RideStatus.ARRIVED, RideStatus.ACCEPTED].includes(ride.status)) {
+      throw new BadRequestException('Ride must be accepted or arrive at location before acceptance');
+    }
+ 
+    
+    if (ride.driverId !== driverId) {
+      throw new BadRequestException('Driver not assigned to this ride');
+    }
+
+    ride.status = RideStatus.ONGOING;
+    return this.ridesRepository.save(ride);
+  }
+  
   async completeRide(rideId): Promise<void> {
     const ride = await this.ridesRepository.findOne({
       where: { id: rideId },

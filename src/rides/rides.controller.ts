@@ -93,7 +93,20 @@ driverAcceptRide(
 ) {
   return this.ridesService.driverAcceptRide(id, driverAcceptRideDto.driverId);
 }
-
+@Patch(':id/arrived')
+driverArrivedAtPickUpLocation(
+  @Param('id', new ParseUUIDPipe()) id: string,
+  @Body() driverAcceptRideDto: DriverAcceptRideDto,
+) {
+  return this.ridesService.driverArrivedAtPickUpLocation(id, driverAcceptRideDto.driverId);
+}
+@Patch(':id/ongoing')
+driverOnTrip(
+  @Param('id', new ParseUUIDPipe()) id: string,
+  @Body() driverAcceptRideDto: DriverAcceptRideDto,
+) {
+  return this.ridesService.driverOnTrip(id, driverAcceptRideDto.driverId);
+}
   @Patch(':id/reject')
   driverRejectRide(
     @Param('id') id: string,
