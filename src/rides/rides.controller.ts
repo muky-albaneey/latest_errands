@@ -18,6 +18,7 @@ export class RidesController {
     return this.ridesService.createRide(rideData);
   }
 // Get latest paid earnings@Get('latest-paid-earnings')
+@Get('latest-paid-earnings')
 async getLatestPaidEarningsWithTotal() {
   return this.ridesService.getLatestPaidEarningsWithTotal();
 }
@@ -107,14 +108,22 @@ driverOnTrip(
 ) {
   return this.ridesService.driverOnTrip(id, driverAcceptRideDto.driverId);
 }
+  // @Patch(':id/reject')
+  // driverRejectRide(
+  //   @Param('id') id: string,
+  //   @Body('driverId') driverRejectRideDto: DriverRejectRideDto,
+  // ) {
+  //   return this.ridesService.driverRejectRide(id, driverRejectRideDto.driverId);
+  // }
+  // ✅ FIXED: correctly parse the entire body as DTO
   @Patch(':id/reject')
+  // @Roles('driver')
   driverRejectRide(
     @Param('id') id: string,
-    @Body('driverId') driverRejectRideDto: DriverRejectRideDto,
+    @Body() dto: DriverRejectRideDto, // { driverId: string }
   ) {
-    return this.ridesService.driverRejectRide(id, driverRejectRideDto.driverId);
+    return this.ridesService.driverRejectRide(id, dto.driverId);
   }
-
   @Patch(':id/status')
   updateRideStatus(
     @Param('id') id: string,

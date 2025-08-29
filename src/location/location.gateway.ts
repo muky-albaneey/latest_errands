@@ -63,16 +63,37 @@ export class LocationGateway implements OnGatewayConnection, OnGatewayDisconnect
   }
   
 
-  handleDisconnect(client: Socket) {
-    // Find email associated with socket
-    const email = [...this.connectedDrivers.entries()]
-      .find(([_, socketId]) => socketId === client.id)?.[0];
+  // handleDisconnect(client: Socket) {
+  //   // Find email associated with socket
+  //   const email = [...this.connectedDrivers.entries()]
+  //     .find(([_, socketId]) => socketId === client.id)?.[0];
 
-    if (email) {
-      this.connectedDrivers.delete(email);
-      this.server.emit('driver-left', { email });
-      console.log(`Driver with email ${email} disconnected`);
+  //   if (email) {
+  //     this.connectedDrivers.delete(email);
+  //     this.server.emit('driver-left', { email });
+  //     console.log(`Driver with email ${email} disconnected`);
+  //   }
+  // }
+handleDisconnect(client: Socket) {
+    const { role, userId, email } = client.data || {};
+
+    if (role === 'driver') {
+      // Try by userId first; fall back to email
+      if (userId && this.connectedDrivers.get(userId) === client.id) {
+        this.connectedDrivers.delete(userId);
+        this.server.emit('driver-left', { userId, email });
+      } else if (email && this.connectedDrivers.get(email) === client.id) {
+        this.connectedDrivers.delete(email);
+        this.server.emit('driver-left', { email });
+      }
+    } else if (role === 'user') {
+      if (userId && this.connectedUsers.get(userId) === client.id) {
+        this.connectedUsers.delete(userId);
+        this.server.emit('user-left', { userId });
+      }
     }
+    // eslint-disable-next-line no-console
+    console.log(`WS disconnected: ${client.id}`);
   }
 
   // @SubscribeMessage('driver-location')
@@ -90,7 +111,7 @@ export class LocationGateway implements OnGatewayConnection, OnGatewayDisconnect
   //   // Emit location to all clients
   //   this.server.emit('location-update', { email, latitude, longitude });
   // }
-  @SubscribeMessage('driver-location')
+@SubscribeMessage('driver-location')
 async handleDriverLocation(
   @MessageBody() payload: DriverPayload,
   @ConnectedSocket() client: Socket,
