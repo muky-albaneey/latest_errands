@@ -120,37 +120,104 @@ export class RidesService {
     return this.ridesRepository.save(ride);
   }
   
-  async completeRide(rideId): Promise<void> {
-    const ride = await this.ridesRepository.findOne({
-      where: { id: rideId },
-      relations: ['order', 'driver'],
-    });
+  // async completeRide(rideId): Promise<void> {
+  //   const ride = await this.ridesRepository.findOne({
+  //     where: { id: rideId },
+  //     relations: ['order', 'driver'],
+  //   });
   
-    if (!ride || !ride.order || !ride.driver) {
-      throw new Error('Ride, order, or driver not found');
-    }
-   // ✅ Fetch the global charge configuration
-    const charge = await this.chargeRepository.findOne({ where: {} });
-    if (!charge) {
-      throw new Error('Charge configuration not found');
-    }
-    const percent = Number(charge.percentageCharge);
-    const amountEarned = (percent / 100) * Number(ride.order.cost);
+  //   if (!ride || !ride.order || !ride.driver) {
+  //     throw new Error('Ride, order, or driver not found');
+  //   }
+  //  // ✅ Fetch the global charge configuration
+  //   const charge = await this.chargeRepository.findOne({ where: {} });
+  //   if (!charge) {
+  //     throw new Error('Charge configuration not found');
+  //   }
+  //   const percent = Number(charge.percentageCharge);
+  //   const amountEarned = (percent / 100) * Number(ride.order.cost);
   
-    const earning = this.earningRepository.create({
-      driver: ride.driver,
-      ride: ride,
-      order: ride.order,
-      amountEarned,
-      payoutStatus: 'unpaid',
-    });
+  //   const earning = this.earningRepository.create({
+  //     driver: ride.driver,
+  //     ride: ride,
+  //     order: ride.order,
+  //     amountEarned,
+  //     payoutStatus: 'unpaid',
+  //   });
   
-    await this.earningRepository.save(earning);
+  //   await this.earningRepository.save(earning);
   
-    ride.status = RideStatus.COMPLETED;
-    await this.ridesRepository.save(ride);
-  }
+  //   ride.status = RideStatus.COMPLETED;
+  //   await this.ridesRepository.save(ride);
+  // }
+  async completeRide(rideId: string): Promise<void> {
+    await this.ridesRepository.manager.transaction(async (mgr) => {
+      // 1) Lock the ride row
+      const ride = await mgr.findOne(Ride, {
+        where: { id: rideId },
+        relations: ['order', 'driver'],
+        lock: { mode: 'pessimistic_write' },
+      });
 
+      if (!ride) throw new NotFoundException('Ride not found');
+      if (!ride.order) throw new NotFoundException('Ride has no order');
+      if (!ride.driver) throw new NotFoundException('Ride has no driver');
+
+      // Idempotency: if already completed, short-circuit
+      if (ride.status === RideStatus.COMPLETED) {
+        // Also ensure an earning exists; if not, create it (rare edge case)
+        const existingEarning = await mgr.findOne(DriverEarning, {
+          where: { ride: { id: ride.id } },
+        });
+        if (existingEarning) return;
+      } else {
+        // Optional strictness: enforce allowed terminal transition
+        // if (![RideStatus.ONGOING, RideStatus.ARRIVED, RideStatus.ACCEPTED].includes(ride.status)) {
+        //   throw new BadRequestException(`Cannot complete ride from status ${ride.status}`);
+        // }
+      }
+
+      // 2) Check for existing earning (OneToOne with Ride is unique, but be safe)
+      const duplicate = await mgr.findOne(DriverEarning, {
+        where: { ride: { id: ride.id } },
+      });
+      if (duplicate) {
+        // Ensure ride is marked completed for consistency
+        if (ride.status !== RideStatus.COMPLETED) {
+          ride.status = RideStatus.COMPLETED;
+          await mgr.save(ride);
+        }
+        return; // idempotent exit
+      }
+
+      // 3) Get active charge (%)
+      // Assumes a single active Charge row; adjust query if you store multiple.
+      const charge = await mgr.findOne(Charge, { where: {} });
+      if (!charge) throw new NotFoundException('Charge configuration not found');
+
+      const percent = Number(charge.percentageCharge);
+      const orderCost = Number(ride.order.cost);
+      if (isNaN(percent) || isNaN(orderCost)) {
+        throw new BadRequestException('Invalid charge percentage or order cost');
+      }
+
+      const amountEarned = (percent / 100) * orderCost;
+
+      // 4) Create earning + mark ride completed atomically
+      const earning = mgr.create(DriverEarning, {
+        driver: ride.driver,
+        ride,
+        order: ride.order,
+        amountEarned,
+        payoutStatus: 'unpaid',
+      });
+
+      await mgr.save(earning);
+
+      ride.status = RideStatus.COMPLETED;
+      await mgr.save(ride);
+    });
+  }
     // Add this to the RidesService class
     async getLatestPaidEarningsWithTotal(): Promise<{
       totalEarning: number;
