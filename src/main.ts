@@ -19,6 +19,10 @@ app.use('/orders/webhook', express.raw({ type: 'application/json' }), (req, res,
   (req as any).rawBody = req.body;
   next();
 });
+// app.use(json({
+//   verify: (req: any, _res, buf) => { req.rawBody = buf; }
+// }));
+
 
 
   // Default JSON body parser for other routes

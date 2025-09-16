@@ -29,6 +29,25 @@ async getLatestPaidEarningsWithTotal() {
 async getUnpaidEarnings(): Promise<DriverEarning[]> {
   return await this.ridesService.getUnpaidEarnings();
 }
+// src/rides/rides.controller.ts
+@Get('requests/assigned/:driverId')
+async listAssignedRequests(@Param('driverId') driverId: string) {
+  const rides = await this.ridesService.getAssignedRequestsForDriver(driverId);
+  return {
+    count: rides.length,
+    requests: rides.map(r => ({
+      rideId: r.id,
+      orderId: r.orderId,
+      customer: {
+        id: r.user?.id,
+        name: `${r.user?.fname ?? ''} ${r.user?.lname ?? ''}`.trim(),
+      },
+      // add any pickup/dropoff you keep on Order
+      status: r.status,
+    })),
+  };
+}
+
 @Get('unpaid/:driverId')
 async getUnpaidEarningsForDriver(@Param('driverId') driverId: string) {
   const result = await this.ridesService.getUnpaidEarningsForDriver(driverId);
@@ -87,7 +106,7 @@ async markEarningsAsPaid(@Param('driverId') driverId: string): Promise<string> {
     throw new NotFoundException(error.message);
   }
 }
-  @Patch(':id/accept')
+@Patch(':id/accept')
 driverAcceptRide(
   @Param('id', new ParseUUIDPipe()) id: string,
   @Body() driverAcceptRideDto: DriverAcceptRideDto,

@@ -26,12 +26,16 @@ import { JwtGuard } from 'src/guards/jwt.guards';
 import { Users } from 'src/decorators/user.decorator';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { RidesService } from 'src/rides/rides.service';
+import { SocketEmitter } from 'src/ws/socket-emitter.service';
 
   @Controller('orders')
   export class OrdersController {
     constructor(private ordersService: OrdersService, 
       @InjectRepository(PaymentDetails)
         private paymentDetailsRepository: Repository<PaymentDetails>,
+        private ridesService: RidesService,
+        private readonly socketEmitter: SocketEmitter,
       ) {}
   
     // Endpoint to initiate payment
@@ -175,6 +179,52 @@ async addPaymentDetails(
 @Post('create-with-payment')
 async createOrderWithPayment(@Body() data: { orderData: Partial<Order>; paymentData: Partial<PaymentDetails> }) {
   return this.ordersService.createOrderWithPayment(data.orderData, data.paymentData);
+}
+// Add to OrdersController (inject RidesService)
+@Post()
+@UseGuards(JwtGuard)
+async createPendingRide(@Body() body: { orderId: string }, @Users('sub') userId: string) {
+  const ride = await this.ridesService.ensureRideForOrder(body.orderId, userId);
+  // emit pending to room so customer sees status immediately
+  this.socketEmitter.emitDeliveryUpdate(body.orderId, 'pending');
+  return { orderId: body.orderId, rideId: ride.id, status: ride.status };
+}
+
+@Post(':orderId/assign-driver')
+async assignDriverByOrder(@Param('orderId') orderId: string, @Body() dto: { driverId: string }) {
+  const ride = await this.ridesService.getRideByOrderId(orderId);
+  return this.ridesService.assignDriver(ride.id, dto.driverId);
+}
+
+@Post(':orderId/accept')
+async acceptByOrder(@Param('orderId') orderId: string, @Body() dto: { driverId: string }) {
+  return this.ridesService.driverAcceptByOrderId(orderId, dto.driverId);
+}
+
+@Post(':orderId/reject')
+async rejectByOrder(@Param('orderId') orderId: string, @Body() dto: { driverId: string; reason?: string }) {
+  return this.ridesService.driverRejectByOrderId(orderId, dto.driverId);
+}
+
+@Post(':orderId/arrived')
+async arrivedByOrder(@Param('orderId') orderId: string, @Body() dto: { driverId: string }) {
+  const ride = await this.ridesService.getRideByOrderId(orderId);
+  return this.ridesService.driverArrivedAtPickUpLocation(ride.id, dto.driverId);
+}
+
+@Post(':orderId/start')
+async startByOrder(@Param('orderId') orderId: string, @Body() dto: { driverId: string }) {
+  const ride = await this.ridesService.getRideByOrderId(orderId);
+  // optional: emit package_picked_up first
+  this.socketEmitter.emitDeliveryUpdate(orderId, 'package_picked_up');
+  return this.ridesService.driverOnTrip(ride.id, dto.driverId);
+}
+
+@Post(':orderId/complete')
+async completeByOrder(@Param('orderId') orderId: string) {
+  const ride = await this.ridesService.getRideByOrderId(orderId);
+  await this.ridesService.completeRide(ride.id);
+  return { ok: true };
 }
 
   }

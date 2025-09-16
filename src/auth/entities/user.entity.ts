@@ -27,11 +27,15 @@ import { Ride } from 'src/rides/entities/ride.entity';
 import { DriverEarning } from 'src/rides/entities/driverEarnings.entity';
 import { WithdrawalRequest } from 'src/rides/entities/withdrawalRequest.entity';
 
+// export enum UserRole {
+//     ADMIN = "admin",
+//     USER = "user"
+// }
 export enum UserRole {
-    ADMIN = "admin",
-    USER = "user"
+  ADMIN = 'ADMIN',
+  CUSTOMER = 'CUSTOMER',
+  RIDER = 'RIDER',
 }
-
 
 
 @Entity()
@@ -67,7 +71,7 @@ export class User {
     @Column({
         type: "enum",
         enum: UserRole,
-        default: UserRole.USER, nullable: false })
+        default: UserRole.CUSTOMER, nullable: false })
     role: UserRole;
 
     @Column({ type: 'boolean', nullable: true, default: false })
