@@ -30,6 +30,7 @@ import { DriverEarning } from './rides/entities/driverEarnings.entity';
 import { WithdrawalRequest } from './rides/entities/withdrawalRequest.entity';
 import { ChargesModule } from './charges/charges.module';
 import { Charge } from './charges/entities/charge.entity';
+import { WsModule } from './ws/ws.module';
 // import { RealtimeModule } from './realtime/realtime.module';
 // import { OrdersFacadeModule } from './orders-facade/orders-facade.module';
 
@@ -69,6 +70,7 @@ import { Charge } from './charges/entities/charge.entity';
     OrdersModule,
     RidesModule,
     ChargesModule,
+    WsModule
     // WsModule,
     // RealtimeModule,
     // OrdersFacadeModule

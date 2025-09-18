@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 // src/ws/socket-emitter.service.ts
 import { Injectable } from '@nestjs/common';
 import { Server } from 'socket.io';
