@@ -70,7 +70,7 @@ export class User {
     @Column({
         type: "enum",
         enum: UserRole,
-        default: UserRole.CUSTOMER, nullable: false })
+        default: UserRole.USER, nullable: false })
     role: UserRole;
 
     @Column({ type: 'boolean', nullable: true, default: false })
