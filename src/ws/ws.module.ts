@@ -11,9 +11,13 @@ import { Order } from 'src/orders/entities/order.entity';
 import { SocketEmitter } from './socket-emitter.service';
 import { SocketAuth } from './socket-auth.util';
 import { RidesModule } from 'src/rides/rides.module'; // export RidesService from there
+import { AuthModule } from 'src/auth/auth.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+     ConfigModule,
+    AuthModule, 
     TypeOrmModule.forFeature([Ride, Order, CustomerLastLocation, OrderTrack]),
     RidesModule,
   ],

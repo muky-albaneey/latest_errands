@@ -36,7 +36,7 @@ import { RidesModule } from 'src/rides/rides.module';
   ],
   exports: [TypeOrmModule, HttpModule,  AuthService, JwtModule], // Export HttpModule if needed in other modules
   controllers: [AuthController],
-  providers: [AuthService], // Remove HttpService from providers
+  providers: [AuthService, JwtModule], // Remove HttpService from providers
 })
 export class AuthModule {}
 
