@@ -28,16 +28,13 @@ import { DriverEarning } from 'src/rides/entities/driverEarnings.entity';
 import { WithdrawalRequest } from 'src/rides/entities/withdrawalRequest.entity';
 
 export enum UserRole {
-    ADMIN = "admin",
-    USER = "user",
-    CUSTOMER = 'CUSTOMER',
+  ADMIN = 'ADMIN',
+  CUSTOMER = 'CUSTOMER',
   RIDER = 'RIDER',
+  // TEMP compatibility:
+  USER = 'USER',
 }
-// export enum UserRole {
-//   ADMIN = 'ADMIN',
-//   CUSTOMER = 'CUSTOMER',
-//   RIDER = 'RIDER',
-// }
+
 
 
 @Entity()
