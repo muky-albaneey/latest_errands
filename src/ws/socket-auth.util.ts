@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 // src/ws/socket-auth.util.ts
 import { JwtService } from '@nestjs/jwt';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
