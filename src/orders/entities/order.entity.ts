@@ -66,7 +66,7 @@ export class Order {
   @Column({ type: 'varchar', default: 'Pending' })
   status: string;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', nullable: true  })
   pickUpLocation: string;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })  
