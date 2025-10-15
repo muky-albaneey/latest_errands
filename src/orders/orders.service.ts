@@ -43,65 +43,13 @@ export class OrdersService {
       secretAccessKey: 'gWT0yPFLegTHBuau9opjV7vymZ5QtI6LqyJgY2Hx',
       signatureVersion: 'v4',
     });
-    this.bucketName = process.env.LINODE_BUCKET_NAME; // Set bucket name
+    this.bucketName ='errands'; // Set bucket name
+    // this.bucketName = process.env.LINODE_BUCKET_NAME; // Set bucket name
 
   }
   private PAYSTACK_SECRET = process.env.PAYSTACK_SECRET_KEY; // 👈 store your secret key in env
 
-  // async initiatePayment(orderData: CreateOrderWithPaymentDto, userId: string) {
-  //   const paymentReference = `PAY-${Date.now()}`;
-  
-  //   const user = await this.userRepository.findOne({ where: { id: userId } });
 
-  //   const order = this.ordersRepository.create({
-  //     ...orderData,
-  //     user,
-  //   });
-
-  
-  //   await this.ordersRepository.save(order);
-  
-  //   const paymentDetails = this.paymentDetailsRepository.create({
-  //     amount: order.cost,
-  //     paymentReference,
-  //     status: 'pending',
-  //     order,
-  //   });
-  
-  //   await this.paymentDetailsRepository.save(paymentDetails);
-  
-  //   const paystackResponse = await firstValueFrom(
-  //     this.httpService.post(
-  //       'https://api.paystack.co/transaction/initialize',
-  //       {
-  //         email: orderData.email,
-  //         amount: orderData.cost * 100,
-  //         reference: paymentReference,
-  //         metadata: {
-  //           orderData: JSON.parse(JSON.stringify(orderData)),
-  //         },
-  //       },
-  //       {
-  //         headers: {
-  //           Authorization: `Bearer ${this.PAYSTACK_SECRET}`,
-  //           'Content-Type': 'application/json',
-  //         },
-  //       },
-  //     ),
-  //   );
-  
-  //   if (!paystackResponse.data.status) {
-  //     throw new BadRequestException('Failed to initialize Paystack payment');
-  //   }
-  //   console.log('Paystack init response metadata:', paystackResponse.data.data.metadata);
-
-  
-  //   return {
-  //     authorizationUrl: paystackResponse.data.data.authorization_url,
-  //     paymentReference,
-  //     amount: paymentDetails.amount,
-  //   };
-  // }
   
 async initiatePayment(orderData: CreateOrderWithPaymentDto, userId: string) {
   const paymentReference = `PAY-${Date.now()}`;
