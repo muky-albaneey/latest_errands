@@ -39,8 +39,8 @@ export class OrdersService {
     this.s3 = new AWS.S3({
       endpoint: 'https://us-southeast-1.linodeobjects.com',
       region: 'us-southeast-1',
-      accessKeyId: 'TZDQ6OXF5EVG189VJ80R',
-      secretAccessKey: 'fcmd8yYuHeFOKja3QXcm6DyCTeRe9WglTfMWJJJX',
+      accessKeyId: 'O2O2FRHBDKFMS0FKID1P',
+      secretAccessKey: 'gWT0yPFLegTHBuau9opjV7vymZ5QtI6LqyJgY2Hx',
       signatureVersion: 'v4',
     });
     this.bucketName = process.env.LINODE_BUCKET_NAME; // Set bucket name

@@ -20,7 +20,7 @@ services:
     image: postgres
     restart: always
     ports:
-      - '5432:5432'
+      - '5433:5432'
     environment:
       POSTGRES_PASSWORD: iOoWAcFOvQUPnqooXU9II2kvNLgd7KQ0
       POSTGRES_USER: muky_albany
