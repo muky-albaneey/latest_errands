@@ -42,4 +42,7 @@ export class CreateOrderWithPaymentDto {
 
   @IsOptional()
   status?: string;
+
+  @IsOptional()
+  pickUpLocation?: string;
 }
